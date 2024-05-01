@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-mod config;
-use config::load_aws_signer;
+mod env;
+use env::LocalOrAws;
 
 mod bindings;
 use bindings::ZenithContract;
@@ -28,13 +28,14 @@ pub struct ChainConfig {
     pub confirmation_buffer: u64,
     /// address of the Zenith contract
     pub zenith: Address,
-    /// URL for Quincey server to sign blocks
+    /// URL for Quincey server to sign blocks. This prop is disregarded if a
+    /// local_sequencer_signer is configured via the "SEQUENCER_KEY" env var.
     pub quincey_url: Cow<'static, str>,
     /// URL for RPC node
     pub rpc_url: Cow<'static, str>,
 
     /// Wallet for signing blocks locally.
-    pub local_sequencer_signer: Option<alloy_signer_wallet::LocalWallet>,
+    pub local_sequencer_signer: Option<LocalOrAws>,
 
     /// Whether to use calldata or blob for transactions
     pub use_calldata: bool,
@@ -55,23 +56,32 @@ const HOLESKY: ChainConfig = ChainConfig {
 async fn main() -> eyre::Result<()> {
     tracing_subscriber::fmt::try_init().unwrap();
 
-    let span = tracing::span!(tracing::Level::INFO, "zenith-builder");
+    let span = tracing::info_span!("zenith-builder");
 
-    let wallet = load_aws_signer("BUILDER_KEY_ID", Some(HOLESKY.host_chain_id)).await?;
+    // finish app config by loading key from env
+    let config = ChainConfig {
+        local_sequencer_signer: LocalOrAws::load("SEQUENCER_KEY", None).await.ok(),
+        ..HOLESKY
+    };
+
+    // Load builder key from env
+    let wallet = LocalOrAws::load("BUILDER_KEY_ID", Some(config.host_chain_id)).await?;
+    let builder_rewards = wallet.address();
+
     let provider = ProviderBuilder::new()
         .with_recommended_fillers()
-        .signer(EthereumSigner::from(wallet.clone()))
-        .on_builtin(&HOLESKY.rpc_url)
+        .signer(EthereumSigner::from(wallet))
+        .on_builtin(&config.rpc_url)
         .await?;
-    let zenith = ZenithContract::new(HOLESKY.zenith, provider.clone());
+    let zenith = ZenithContract::new(config.zenith, provider.clone());
 
     let build = tasks::block::BlockBuilder { wait_secs: 5 };
     let submit = tasks::submit::SubmitTask {
         provider,
         zenith,
         client: reqwest::Client::new(),
-        config: HOLESKY,
-        builder_rewards: wallet.address(),
+        config,
+        builder_rewards,
         gas_limit: 30_000_000,
     };
 

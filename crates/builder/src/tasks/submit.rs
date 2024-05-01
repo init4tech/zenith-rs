@@ -187,6 +187,8 @@ where
     async fn handle_inbound(&self, in_progress: &InProgressBlock) -> eyre::Result<()> {
         let sig_request = self.construct_sig_request(in_progress).await?;
 
+        // If configured with a local signer, we use it. Otherwise, we ask
+        // quincey (politely)
         let signature = if let Some(signer) = &self.config.local_sequencer_signer {
             signer.sign_hash(&sig_request.signing_hash()).await?
         } else {
