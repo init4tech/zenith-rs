@@ -1,0 +1,40 @@
+[workspace]
+members = [ "crates/*" ]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.76"
+authors = ["Zenith Contributors"]
+license = "UNLICENSED"
+homepage = "https://github.com/init4tt/zenith"
+repository = "https://github.com/init4tt/zenith"
+
+[workspace.dependencies]
+alloy-primitives = { version = "0.7", features = ["serde", "tiny-keccak"] }
+alloy-sol-types = { version = "0.7", features = ["json"] }
+alloy-rlp = { version = "0.3.4" }
+
+alloy-contract = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-consensus = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348", features = ["k256", "kzg"] }
+alloy-json-rpc = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-network = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-node-bindings = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-provider = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-rpc-types = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-rpc-client = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-signer = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-signer-wallet = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-signer-aws = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-transport = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-transport-http = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+
+aws-config = "1.1.7"
+aws-sdk-kms = "1.15.0"
+
+hex = "0.4.3"
+serde = { version = "1.0.197", features = ["derive"] }
+tracing = "0.1.40"
+
+zenith-types = { path = "crates/types" }

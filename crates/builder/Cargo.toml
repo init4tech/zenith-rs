@@ -1,0 +1,50 @@
+[package]
+name = "zenith-builder-example"
+version = "0.1.0"
+
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+zenith-types.workspace = true
+
+alloy-primitives.workspace = true
+alloy-rlp.workspace = true
+alloy-sol-types.workspace = true
+
+alloy-contract.workspace = true
+alloy-consensus.workspace = true
+alloy-json-rpc.workspace = true
+alloy-network.workspace = true
+alloy-node-bindings.workspace = true
+alloy-provider.workspace = true
+alloy-rpc-types.workspace = true
+alloy-rpc-client.workspace = true
+alloy-signer.workspace = true
+alloy-signer-wallet.workspace = true
+alloy-signer-aws.workspace = true
+alloy-transport.workspace = true
+alloy-transport-http.workspace = true
+
+aws-sdk-kms.workspace = true
+aws-config.workspace = true
+
+hex.workspace = true
+serde.workspace = true
+tracing.workspace = true
+
+axum = "0.7.5"
+eyre = "0.6.12"
+openssl = { version = "0.10", features = ["vendored"] }
+reqwest = { version = "0.11.24", features = ["blocking", "json"] }
+ruint = "1.12.1"
+serde_json = "1.0"
+thiserror = "1.0.58"
+tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
+tracing-subscriber = "0.3.18"
