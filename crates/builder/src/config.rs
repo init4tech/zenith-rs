@@ -23,8 +23,8 @@ pub enum ConfigError {
 }
 
 /// Load the private key from environment variables.
-pub fn load_privkey() -> Result<String, ConfigError> {
-    env::var("ZENITH_SEQUENCER_PRIVKEY").map_err(Into::into)
+pub fn load_privkey(key: &str) -> Result<String, ConfigError> {
+    env::var(key).map_err(Into::into)
 }
 
 /// Load the wallet from environment variables.
@@ -32,8 +32,8 @@ pub fn load_privkey() -> Result<String, ConfigError> {
 /// # Panics
 ///
 /// Panics if the env var contents is not a valid secp256k1 private key.
-pub fn load_wallet() -> Result<LocalWallet, ConfigError> {
-    let key = load_privkey()?;
+pub fn load_wallet(key: &str) -> Result<LocalWallet, ConfigError> {
+    let key = load_privkey(key)?;
     let bytes = hex::decode(key.strip_prefix("0x").unwrap_or(&key))?;
     Ok(LocalWallet::from_slice(&bytes).unwrap())
 }
