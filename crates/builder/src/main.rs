@@ -1,11 +1,10 @@
 #![allow(dead_code)]
 
 mod env;
-use env::load_aws_signer;
+use env::LocalOrAws;
 
 mod bindings;
 use bindings::ZenithContract;
-use env::LocalOrAws;
 
 mod service;
 mod tasks;
@@ -65,11 +64,13 @@ async fn main() -> eyre::Result<()> {
         ..HOLESKY
     };
 
-    let wallet = load_aws_signer("BUILDER_KEY_ID", Some(config.host_chain_id)).await?;
+    // Load builder key from env
+    let wallet = LocalOrAws::load("BUILDER_KEY_ID", Some(config.host_chain_id)).await?;
+    let builder_rewards = wallet.address();
 
     let provider = ProviderBuilder::new()
         .with_recommended_fillers()
-        .signer(EthereumSigner::from(wallet.clone()))
+        .signer(EthereumSigner::from(wallet))
         .on_builtin(&config.rpc_url)
         .await?;
     let zenith = ZenithContract::new(config.zenith, provider.clone());
@@ -80,7 +81,7 @@ async fn main() -> eyre::Result<()> {
         zenith,
         client: reqwest::Client::new(),
         config,
-        builder_rewards: wallet.address(),
+        builder_rewards,
         gas_limit: 30_000_000,
     };
 

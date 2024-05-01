@@ -1,3 +1,4 @@
+use alloy_consensus::SignableTransaction;
 use alloy_primitives::{Address, ChainId, B256};
 use alloy_signer::Signature;
 use alloy_signer_aws::{AwsSigner, AwsSignerError};
@@ -6,6 +7,7 @@ use aws_config::BehaviorVersion;
 use std::{env, num};
 
 /// Abstraction over local signer or
+#[derive(Debug, Clone)]
 pub enum LocalOrAws {
     Local(LocalWallet),
     Aws(AwsSigner),
@@ -19,6 +21,26 @@ impl LocalOrAws {
         } else {
             let signer = load_aws_signer(key, chain_id).await?;
             Ok(LocalOrAws::Aws(signer))
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl alloy_network::TxSigner<Signature> for LocalOrAws {
+    fn address(&self) -> Address {
+        match self {
+            LocalOrAws::Local(signer) => signer.address(),
+            LocalOrAws::Aws(signer) => signer.address(),
+        }
+    }
+
+    async fn sign_transaction(
+        &self,
+        tx: &mut dyn SignableTransaction<Signature>,
+    ) -> alloy_signer::Result<Signature> {
+        match self {
+            LocalOrAws::Local(signer) => signer.sign_transaction(tx).await,
+            LocalOrAws::Aws(signer) => signer.sign_transaction(tx).await,
         }
     }
 }
