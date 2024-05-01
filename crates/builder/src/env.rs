@@ -1,7 +1,62 @@
+use alloy_primitives::{Address, ChainId, B256};
+use alloy_signer::Signature;
 use alloy_signer_aws::{AwsSigner, AwsSignerError};
 use alloy_signer_wallet::LocalWallet;
 use aws_config::BehaviorVersion;
 use std::{env, num};
+
+/// Abstraction over local signer or
+pub enum LocalOrAws {
+    Local(LocalWallet),
+    Aws(AwsSigner),
+}
+
+impl LocalOrAws {
+    /// Load a privkey or AWS signer from environment variables.
+    pub async fn load(key: &str, chain_id: Option<u64>) -> Result<Self, ConfigError> {
+        if let Ok(wallet) = load_wallet(key) {
+            Ok(LocalOrAws::Local(wallet))
+        } else {
+            let signer = load_aws_signer(key, chain_id).await?;
+            Ok(LocalOrAws::Aws(signer))
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl alloy_signer::Signer<Signature> for LocalOrAws {
+    /// Signs the given hash.
+    async fn sign_hash(&self, hash: &B256) -> alloy_signer::Result<Signature> {
+        match self {
+            LocalOrAws::Local(signer) => signer.sign_hash(hash).await,
+            LocalOrAws::Aws(signer) => signer.sign_hash(hash).await,
+        }
+    }
+
+    /// Returns the signer's Ethereum Address.
+    fn address(&self) -> Address {
+        match self {
+            LocalOrAws::Local(signer) => signer.address(),
+            LocalOrAws::Aws(signer) => signer.address(),
+        }
+    }
+
+    /// Returns the signer's chain ID.
+    fn chain_id(&self) -> Option<ChainId> {
+        match self {
+            LocalOrAws::Local(signer) => signer.chain_id(),
+            LocalOrAws::Aws(signer) => signer.chain_id(),
+        }
+    }
+
+    /// Sets the signer's chain ID.
+    fn set_chain_id(&mut self, chain_id: Option<ChainId>) {
+        match self {
+            LocalOrAws::Local(signer) => signer.set_chain_id(chain_id),
+            LocalOrAws::Aws(signer) => signer.set_chain_id(chain_id),
+        }
+    }
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
