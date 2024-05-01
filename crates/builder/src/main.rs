@@ -44,7 +44,7 @@ const HOLESKY: ChainConfig = ChainConfig {
     host_chain_id: 17000,
     ru_chain_id: 17001,
     confirmation_buffer: 60 * 20,
-    zenith: address!("74ae65DF20cB0e3BF8c022051d0Cdd79cc60890C"),
+    zenith: address!("97C0E40c6B5bb5d4fa3e2AA1C6b8bC7EA5ECAe31"),
     quincey_url: Cow::Borrowed("http://quincey.swanny.wtf:8080/signBlock"),
     rpc_url: Cow::Borrowed("https://ethereum-holesky-rpc.publicnode.com"),
     local_sequencer_signer: None,
