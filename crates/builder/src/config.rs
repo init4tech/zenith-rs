@@ -1,4 +1,5 @@
 use alloy_signer_aws::{AwsSigner, AwsSignerError};
+use alloy_signer_wallet::LocalWallet;
 use aws_config::BehaviorVersion;
 use std::{env, num};
 
@@ -13,6 +14,28 @@ pub enum ConfigError {
     /// Error during [`AwsSigner`] instantiation
     #[error("failed to connect AWS signer: {0}")]
     AwsSigner(#[from] AwsSignerError),
+    /// Error parsing hex
+    #[error("failed to parse hex: {0}")]
+    Hex(#[from] hex::FromHexError),
+    /// Error loading the private key
+    #[error("failed to load private key: {0}")]
+    Wallet(#[from] alloy_signer_wallet::WalletError),
+}
+
+/// Load the private key from environment variables.
+pub fn load_privkey() -> Result<String, ConfigError> {
+    env::var("ZENITH_SEQUENCER_PRIVKEY").map_err(Into::into)
+}
+
+/// Load the wallet from environment variables.
+///
+/// # Panics
+///
+/// Panics if the env var contents is not a valid secp256k1 private key.
+pub fn load_wallet() -> Result<LocalWallet, ConfigError> {
+    let key = load_privkey()?;
+    let bytes = hex::decode(key.strip_prefix("0x").unwrap_or(&key))?;
+    Ok(LocalWallet::from_slice(&bytes).unwrap())
 }
 
 /// Load the AWS signer from environment variables./s
