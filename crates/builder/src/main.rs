@@ -21,7 +21,7 @@ use crate::service::serve_builder_with_span;
 pub struct ChainConfig {
     /// The chain ID of the host chain
     pub host_chain_id: u64,
-    /// The chain ID of the host chain
+    /// The chain ID of the rollup chain
     pub ru_chain_id: u64,
     /// Buffer time in seconds for the block to confirm
     pub confirmation_buffer: u64,

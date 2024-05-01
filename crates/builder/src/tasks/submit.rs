@@ -18,7 +18,7 @@ pub struct SubmitTask<P> {
     /// Ethereum Provider
     pub provider: P,
 
-    /// Zenity
+    /// Zenith
     pub zenith: ZenithContractInstance<BoxTransport, P>,
 
     /// Reqwest
