@@ -9,7 +9,7 @@ use alloy_transport::BoxTransport;
 use tokio::{sync::mpsc, task::JoinHandle, try_join};
 use zenith_types::SignRequest;
 
-use crate::ZenithContract::{self, ZenithContractInstance};
+use crate::Zenith::{self, ZenithInstance};
 
 use super::block::InProgressBlock;
 
@@ -19,7 +19,7 @@ pub struct SubmitTask<P> {
     pub provider: P,
 
     /// Zenity
-    pub zenith: ZenithContractInstance<BoxTransport, P>,
+    pub zenith: ZenithInstance<BoxTransport, P>,
 
     /// Reqwest
     pub client: reqwest::Client,
@@ -98,13 +98,13 @@ where
 
     fn build_blob_tx(
         &self,
-        header: ZenithContract::BlockHeader,
+        header: Zenith::BlockHeader,
         v: u8,
         r: FixedBytes<32>,
         s: FixedBytes<32>,
         in_progress: &InProgressBlock,
     ) -> TransactionRequest {
-        let data = ZenithContract::submitBlockCall {
+        let data = Zenith::submitBlockCall {
             header,
             blockDataHash: in_progress.contents_hash(),
             v,
@@ -120,13 +120,13 @@ where
 
     fn build_calldata_tx(
         &self,
-        header: ZenithContract::BlockHeader,
+        header: Zenith::BlockHeader,
         v: u8,
         r: FixedBytes<32>,
         s: FixedBytes<32>,
         in_progress: &InProgressBlock,
     ) -> TransactionRequest {
-        let data = ZenithContract::submitBlockCall {
+        let data = Zenith::submitBlockCall {
             header,
             blockDataHash: in_progress.contents_hash(),
             v,
@@ -148,7 +148,7 @@ where
         let r: FixedBytes<32> = signature.r().into();
         let s: FixedBytes<32> = signature.s().into();
 
-        let header = ZenithContract::BlockHeader {
+        let header = Zenith::BlockHeader {
             rollupChainId: U256::from(self.config.ru_chain_id),
             sequence: sig_request.sequence,
             gasLimit: sig_request.gas_limit,

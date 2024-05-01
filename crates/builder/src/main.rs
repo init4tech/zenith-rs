@@ -12,7 +12,7 @@ use alloy_primitives::{address, Address};
 use alloy_provider::ProviderBuilder;
 use std::borrow::Cow;
 use tokio::select;
-use zenith_types::ZenithContract;
+use zenith_types::Zenith;
 
 use crate::service::serve_builder_with_span;
 
@@ -44,7 +44,7 @@ const HOLESKY: ChainConfig = ChainConfig {
     host_chain_id: 17000,
     ru_chain_id: 17001,
     confirmation_buffer: 60 * 20,
-    zenith: address!("74ae65DF20cB0e3BF8c022051d0Cdd79cc60890C"),
+    zenith: address!("97C0E40c6B5bb5d4fa3e2AA1C6b8bC7EA5ECAe31"),
     quincey_url: Cow::Borrowed("http://quincey.swanny.wtf:8080/signBlock"),
     rpc_url: Cow::Borrowed("https://ethereum-holesky-rpc.publicnode.com"),
     local_sequencer_signer: None,
@@ -72,7 +72,7 @@ async fn main() -> eyre::Result<()> {
         .signer(EthereumSigner::from(wallet))
         .on_builtin(&config.rpc_url)
         .await?;
-    let zenith = ZenithContract::new(config.zenith, provider.clone());
+    let zenith = Zenith::new(config.zenith, provider.clone());
 
     let build = tasks::block::BlockBuilder { wait_secs: 5 };
     let submit = tasks::submit::SubmitTask {
