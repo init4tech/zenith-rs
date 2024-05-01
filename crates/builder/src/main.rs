@@ -3,22 +3,21 @@
 mod env;
 use env::LocalOrAws;
 
-mod bindings;
-use bindings::ZenithContract;
-
 mod service;
 mod tasks;
-
-use std::borrow::Cow;
-use tokio::select;
 
 use alloy_network::EthereumSigner;
 use alloy_network::TxSigner;
 use alloy_primitives::{address, Address};
 use alloy_provider::ProviderBuilder;
+use std::borrow::Cow;
+use tokio::select;
+use zenith_types::ZenithContract;
 
 use crate::service::serve_builder_with_span;
 
+/// Configuration for a builder running a specific rollup on a specific host
+/// chain.
 pub struct ChainConfig {
     /// The chain ID of the host chain
     pub host_chain_id: u64,

@@ -14,5 +14,7 @@ repository.workspace = true
 [dependencies]
 alloy-primitives.workspace = true
 alloy-signer.workspace = true
+alloy-sol-types.workspace = true
+alloy-contract.workspace = true
 serde.workspace = true
 tracing.workspace = true
