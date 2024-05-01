@@ -1,6 +1,11 @@
+mod bindings;
+pub use bindings::ZenithContract;
+
 mod req;
 pub use req::SignRequest;
 
+/// A [`RequestSigner`] signs [`SignRequest`]s by delegating to an
+/// [`alloy_signer::Signer`].
 pub trait RequestSigner {
     fn sign_request(
         &self,
