@@ -1,5 +1,5 @@
 mod bindings;
-pub use bindings::ZenithContract;
+pub use bindings::Zenith;
 
 mod req;
 pub use req::SignRequest;
