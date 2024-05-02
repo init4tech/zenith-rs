@@ -2,6 +2,6 @@ use alloy_sol_types::sol;
 
 sol!(
     #[sol(rpc)]
-    ZenithContract,
+    Zenith,
     "abi/zenith.json"
 );
