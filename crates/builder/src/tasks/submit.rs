@@ -85,7 +85,8 @@ where
 
     #[instrument(skip_all, err)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
-        let (sequence, confirm_by) = try_join!(self.get_next_sequence(), self.get_confirm_by())?;
+        let sequence = self.get_next_sequence().await?;
+        let confirm_by = self.get_confirm_by().await?;
 
         Ok(SignRequest {
             host_chain_id: U256::from(self.config.host_chain_id),
