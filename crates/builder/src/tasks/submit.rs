@@ -6,7 +6,7 @@ use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
 use alloy_transport::BoxTransport;
-use tokio::{sync::mpsc, task::JoinHandle, try_join};
+use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::instrument;
 use zenith_types::SignRequest;
 
