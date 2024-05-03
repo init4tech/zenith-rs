@@ -72,7 +72,7 @@ async fn main() -> eyre::Result<()> {
         .signer(EthereumSigner::from(wallet))
         .on_builtin(&config.rpc_url)
         .await?;
-    tracing::debug!(rpc_url = config.rpc_url.as_ref(), "connected to provider");
+    tracing::debug!(rpc_url = config.rpc_url.as_ref(), "instantiated provider");
     let zenith = Zenith::new(config.zenith, provider.clone());
 
     let build = tasks::block::BlockBuilder { wait_secs: 5 };
