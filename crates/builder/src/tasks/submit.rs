@@ -83,6 +83,7 @@ where
         resp.json().await.map_err(Into::into)
     }
 
+    #[instrument(skip_all, err)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
         let (sequence, confirm_by) = try_join!(self.get_next_sequence(), self.get_confirm_by())?;
 
@@ -185,7 +186,7 @@ where
         Ok(())
     }
 
-    #[instrument(skip(self, in_progress), err)]
+    #[instrument(skip_all, err)]
     async fn handle_inbound(&self, in_progress: &InProgressBlock) -> eyre::Result<()> {
         tracing::info!(txns = in_progress.len(), "handling inbound block");
         let sig_request = self.construct_sig_request(in_progress).await?;
