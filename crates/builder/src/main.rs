@@ -72,6 +72,7 @@ async fn main() -> eyre::Result<()> {
         .signer(EthereumSigner::from(wallet))
         .on_builtin(&config.rpc_url)
         .await?;
+    tracing::debug!(rpc_url = config.rpc_url.as_ref(), "connected to provider");
     let zenith = Zenith::new(config.zenith, provider.clone());
 
     let build = tasks::block::BlockBuilder { wait_secs: 5 };
@@ -85,6 +86,7 @@ async fn main() -> eyre::Result<()> {
     };
 
     let (submit_channel, submit_jh) = submit.spawn();
+
     let (build_channel, build_jh) = build.spawn(submit_channel);
 
     let server = serve_builder_with_span(build_channel, ([0, 0, 0, 0], 6969), span);
