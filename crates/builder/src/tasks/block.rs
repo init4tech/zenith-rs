@@ -28,6 +28,11 @@ impl InProgressBlock {
         self.transactions.len()
     }
 
+    /// Check if the block is empty.
+    pub fn is_empty(&self) -> bool {
+        self.transactions.is_empty()
+    }
+
     /// Unseal the block
     fn unseal(&mut self) {
         self.raw_encoding.take();
@@ -98,7 +103,8 @@ impl BlockBuilder {
                     select! {
                         biased;
                         _ = &mut sleep => {
-                            if !in_progress.transactions.is_empty() {
+                            if !in_progress.is_empty() {
+                                tracing::debug!(txns = in_progress.len(), "sending block to submit task");
                                 let in_progress_block = std::mem::take(&mut in_progress);
                                 if outbound.send(in_progress_block).is_err() {
                                     tracing::debug!("downstream task gone");
