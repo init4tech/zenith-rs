@@ -23,6 +23,11 @@ impl InProgressBlock {
         }
     }
 
+    /// Get the number of transactions in the block.
+    pub fn len(&self) -> usize {
+        self.transactions.len()
+    }
+
     /// Unseal the block
     fn unseal(&mut self) {
         self.raw_encoding.take();
@@ -39,6 +44,7 @@ impl InProgressBlock {
 
     /// Ingest a transaction into the in-progress block. Fails
     pub fn ingest_tx(&mut self, tx: &TxEnvelope) {
+        tracing::info!(hash = %tx.tx_hash(), "ingesting tx");
         self.unseal();
         self.transactions.push(tx.clone());
     }

@@ -187,6 +187,7 @@ where
 
     #[instrument(skip(self, in_progress), err)]
     async fn handle_inbound(&self, in_progress: &InProgressBlock) -> eyre::Result<()> {
+        tracing::info!(txns = in_progress.len(), "handling inbound block");
         let sig_request = self.construct_sig_request(in_progress).await?;
 
         tracing::debug!(
