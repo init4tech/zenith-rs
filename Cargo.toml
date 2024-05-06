@@ -21,7 +21,7 @@ alloy-consensus = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f34
 alloy-json-rpc = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
 alloy-network = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
 alloy-node-bindings = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
-alloy-provider = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
+alloy-provider = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348", features = ["ws"] }
 alloy-rpc-types = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
 alloy-rpc-client = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
 alloy-signer = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
