@@ -43,11 +43,9 @@ where
         self.provider
             .get_block(BlockId::Number(BlockNumberOrTag::Latest), false)
             .await
-            .map_err(Into::into)
-            .map(|block| {
-                block.expect("latest is never none").header.timestamp
-                    + self.config.confirmation_buffer
-            })
+            .map_err(Into::<eyre::Report>::into)?
+            .ok_or_else(|| eyre::eyre!("latest block is none"))
+            .map(|block| block.header.timestamp + self.config.confirmation_buffer)
     }
 
     /// Get the next sequence number from the chain
@@ -106,7 +104,7 @@ where
         r: FixedBytes<32>,
         s: FixedBytes<32>,
         in_progress: &InProgressBlock,
-    ) -> TransactionRequest {
+    ) -> eyre::Result<TransactionRequest> {
         let data = Zenith::submitBlockCall {
             header,
             blockDataHash: in_progress.contents_hash(),
@@ -116,9 +114,10 @@ where
             blockData: Default::default(),
         }
         .abi_encode();
-        TransactionRequest::default()
-            .with_blob_sidecar(in_progress.encode_blob::<SimpleCoder>().build().unwrap())
-            .with_input(data)
+        let sidecar = in_progress.encode_blob::<SimpleCoder>().build()?;
+        Ok(TransactionRequest::default()
+            .with_blob_sidecar(sidecar)
+            .with_input(data))
     }
 
     fn build_calldata_tx(
@@ -162,7 +161,7 @@ where
         let tx = if self.config.use_calldata {
             self.build_calldata_tx(header, v, r, s, in_progress)
         } else {
-            self.build_blob_tx(header, v, r, s, in_progress)
+            self.build_blob_tx(header, v, r, s, in_progress)?
         }
         .with_from(self.provider.default_signer_address())
         .with_to(self.config.zenith);
