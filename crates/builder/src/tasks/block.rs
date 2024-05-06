@@ -62,9 +62,8 @@ impl InProgressBlock {
 
     /// Calculate the hash of the in-progress block, finishing the block.
     pub fn contents_hash(&self) -> alloy_primitives::B256 {
-        *self
-            .hash
-            .get_or_init(|| keccak256(self.encode_raw().as_ref()))
+        self.seal();
+        *self.hash.get().unwrap()
     }
 
     /// Convert the in-progress block to sign request contents.
