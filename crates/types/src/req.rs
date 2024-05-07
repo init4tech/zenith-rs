@@ -37,3 +37,31 @@ impl SignRequest {
         hasher.finalize()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use alloy_primitives::b256;
+
+    #[test]
+    fn roundtrip() {
+        let req = SignRequest {
+            host_chain_id: U256::from(1),
+            ru_chain_id: U256::from(2),
+            sequence: U256::from(3),
+            confirm_by: U256::from(4),
+            gas_limit: U256::from(5),
+            ru_reward_address: Address::repeat_byte(6),
+            contents: B256::repeat_byte(7),
+        };
+
+        let ser = serde_json::to_string(&req).unwrap();
+        let de: SignRequest = serde_json::from_str(&ser).unwrap();
+        assert_eq!(req, de);
+        assert_eq!(
+            req.signing_hash(),
+            b256!("eabffc9ed79f68618d3628a804d40199c7888cb5274407ee0ad9ef95c7144d0f")
+        );
+        assert_eq!(de.signing_hash(), req.signing_hash());
+    }
+}
