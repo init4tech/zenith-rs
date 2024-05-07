@@ -38,6 +38,22 @@ impl SignRequest {
     }
 }
 
+impl core::fmt::Display for SignRequest {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        write!(
+            f,
+            "SignRequest {{ host_chain_id: {}, ru_chain_id: {}, sequence: {}, confirm_by: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",
+            self.host_chain_id,
+            self.ru_chain_id,
+            self.sequence,
+            self.confirm_by,
+            self.gas_limit,
+            self.ru_reward_address,
+            self.contents
+        )
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
