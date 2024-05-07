@@ -18,7 +18,6 @@ pub struct SignRequest {
     pub gas_limit: U256,
     /// The reward address for the builder.
     pub ru_reward_address: Address,
-    #[serde(flatten)]
     /// Encoded transactions to be signed
     pub contents: B256,
 }
