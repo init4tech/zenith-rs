@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use crate::Zenith::BlockHeader as ZenithHeader;
 use alloy_consensus::TxEnvelope;
 use alloy_eips::eip2718::{Decodable2718, Eip2718Error, Encodable2718};
-use alloy_primitives::{keccak256, B256};
+use alloy_primitives::{keccak256, Address, B256};
 
 /// Zenith processes normal Ethereum txns.
 pub type ZenithTransaction = TxEnvelope;
@@ -86,6 +86,31 @@ impl ZenithBlock {
     fn unseal(&mut self) {
         self.encoded.take();
         self.block_data_hash.take();
+    }
+
+    /// Get the chain ID of the block (discarding high bytes).
+    pub fn chain_id(&self) -> u64 {
+        self.header.chain_id()
+    }
+
+    /// Get the sequence of the block (discarding high bytes).
+    pub fn sequence(&self) -> u64 {
+        self.header.sequence()
+    }
+
+    /// Get the confirm by time of the block (discarding high bytes).
+    pub fn confirm_by(&self) -> u64 {
+        self.header.confirm_by()
+    }
+
+    /// Get the gas limit of the block (discarding high bytes).
+    pub fn gas_limit(&self) -> u64 {
+        self.header.gas_limit()
+    }
+
+    /// Get the reward address of the block.
+    pub fn reward_address(&self) -> Address {
+        self.header.reward_address()
     }
 }
 
