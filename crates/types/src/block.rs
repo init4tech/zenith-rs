@@ -9,6 +9,7 @@ use alloy_primitives::{keccak256, Address, B256};
 pub type ZenithTransaction = TxEnvelope;
 
 /// A Zenith block is just a list of transactions.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ZenithBlock {
     /// The zenith block header, which may be extracted from a
     /// [`crate::Zenith::BlockSubmitted`] event.
