@@ -13,11 +13,16 @@ repository.workspace = true
 
 [dependencies]
 alloy-primitives.workspace = true
-alloy-signer.workspace = true
 alloy-sol-types.workspace = true
+
+alloy-consensus.workspace = true
 alloy-contract.workspace = true
+alloy-eips.workspace = true
+alloy-signer.workspace = true
+
 serde.workspace = true
 tracing.workspace = true
+alloy-rlp.workspace = true
 
 [dev-dependencies]
 serde_json = "1.0.116"

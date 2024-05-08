@@ -18,6 +18,7 @@ alloy-rlp = { version = "0.3.4" }
 
 alloy-contract = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
 alloy-consensus = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348", features = ["k256", "kzg"] }
+alloy-eips = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348"}
 alloy-json-rpc = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
 alloy-network = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
 alloy-node-bindings = { git = "https://github.com/alloy-rs/alloy.git", rev = "595f348" }
