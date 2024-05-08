@@ -67,6 +67,17 @@ impl ZenithBlock {
         &mut self.transactions
     }
 
+    /// Iterate over the transactions.
+    pub fn transactions_iter(&self) -> std::slice::Iter<'_, ZenithTransaction> {
+        self.transactions.iter()
+    }
+
+    /// Iterate over mut transactions.
+    pub fn transactions_iter_mut(&mut self) -> std::slice::IterMut<'_, ZenithTransaction> {
+        self.unseal();
+        self.transactions.iter_mut()
+    }
+
     /// Access to the header.
     pub fn header(&self) -> &ZenithHeader {
         &self.header
