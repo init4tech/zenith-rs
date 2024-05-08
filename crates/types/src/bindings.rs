@@ -2,6 +2,7 @@ use alloy_sol_types::sol;
 
 sol!(
     #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq)]
     Zenith,
     "abi/zenith.json"
 );
