@@ -157,13 +157,13 @@ mod test {
 
         let mut txs = vec![tx.clone()];
         let encoded = encode_transactions(&txs);
-        let decoded = decode_txns(&encoded).unwrap();
+        let decoded = decode_txns(encoded).unwrap();
 
         assert_eq!(txs, decoded);
 
         txs.push(tx.clone());
         let encoded = encode_transactions(&txs);
-        let decoded = decode_txns(&encoded).unwrap();
+        let decoded = decode_txns(encoded).unwrap();
 
         assert_eq!(txs, decoded);
     }
