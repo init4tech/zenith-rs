@@ -4,7 +4,7 @@ use alloy_signer::Signature;
 use alloy_signer_aws::{AwsSigner, AwsSignerError};
 use alloy_signer_wallet::LocalWallet;
 use aws_config::BehaviorVersion;
-use std::{borrow::Cow, env, num};
+use std::{borrow::Cow, env, num, str::FromStr};
 
 /// Abstraction over local signer or
 #[derive(Debug, Clone)]
@@ -106,12 +106,18 @@ pub fn load_privkey(key: &str) -> Result<String, ConfigError> {
 
 /// Load the RPC URL from environment variables.
 pub fn load_rpc() -> Result<Cow<'static, str>, ConfigError> {
-    load_privkey("RPC_URL").map(Into::into)
+    env::var("RPC_URL").map_err(Into::into).map(Into::into)
 }
 
 /// Load our man's Quincey URL from environment variables.
 pub fn load_quincey() -> Result<Cow<'static, str>, ConfigError> {
-    load_privkey("QUINCEY_URL").map(Into::into)
+    env::var("QUINCEY_URL").map_err(Into::into).map(Into::into)
+}
+
+/// Load the ZENITH_ADDRESS from environment variables.
+pub fn load_zenith_address() -> Result<Address, ConfigError> {
+    let address = env::var("ZENITH_ADDRESS")?;
+    Address::from_str(&address).map_err(Into::into)
 }
 
 /// Load the wallet from environment variables.

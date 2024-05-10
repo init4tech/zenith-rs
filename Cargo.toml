@@ -33,7 +33,7 @@ alloy-transport-http = { git = "https://github.com/alloy-rs/alloy.git", rev = "5
 aws-config = "1.1.7"
 aws-sdk-kms = "1.15.0"
 
-hex = "0.4.3"
+hex = { package = "const-hex", version = "1.10", default-features = false, features = ["alloc"] }
 serde = { version = "1.0.197", features = ["derive"] }
 tracing = "0.1.40"
 
