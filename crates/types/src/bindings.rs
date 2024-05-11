@@ -3,7 +3,7 @@ use alloy_sol_types::sol;
 
 sol!(
     #[sol(rpc)]
-    #[derive(Debug, PartialEq, Eq)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     Zenith,
     "abi/zenith.json"
 );
