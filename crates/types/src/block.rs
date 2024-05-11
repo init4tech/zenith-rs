@@ -29,12 +29,14 @@ impl ZenithBlock {
         header: ZenithHeader,
         buf: impl AsRef<[u8]>,
     ) -> Result<Self, Eip2718Error> {
-        let transactions = decode_txns(buf)?;
+        let b = buf.as_ref();
+        let transactions = decode_txns(b)?;
+        let h = keccak256(b);
         Ok(ZenithBlock {
             header,
             transactions,
-            encoded: Default::default(),
-            block_data_hash: Default::default(),
+            encoded: b.to_owned().into(),
+            block_data_hash: h.into(),
         })
     }
 
