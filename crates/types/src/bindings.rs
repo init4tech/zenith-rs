@@ -8,6 +8,9 @@ sol!(
     "abi/zenith.json"
 );
 
+impl Copy for Zenith::BlockHeader {}
+impl Copy for Zenith::ExitOrder {}
+
 impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
         Zenith::BlockHeader {
@@ -16,6 +19,17 @@ impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
             confirmBy: event.confirmBy,
             gasLimit: event.gasLimit,
             rewardAddress: event.rewardAddress,
+        }
+    }
+}
+
+impl From<&Zenith::ExitFilled> for Zenith::ExitOrder {
+    fn from(event: &Zenith::ExitFilled) -> Zenith::ExitOrder {
+        Zenith::ExitOrder {
+            rollupChainId: event.rollupChainId,
+            token: event.token,
+            recipient: event.hostRecipient,
+            amount: event.amount,
         }
     }
 }
