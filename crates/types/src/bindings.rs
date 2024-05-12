@@ -11,6 +11,32 @@ sol!(
 impl Copy for Zenith::BlockHeader {}
 impl Copy for Zenith::ExitOrder {}
 
+impl Clone for Zenith::ZenithEvents {
+    fn clone(&self) -> Self {
+        match self {
+            Zenith::ZenithEvents::BlockData(inner) => Self::BlockData(inner.clone()),
+            Zenith::ZenithEvents::BlockSubmitted(inner) => Self::BlockSubmitted(inner.clone()),
+            Zenith::ZenithEvents::DefaultAdminDelayChangeCanceled(inner) => {
+                Self::DefaultAdminDelayChangeCanceled(inner.clone())
+            }
+            Zenith::ZenithEvents::DefaultAdminDelayChangeScheduled(inner) => {
+                Self::DefaultAdminDelayChangeScheduled(inner.clone())
+            }
+            Zenith::ZenithEvents::DefaultAdminTransferCanceled(inner) => {
+                Self::DefaultAdminTransferCanceled(inner.clone())
+            }
+            Zenith::ZenithEvents::DefaultAdminTransferScheduled(inner) => {
+                Self::DefaultAdminTransferScheduled(inner.clone())
+            }
+            Zenith::ZenithEvents::Enter(inner) => Self::Enter(inner.clone()),
+            Zenith::ZenithEvents::ExitFilled(inner) => Self::ExitFilled(inner.clone()),
+            Zenith::ZenithEvents::RoleAdminChanged(inner) => Self::RoleAdminChanged(inner.clone()),
+            Zenith::ZenithEvents::RoleGranted(inner) => Self::RoleGranted(inner.clone()),
+            Zenith::ZenithEvents::RoleRevoked(inner) => Self::RoleRevoked(inner.clone()),
+        }
+    }
+}
+
 impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
         Zenith::BlockHeader {
