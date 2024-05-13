@@ -10,6 +10,7 @@ sol!(
 
 impl Copy for Zenith::BlockHeader {}
 impl Copy for Zenith::ExitOrder {}
+impl Copy for Zenith::Enter {}
 
 impl Clone for Zenith::ZenithEvents {
     fn clone(&self) -> Self {
@@ -28,7 +29,7 @@ impl Clone for Zenith::ZenithEvents {
             Zenith::ZenithEvents::DefaultAdminTransferScheduled(inner) => {
                 Self::DefaultAdminTransferScheduled(inner.clone())
             }
-            Zenith::ZenithEvents::Enter(inner) => Self::Enter(inner.clone()),
+            Zenith::ZenithEvents::Enter(inner) => Self::Enter(*inner),
             Zenith::ZenithEvents::ExitFilled(inner) => Self::ExitFilled(inner.clone()),
             Zenith::ZenithEvents::RoleAdminChanged(inner) => Self::RoleAdminChanged(inner.clone()),
             Zenith::ZenithEvents::RoleGranted(inner) => Self::RoleGranted(inner.clone()),
