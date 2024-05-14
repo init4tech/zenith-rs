@@ -24,9 +24,14 @@ pub struct ZenithBlock {
 }
 
 impl ZenithBlock {
-    /// Break the block into its parts.
-    pub fn into_parts(self) -> (ZenithHeader, Vec<ZenithTransaction>) {
-        (self.header, self.transactions)
+    /// Create a new zenith block.
+    pub fn new(header: ZenithHeader, transactions: Vec<ZenithTransaction>) -> Self {
+        ZenithBlock {
+            header,
+            transactions,
+            encoded: OnceLock::new(),
+            block_data_hash: OnceLock::new(),
+        }
     }
 
     /// Decode tx data in the block.
@@ -43,6 +48,11 @@ impl ZenithBlock {
             encoded: b.to_owned().into(),
             block_data_hash: h.into(),
         })
+    }
+
+    /// Break the block into its parts.
+    pub fn into_parts(self) -> (ZenithHeader, Vec<ZenithTransaction>) {
+        (self.header, self.transactions)
     }
 
     /// Encode the transactions in the block.
