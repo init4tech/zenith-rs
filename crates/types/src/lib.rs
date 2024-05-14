@@ -1,5 +1,5 @@
 mod bindings;
-pub use bindings::Zenith;
+pub use bindings::{RollupPassage, Zenith};
 
 mod block;
 pub use block::{Coder, ZenithBlock, ZenithTransaction};
