@@ -2,7 +2,7 @@ mod bindings;
 pub use bindings::Zenith;
 
 mod block;
-pub use block::{ZenithBlock, ZenithTransaction};
+pub use block::{Coder, ZenithBlock, ZenithTransaction};
 
 mod req;
 pub use req::SignRequest;
