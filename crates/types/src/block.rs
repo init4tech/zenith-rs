@@ -24,6 +24,11 @@ pub struct ZenithBlock {
 }
 
 impl ZenithBlock {
+    /// Break the block into its parts.
+    pub fn into_parts(self) -> (ZenithHeader, Vec<ZenithTransaction>) {
+        (self.header, self.transactions)
+    }
+
     /// Decode tx data in the block.
     pub fn from_header_and_data(
         header: ZenithHeader,
