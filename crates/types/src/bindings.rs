@@ -87,3 +87,13 @@ impl Zenith::BlockHeader {
         self.rewardAddress
     }
 }
+
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    RollupPassage,
+    "abi/passage.json"
+);
+
+impl Copy for RollupPassage::Exit {}
+impl Copy for RollupPassage::Sweep {}
