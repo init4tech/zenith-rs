@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// The domain binding for the signing service.
 const DOMAIN_BINDING: &str = "init4.sequencer.v0";
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct SignRequest {
     /// The chain ID of the host.
     pub host_chain_id: U256,
