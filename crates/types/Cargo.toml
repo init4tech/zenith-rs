@@ -26,3 +26,5 @@ alloy-rlp.workspace = true
 
 [dev-dependencies]
 serde_json = "1.0.116"
+alloy-signer-wallet.workspace = true
+tokio = { version = "1.37.0", features = ["macros"] }

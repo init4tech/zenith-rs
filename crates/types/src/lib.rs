@@ -7,6 +7,9 @@ pub use block::{Coder, ZenithBlock, ZenithTransaction};
 mod req;
 pub use req::SignRequest;
 
+mod resp;
+pub use resp::SignResponse;
+
 /// A [`RequestSigner`] signs [`SignRequest`]s by delegating to an
 /// [`alloy_signer::Signer`].
 pub trait RequestSigner {

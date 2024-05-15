@@ -247,14 +247,14 @@ mod test {
         ));
 
         let mut txs = vec![tx.clone()];
-        let encoded = encode_transactions(&txs);
-        let decoded = decode_txns(encoded).unwrap();
+        let encoded = encode_transactions::<Alloy2718Coder, TxEnvelope>(&txs);
+        let decoded = decode_txns::<Alloy2718Coder, TxEnvelope>(encoded).unwrap();
 
         assert_eq!(txs, decoded);
 
         txs.push(tx.clone());
-        let encoded = encode_transactions(&txs);
-        let decoded = decode_txns(encoded).unwrap();
+        let encoded = encode_transactions::<Alloy2718Coder, TxEnvelope>(&txs);
+        let decoded = decode_txns::<Alloy2718Coder, TxEnvelope>(encoded).unwrap();
 
         assert_eq!(txs, decoded);
     }
