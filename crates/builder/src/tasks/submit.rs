@@ -1,6 +1,6 @@
 use alloy_consensus::SimpleCoder;
 use alloy_network::TransactionBuilder;
-use alloy_primitives::{Address, FixedBytes, Signature, U256};
+use alloy_primitives::{Address, FixedBytes, U256};
 use alloy_provider::{Provider, WalletProvider};
 use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
@@ -142,20 +142,19 @@ where
 
     async fn submit_transaction(
         &self,
-        sig_request: SignRequest,
-        signature: &Signature,
+        resp: &SignResponse,
         in_progress: &InProgressBlock,
     ) -> eyre::Result<()> {
-        let v: u8 = signature.v().y_parity_byte() + 27;
-        let r: FixedBytes<32> = signature.r().into();
-        let s: FixedBytes<32> = signature.s().into();
+        let v: u8 = resp.sig.v().y_parity_byte() + 27;
+        let r: FixedBytes<32> = resp.sig.r().into();
+        let s: FixedBytes<32> = resp.sig.s().into();
 
         let header = Zenith::BlockHeader {
             rollupChainId: U256::from(self.config.ru_chain_id),
-            sequence: sig_request.sequence,
-            gasLimit: sig_request.gas_limit,
-            confirmBy: sig_request.confirm_by,
-            rewardAddress: sig_request.ru_reward_address,
+            sequence: resp.req.sequence,
+            gasLimit: resp.req.gas_limit,
+            confirmBy: resp.req.confirm_by,
+            rewardAddress: resp.req.ru_reward_address,
         };
 
         let tx = if self.config.use_calldata {
@@ -167,8 +166,8 @@ where
         .with_to(self.config.zenith);
 
         tracing::debug!(
-            sequence = %sig_request.sequence,
-            gas_limit = %sig_request.gas_limit,
+            sequence = %resp.req.sequence,
+            gas_limit = %resp.req.gas_limit,
             "sending transaction to network"
         );
 
@@ -178,8 +177,8 @@ where
 
         tracing::info!(
             %tx_hash,
-            sequence = %sig_request.sequence,
-            gas_limit = %sig_request.gas_limit,
+            sequence = %resp.req.sequence,
+            gas_limit = %resp.req.gas_limit,
             "dispatched to network"
         );
 
@@ -218,8 +217,7 @@ where
             resp
         };
 
-        self.submit_transaction(sig_request, &signed.sig, in_progress)
-            .await
+        self.submit_transaction(&signed, in_progress).await
     }
 }
 
