@@ -8,7 +8,7 @@ use alloy_sol_types::SolCall;
 use alloy_transport::BoxTransport;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::instrument;
-use zenith_types::SignRequest;
+use zenith_types::{SignRequest, SignResponse};
 
 use crate::Zenith::{self, ZenithInstance};
 
@@ -64,7 +64,7 @@ where
     }
 
     /// Get the signature from our main man quincey.
-    async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<Signature> {
+    async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<SignResponse> {
         tracing::info!(
             sequence = %sig_request.sequence,
             "pinging quincey for signature"
@@ -199,23 +199,26 @@ where
 
         // If configured with a local signer, we use it. Otherwise, we ask
         // quincey (politely)
-        let signature = if let Some(signer) = &self.config.local_sequencer_signer {
+        let signed = if let Some(signer) = &self.config.local_sequencer_signer {
             let sig = signer.sign_hash(&sig_request.signing_hash()).await?;
             tracing::debug!(
                 sig = hex::encode(sig.as_bytes()),
                 "acquied signature from local signer"
             );
-            sig
+            SignResponse {
+                req: sig_request,
+                sig,
+            }
         } else {
-            let sig = self.sup_quincey(&sig_request).await?;
+            let resp: SignResponse = self.sup_quincey(&sig_request).await?;
             tracing::debug!(
-                sig = hex::encode(sig.as_bytes()),
+                sig = hex::encode(resp.sig.as_bytes()),
                 "acquied signature from quincey"
             );
-            sig
+            resp
         };
 
-        self.submit_transaction(sig_request, &signature, in_progress)
+        self.submit_transaction(sig_request, &signed.sig, in_progress)
             .await
     }
 }
