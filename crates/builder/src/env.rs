@@ -18,7 +18,7 @@ pub struct BuilderConfig {
     /// Buffer time in seconds that Builder will wait before submitting a block
     /// containing whatever transactions it has received in the meantime.
     pub wait_before_submitting: u64,
-    /// address of the Zenith contract on Host. 
+    /// address of the Zenith contract on Host.
     pub zenith: Address,
     /// URL for Host RPC node.
     pub rpc_url: Cow<'static, str>,

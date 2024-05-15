@@ -23,24 +23,7 @@ async fn main() -> eyre::Result<()> {
     let config = load_builder_config().await?;
 
     // provider is built from config
-    let provider: alloy_provider::fillers::FillProvider<
-        alloy_provider::fillers::JoinFill<
-            alloy_provider::fillers::JoinFill<
-                alloy_provider::fillers::JoinFill<
-                    alloy_provider::fillers::JoinFill<
-                        alloy_provider::Identity,
-                        alloy_provider::fillers::GasFiller,
-                    >,
-                    alloy_provider::fillers::NonceFiller,
-                >,
-                alloy_provider::fillers::ChainIdFiller,
-            >,
-            alloy_provider::fillers::SignerFiller<EthereumSigner>,
-        >,
-        alloy_provider::RootProvider<alloy_transport::BoxTransport>,
-        alloy_transport::BoxTransport,
-        alloy_network::Ethereum,
-    > = ProviderBuilder::new()
+    let provider = ProviderBuilder::new()
         .with_recommended_fillers()
         .signer(EthereumSigner::from(config.builder_wallet.clone()))
         .on_builtin(&config.rpc_url.clone())
