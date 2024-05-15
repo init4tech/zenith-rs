@@ -17,7 +17,9 @@ pub struct SignResponse {
 impl SignResponse {
     /// Get the signer of the request.
     ///
-    /// # Panics - if recovery fails
+    /// # Panics
+    ///
+    /// - If recovery fails due to a k256 error.
     pub fn signer(&self) -> Address {
         *self.signer.get_or_init(|| {
             self.sig
