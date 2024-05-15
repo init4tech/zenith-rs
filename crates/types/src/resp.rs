@@ -42,12 +42,8 @@ mod test {
 
         let sig = signer.sign_request(&req).await.unwrap();
 
-        let resp = SignResponse {
-            req,
-            sig,
-            signer: OnceLock::new(),
-        };
-        let addr = resp.signer();
+        let resp = SignResponse { req, sig };
+        let addr = resp.signer().unwrap();
 
         assert_eq!(addr, signer.address());
     }
