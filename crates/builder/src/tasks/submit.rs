@@ -1,6 +1,6 @@
 use alloy_consensus::SimpleCoder;
 use alloy_network::TransactionBuilder;
-use alloy_primitives::{Address, FixedBytes, Signature, U256};
+use alloy_primitives::{Address, FixedBytes, U256};
 use alloy_provider::{Provider, WalletProvider};
 use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
@@ -8,7 +8,7 @@ use alloy_sol_types::SolCall;
 use alloy_transport::BoxTransport;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::instrument;
-use zenith_types::SignRequest;
+use zenith_types::{SignRequest, SignResponse};
 
 use crate::Zenith::{self, ZenithInstance};
 
@@ -64,7 +64,7 @@ where
     }
 
     /// Get the signature from our main man quincey.
-    async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<Signature> {
+    async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<SignResponse> {
         tracing::info!(
             sequence = %sig_request.sequence,
             "pinging quincey for signature"
@@ -142,20 +142,19 @@ where
 
     async fn submit_transaction(
         &self,
-        sig_request: SignRequest,
-        signature: &Signature,
+        resp: &SignResponse,
         in_progress: &InProgressBlock,
     ) -> eyre::Result<()> {
-        let v: u8 = signature.v().y_parity_byte() + 27;
-        let r: FixedBytes<32> = signature.r().into();
-        let s: FixedBytes<32> = signature.s().into();
+        let v: u8 = resp.sig.v().y_parity_byte() + 27;
+        let r: FixedBytes<32> = resp.sig.r().into();
+        let s: FixedBytes<32> = resp.sig.s().into();
 
         let header = Zenith::BlockHeader {
             rollupChainId: U256::from(self.config.ru_chain_id),
-            sequence: sig_request.sequence,
-            gasLimit: sig_request.gas_limit,
-            confirmBy: sig_request.confirm_by,
-            rewardAddress: sig_request.ru_reward_address,
+            sequence: resp.req.sequence,
+            gasLimit: resp.req.gas_limit,
+            confirmBy: resp.req.confirm_by,
+            rewardAddress: resp.req.ru_reward_address,
         };
 
         let tx = if self.config.use_calldata {
@@ -167,8 +166,8 @@ where
         .with_to(self.config.zenith);
 
         tracing::debug!(
-            sequence = %sig_request.sequence,
-            gas_limit = %sig_request.gas_limit,
+            sequence = %resp.req.sequence,
+            gas_limit = %resp.req.gas_limit,
             "sending transaction to network"
         );
 
@@ -178,8 +177,8 @@ where
 
         tracing::info!(
             %tx_hash,
-            sequence = %sig_request.sequence,
-            gas_limit = %sig_request.gas_limit,
+            sequence = %resp.req.sequence,
+            gas_limit = %resp.req.gas_limit,
             "dispatched to network"
         );
 
@@ -199,24 +198,26 @@ where
 
         // If configured with a local signer, we use it. Otherwise, we ask
         // quincey (politely)
-        let signature = if let Some(signer) = &self.config.local_sequencer_signer {
+        let signed = if let Some(signer) = &self.config.local_sequencer_signer {
             let sig = signer.sign_hash(&sig_request.signing_hash()).await?;
             tracing::debug!(
                 sig = hex::encode(sig.as_bytes()),
                 "acquied signature from local signer"
             );
-            sig
+            SignResponse {
+                req: sig_request,
+                sig,
+            }
         } else {
-            let sig = self.sup_quincey(&sig_request).await?;
+            let resp: SignResponse = self.sup_quincey(&sig_request).await?;
             tracing::debug!(
-                sig = hex::encode(sig.as_bytes()),
+                sig = hex::encode(resp.sig.as_bytes()),
                 "acquied signature from quincey"
             );
-            sig
+            resp
         };
 
-        self.submit_transaction(sig_request, &signature, in_progress)
-            .await
+        self.submit_transaction(&signed, in_progress).await
     }
 }
 
