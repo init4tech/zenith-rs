@@ -1,7 +1,5 @@
-use std::sync::OnceLock;
-
 use crate::SignRequest;
-use alloy_primitives::{Address, Signature};
+use alloy_primitives::{Address, Signature, SignatureError};
 
 /// A signature response from a [`RequestSigner`].
 pub struct SignResponse {
@@ -9,9 +7,6 @@ pub struct SignResponse {
     pub req: SignRequest,
     /// The signature over that request.
     pub sig: Signature,
-
-    /// Memoized signer of the request.
-    signer: OnceLock<Address>,
 }
 
 impl SignResponse {
@@ -20,12 +15,9 @@ impl SignResponse {
     /// # Panics
     ///
     /// - If recovery fails due to a k256 error.
-    pub fn signer(&self) -> Address {
-        *self.signer.get_or_init(|| {
-            self.sig
-                .recover_address_from_prehash(&self.req.signing_hash())
-                .unwrap()
-        })
+    pub fn signer(&self) -> Result<Address, SignatureError> {
+        self.sig
+            .recover_address_from_prehash(&self.req.signing_hash())
     }
 }
 
