@@ -8,12 +8,13 @@ mod tasks;
 
 use alloy_network::EthereumSigner;
 use alloy_network::TxSigner;
-use alloy_primitives::{address, Address};
+use alloy_primitives::Address;
 use alloy_provider::ProviderBuilder;
 use std::borrow::Cow;
 use tokio::select;
 use zenith_types::Zenith;
 
+use crate::env::{load_quincey, load_rpc, load_zenith_address};
 use crate::service::serve_builder_with_span;
 
 /// Configuration for a builder running a specific rollup on a specific host
@@ -40,16 +41,26 @@ pub struct ChainConfig {
     pub use_calldata: bool,
 }
 
-const HOLESKY: ChainConfig = ChainConfig {
-    host_chain_id: 17000,
-    ru_chain_id: 17001,
-    confirmation_buffer: 60 * 20,
-    zenith: address!("97C0E40c6B5bb5d4fa3e2AA1C6b8bC7EA5ECAe31"),
-    quincey_url: Cow::Borrowed("http://quincey.swanny.wtf:8080/signBlock"),
-    rpc_url: Cow::Borrowed("https://ethereum-holesky-rpc.publicnode.com"),
-    local_sequencer_signer: None,
-    use_calldata: true,
-};
+impl ChainConfig {
+    /// Creates a new ChainConfig for the Holesky testnet.
+    const fn holesky(
+        local_sequencer_signer: Option<LocalOrAws>,
+        rpc_url: Cow<'static, str>,
+        quincey_url: Cow<'static, str>,
+        zenith: Address,
+    ) -> Self {
+        ChainConfig {
+            host_chain_id: 17000,
+            ru_chain_id: 17001,
+            confirmation_buffer: 60 * 20,
+            zenith,
+            quincey_url,
+            rpc_url,
+            local_sequencer_signer,
+            use_calldata: true,
+        }
+    }
+}
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -58,10 +69,7 @@ async fn main() -> eyre::Result<()> {
     let span = tracing::info_span!("zenith-builder");
 
     // finish app config by loading key from env
-    let config = ChainConfig {
-        local_sequencer_signer: LocalOrAws::load("SEQUENCER_KEY", None).await.ok(),
-        ..HOLESKY
-    };
+    let config = ChainConfig::holesky(None, load_rpc()?, load_quincey()?, load_zenith_address()?);
 
     // Load builder key from env
     let wallet = LocalOrAws::load("BUILDER_KEY_ID", Some(config.host_chain_id)).await?;
