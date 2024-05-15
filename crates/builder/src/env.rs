@@ -13,27 +13,27 @@ pub struct BuilderConfig {
     pub host_chain_id: u64,
     /// The chain ID of the host chain
     pub ru_chain_id: u64,
-    /// Buffer time in seconds for the block to confirm
+    /// Buffer time in seconds for the block to confirm on Host chain.
     pub confirmation_buffer: u64,
     /// Buffer time in seconds that Builder will wait before submitting a block
     /// containing whatever transactions it has received in the meantime.
     pub wait_before_submitting: u64,
-    /// address of the Zenith contract
+    /// address of the Zenith contract on Host. 
     pub zenith: Address,
-    /// URL for RPC node
+    /// URL for Host RPC node.
     pub rpc_url: Cow<'static, str>,
     /// URL for Quincey server to sign blocks. This prop is disregarded if a
     /// local_sequencer_signer is configured via the "SEQUENCER_KEY" env var.
     pub quincey_url: Cow<'static, str>,
-    /// Wallet for signing blocks locally.
+    /// Local Sequencer signer for signing blocks locally.
     pub local_sequencer_signer: Option<LocalOrAws>,
-    /// Wallet for signing blocks locally.
+    /// Wallet for submitting blocks to Host chain.
     pub builder_wallet: LocalOrAws,
-    /// address to which Builder will receive transaction fees on Rollup
+    /// Address to which Builder will receive transaction fees on Rollup.
     pub builder_rewards_address: Address,
-    /// Whether to use calldata or blob for transactions
+    /// TRUE to use calldata as DA for submitting blocks; FALSE to use blobs.
     pub use_calldata: bool,
-    /// Gas limit for RU block
+    /// Gas limit for RU block.
     pub gas_limit: u64,
 }
 
