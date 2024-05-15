@@ -1,6 +1,6 @@
 use alloy_consensus::SimpleCoder;
 use alloy_network::TransactionBuilder;
-use alloy_primitives::{Address, FixedBytes, U256};
+use alloy_primitives::{FixedBytes, U256};
 use alloy_provider::{Provider, WalletProvider};
 use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
@@ -26,13 +26,7 @@ pub struct SubmitTask<P> {
     pub client: reqwest::Client,
 
     /// Config
-    pub config: crate::ChainConfig,
-
-    /// builder address
-    pub builder_rewards: Address,
-
-    /// Gas limit for RU block
-    pub gas_limit: u64,
+    pub config: crate::env::BuilderConfig,
 }
 
 impl<P> SubmitTask<P>
@@ -91,8 +85,8 @@ where
             ru_chain_id: U256::from(self.config.ru_chain_id),
             sequence: U256::from(sequence),
             confirm_by: U256::from(confirm_by),
-            gas_limit: U256::from(self.gas_limit),
-            ru_reward_address: self.builder_rewards,
+            gas_limit: U256::from(self.config.gas_limit),
+            ru_reward_address: self.config.builder_rewards_address,
             contents: contents.contents_hash(),
         })
     }
