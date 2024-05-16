@@ -9,6 +9,7 @@ const RU_CHAIN_ID: &str = "RU_CHAIN_ID";
 const HOST_RPC_URL: &str = "HOST_RPC_URL";
 const ZENITH_ADDRESS: &str = "ZENITH_ADDRESS";
 const QUINCEY_URL: &str = "QUINCEY_URL";
+const BUILDER_PORT: &str = "BUILDER_PORT";
 const SEQUENCER_KEY: &str = "SEQUENCER_KEY"; // empty (to use Quincey) OR AWS key ID (to use AWS signer) OR raw private key (to use local signer)
 const BUILDER_KEY: &str = "BUILDER_KEY"; // AWS key ID (to use AWS signer) OR raw private key (to use local signer)
 const INCOMING_TRANSACTIONS_BUFFER: &str = "INCOMING_TRANSACTIONS_BUFFER";
@@ -31,6 +32,8 @@ pub struct BuilderConfig {
     /// URL for remote Quincey Sequencer server to sign blocks.
     /// Disregarded if a sequencer_signer is configured.
     pub quincey_url: Cow<'static, str>,
+    /// Port for the Builder server.
+    pub builder_port: u16,
     /// Wallet for local Sequencer to sign blocks.
     /// Set IFF using local Sequencer signing instead of remote Quincey signing.
     pub sequencer_signer: Option<LocalOrAws>,
@@ -80,6 +83,7 @@ pub async fn load_builder_config() -> Result<BuilderConfig, ConfigError> {
         host_rpc_url: load_url(HOST_RPC_URL)?,
         zenith_address: load_address(ZENITH_ADDRESS)?,
         quincey_url: load_url(QUINCEY_URL)?,
+        builder_port: load_u16(BUILDER_PORT)?,
         sequencer_signer: LocalOrAws::load_option(SEQUENCER_KEY, Some(host_chain)).await?,
         builder_signer: LocalOrAws::load(BUILDER_KEY, Some(host_chain)).await?,
         incoming_transactions_buffer: load_u64(INCOMING_TRANSACTIONS_BUFFER)?,
@@ -106,6 +110,11 @@ pub fn load_string_option(key: &str) -> Result<Option<String>, ConfigError> {
 pub fn load_u64(key: &str) -> Result<u64, ConfigError> {
     let val = env::var(key)?;
     val.parse::<u64>().map_err(Into::into)
+}
+
+pub fn load_u16(key: &str) -> Result<u16, ConfigError> {
+    let val = env::var(key)?;
+    val.parse::<u16>().map_err(Into::into)
 }
 
 pub fn load_url(key: &str) -> Result<Cow<'static, str>, ConfigError> {

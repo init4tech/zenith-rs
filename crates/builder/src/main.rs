@@ -36,6 +36,8 @@ async fn main() -> eyre::Result<()> {
     // build zenith from config
     let zenith = Zenith::new(config.zenith_address, provider.clone());
 
+    let port = config.builder_port;
+
     let build = tasks::block::BlockBuilder::new(&config);
 
     let submit = tasks::submit::SubmitTask {
@@ -50,7 +52,7 @@ async fn main() -> eyre::Result<()> {
     let (build_channel, build_jh) = build.spawn(submit_channel);
 
     // server
-    let server = serve_builder_with_span(build_channel, ([0, 0, 0, 0], 6969), span);
+    let server = serve_builder_with_span(build_channel, ([0, 0, 0, 0], port), span);
 
     select! {
         _ = submit_jh => {
