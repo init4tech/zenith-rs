@@ -82,13 +82,13 @@ impl InProgressBlock {
 }
 
 pub struct BlockBuilder {
-    pub wait_secs: u64,
+    pub incoming_transactions_buffer: u64,
 }
 
 impl BlockBuilder {
     pub fn new(config: &BuilderConfig) -> Self {
         Self {
-            wait_secs: config.incoming_transactions_buffer,
+            incoming_transactions_buffer: config.incoming_transactions_buffer,
         }
     }
 
@@ -104,7 +104,7 @@ impl BlockBuilder {
         let handle = tokio::spawn(
             async move {
                 loop {
-                    let sleep = tokio::time::sleep(Duration::from_secs(self.wait_secs));
+                    let sleep = tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer));
                     tokio::pin!(sleep);
 
                     select! {
