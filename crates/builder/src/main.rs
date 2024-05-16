@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 mod env;
-
 mod service;
+mod signer;
 mod tasks;
 
 use alloy_network::EthereumSigner;
@@ -16,26 +16,28 @@ use crate::service::serve_builder_with_span;
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     tracing_subscriber::fmt::try_init().unwrap();
-
     let span = tracing::info_span!("zenith-builder");
 
-    // finish app config by loading key from env
+    // load config from env
     let config = load_builder_config().await?;
 
-    // provider is built from config
+    // build provider from config
     let provider = ProviderBuilder::new()
         .with_recommended_fillers()
-        .signer(EthereumSigner::from(config.builder_wallet.clone()))
-        .on_builtin(&config.rpc_url.clone())
+        .signer(EthereumSigner::from(config.builder_signer.clone()))
+        .on_builtin(&config.host_rpc_url.clone())
         .await?;
-    tracing::debug!(rpc_url = config.rpc_url.as_ref(), "instantiated provider");
+    
+    tracing::debug!(
+        rpc_url = config.host_rpc_url.as_ref(),
+        "instantiated provider"
+    );
 
-    // zenith is built from config
-    let zenith = Zenith::new(config.zenith, provider.clone());
+    // build zenith from config
+    let zenith = Zenith::new(config.zenith_address, provider.clone());
 
-    let build = tasks::block::BlockBuilder {
-        wait_secs: config.wait_before_submitting,
-    };
+    let build = tasks::block::BlockBuilder::new(&config);
+
     let submit = tasks::submit::SubmitTask {
         provider,
         zenith,
@@ -47,6 +49,7 @@ async fn main() -> eyre::Result<()> {
 
     let (build_channel, build_jh) = build.spawn(submit_channel);
 
+    // server
     let server = serve_builder_with_span(build_channel, ([0, 0, 0, 0], 6969), span);
 
     select! {

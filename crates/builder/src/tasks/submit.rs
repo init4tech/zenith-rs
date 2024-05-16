@@ -39,7 +39,7 @@ where
             .await
             .map_err(Into::<eyre::Report>::into)?
             .ok_or_else(|| eyre::eyre!("latest block is none"))
-            .map(|block| block.header.timestamp + self.config.confirmation_buffer)
+            .map(|block| block.header.timestamp + self.config.block_confirmation_buffer)
     }
 
     /// Get the next sequence number from the chain
@@ -85,7 +85,7 @@ where
             ru_chain_id: U256::from(self.config.ru_chain_id),
             sequence: U256::from(sequence),
             confirm_by: U256::from(confirm_by),
-            gas_limit: U256::from(self.config.gas_limit),
+            gas_limit: U256::from(self.config.rollup_block_gas_limit),
             ru_reward_address: self.config.builder_rewards_address,
             contents: contents.contents_hash(),
         })
@@ -151,13 +151,13 @@ where
             rewardAddress: resp.req.ru_reward_address,
         };
 
-        let tx = if self.config.use_calldata {
+        let tx = if self.config.submit_via_calldata {
             self.build_calldata_tx(header, v, r, s, in_progress)
         } else {
             self.build_blob_tx(header, v, r, s, in_progress)?
         }
         .with_from(self.provider.default_signer_address())
-        .with_to(self.config.zenith);
+        .with_to(self.config.zenith_address);
 
         tracing::debug!(
             sequence = %resp.req.sequence,
@@ -192,7 +192,7 @@ where
 
         // If configured with a local signer, we use it. Otherwise, we ask
         // quincey (politely)
-        let signed = if let Some(signer) = &self.config.local_sequencer_signer {
+        let signed = if let Some(signer) = &self.config.sequencer_signer {
             let sig = signer.sign_hash(&sig_request.signing_hash()).await?;
             tracing::debug!(
                 sig = hex::encode(sig.as_bytes()),
