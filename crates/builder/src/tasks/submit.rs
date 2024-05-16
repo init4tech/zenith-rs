@@ -26,7 +26,7 @@ pub struct SubmitTask<P> {
     pub client: reqwest::Client,
 
     /// Config
-    pub config: crate::env::BuilderConfig,
+    pub config: crate::config::BuilderConfig,
 }
 
 impl<P> SubmitTask<P>

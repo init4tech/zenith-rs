@@ -1,4 +1,4 @@
-use crate::env::{load_string, load_string_option, ConfigError};
+use crate::config::{load_string, load_string_option, ConfigError};
 use alloy_consensus::SignableTransaction;
 use alloy_primitives::{Address, ChainId, B256};
 use alloy_signer::Signature;

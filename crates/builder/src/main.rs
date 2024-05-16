@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-mod env;
+mod config;
 mod service;
 mod signer;
 mod tasks;
@@ -10,7 +10,7 @@ use alloy_provider::ProviderBuilder;
 use tokio::select;
 use zenith_types::Zenith;
 
-use crate::env::load_builder_config;
+use crate::config::load_builder_config;
 use crate::service::serve_builder_with_span;
 
 #[tokio::main]
@@ -27,7 +27,7 @@ async fn main() -> eyre::Result<()> {
         .signer(EthereumSigner::from(config.builder_signer.clone()))
         .on_builtin(&config.host_rpc_url.clone())
         .await?;
-    
+
     tracing::debug!(
         rpc_url = config.host_rpc_url.as_ref(),
         "instantiated provider"

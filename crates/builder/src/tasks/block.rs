@@ -4,7 +4,7 @@ use std::{sync::OnceLock, time::Duration};
 use tokio::{select, sync::mpsc, task::JoinHandle};
 use tracing::Instrument;
 
-use crate::env::BuilderConfig;
+use crate::config::BuilderConfig;
 
 #[derive(Debug, Default, Clone)]
 /// A block in progress.
