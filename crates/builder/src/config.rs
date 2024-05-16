@@ -131,6 +131,8 @@ pub fn load_bool(key: &str) -> Result<bool, ConfigError> {
     match val.as_str() {
         "true" => Ok(true),
         "false" => Ok(false),
+        "1" => Ok(true),
+        "0" => Ok(false),
         _ => Err(ConfigError::ParseBool()),
     }
 }
