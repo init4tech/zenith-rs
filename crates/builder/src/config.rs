@@ -1,4 +1,3 @@
-use crate::signer::LocalOrAws;
 use alloy_primitives::Address;
 use alloy_signer_aws::AwsSignerError;
 use std::{borrow::Cow, env, num, str::FromStr};
@@ -20,6 +19,7 @@ const ROLLUP_BLOCK_GAS_LIMIT: &str = "ROLLUP_BLOCK_GAS_LIMIT";
 
 /// Configuration for a builder running a specific rollup on a specific host
 /// chain.
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct BuilderConfig {
     /// The chain ID of the host chain
     pub host_chain_id: u64,
@@ -34,11 +34,11 @@ pub struct BuilderConfig {
     pub quincey_url: Cow<'static, str>,
     /// Port for the Builder server.
     pub builder_port: u16,
-    /// Wallet for local Sequencer to sign blocks.
+    /// Key to access Sequencer Wallet - AWS Key ID _OR_ local private key.
     /// Set IFF using local Sequencer signing instead of remote Quincey signing.
-    pub sequencer_signer: Option<LocalOrAws>,
-    /// Wallet for submitting blocks to Host chain.
-    pub builder_signer: LocalOrAws,
+    pub sequencer_key: Option<String>,
+    /// Key to access Builder transaction submission wallet - AWS Key ID _OR_ local private key.
+    pub builder_key: String,
     /// Buffer in seconds that Builder will wait & accept incoming transactions before bundling them and submitting as a block.
     pub incoming_transactions_buffer: u64,
     /// Buffer in seconds in which the `submitBlock` transaction must confirm on the Host chain.
@@ -75,17 +75,16 @@ pub enum ConfigError {
     Wallet(#[from] alloy_signer_wallet::WalletError),
 }
 
-pub async fn load_builder_config() -> Result<BuilderConfig, ConfigError> {
-    let host_chain = load_u64(HOST_CHAIN_ID)?;
+pub fn load_builder_config() -> Result<BuilderConfig, ConfigError> {
     Ok(BuilderConfig {
-        host_chain_id: host_chain,
+        host_chain_id: load_u64(HOST_CHAIN_ID)?,
         ru_chain_id: load_u64(RU_CHAIN_ID)?,
         host_rpc_url: load_url(HOST_RPC_URL)?,
         zenith_address: load_address(ZENITH_ADDRESS)?,
         quincey_url: load_url(QUINCEY_URL)?,
         builder_port: load_u16(BUILDER_PORT)?,
-        sequencer_signer: LocalOrAws::load_option(SEQUENCER_KEY, Some(host_chain)).await?,
-        builder_signer: LocalOrAws::load(BUILDER_KEY, Some(host_chain)).await?,
+        sequencer_key: load_string_option(SEQUENCER_KEY)?,
+        builder_key: load_string(BUILDER_KEY)?,
         incoming_transactions_buffer: load_u64(INCOMING_TRANSACTIONS_BUFFER)?,
         block_confirmation_buffer: load_u64(BLOCK_CONFIRMATION_BUFFER)?,
         submit_via_calldata: load_bool(SUBMIT_VIA_CALLDATA)?,
@@ -94,11 +93,11 @@ pub async fn load_builder_config() -> Result<BuilderConfig, ConfigError> {
     })
 }
 
-pub fn load_string(key: &str) -> Result<String, ConfigError> {
+fn load_string(key: &str) -> Result<String, ConfigError> {
     env::var(key).map_err(Into::into)
 }
 
-pub fn load_string_option(key: &str) -> Result<Option<String>, ConfigError> {
+fn load_string_option(key: &str) -> Result<Option<String>, ConfigError> {
     let val = env::var(key);
     match val {
         Ok(val) => Ok(Some(val)),
@@ -107,26 +106,26 @@ pub fn load_string_option(key: &str) -> Result<Option<String>, ConfigError> {
     }
 }
 
-pub fn load_u64(key: &str) -> Result<u64, ConfigError> {
+fn load_u64(key: &str) -> Result<u64, ConfigError> {
     let val = env::var(key)?;
     val.parse::<u64>().map_err(Into::into)
 }
 
-pub fn load_u16(key: &str) -> Result<u16, ConfigError> {
+fn load_u16(key: &str) -> Result<u16, ConfigError> {
     let val = env::var(key)?;
     val.parse::<u16>().map_err(Into::into)
 }
 
-pub fn load_url(key: &str) -> Result<Cow<'static, str>, ConfigError> {
+fn load_url(key: &str) -> Result<Cow<'static, str>, ConfigError> {
     env::var(key).map_err(Into::into).map(Into::into)
 }
 
-pub fn load_address(key: &str) -> Result<Address, ConfigError> {
+fn load_address(key: &str) -> Result<Address, ConfigError> {
     let address = env::var(key)?;
     Address::from_str(&address).map_err(Into::into)
 }
 
-pub fn load_bool(key: &str) -> Result<bool, ConfigError> {
+fn load_bool(key: &str) -> Result<bool, ConfigError> {
     let val = env::var(key)?;
     match val.as_str() {
         "true" => Ok(true),

@@ -1,4 +1,4 @@
-use crate::config::{load_string, load_string_option, ConfigError};
+use crate::config::ConfigError;
 use alloy_consensus::SignableTransaction;
 use alloy_primitives::{Address, ChainId, B256};
 use alloy_signer::Signature;
@@ -16,24 +16,11 @@ pub enum LocalOrAws {
 impl LocalOrAws {
     /// Load a privkey or AWS signer from environment variables.
     pub async fn load(key: &str, chain_id: Option<u64>) -> Result<Self, ConfigError> {
-        if let Ok(wallet) = load_wallet(key) {
+        if let Ok(wallet) = wallet(key) {
             Ok(LocalOrAws::Local(wallet))
         } else {
-            let signer = load_aws_signer(key, chain_id).await?;
+            let signer = aws_signer(key, chain_id).await?;
             Ok(LocalOrAws::Aws(signer))
-        }
-    }
-
-    /// Check if the key is present in the environment.
-    /// If so, load the signer (local privkey or AWS signer).
-    /// If not, return None.
-    pub async fn load_option(
-        key: &str,
-        chain_id: Option<u64>,
-    ) -> Result<Option<Self>, ConfigError> {
-        match load_string_option(key)? {
-            Some(_val) => Ok(Some(Self::load(key, chain_id).await?)),
-            None => Ok(None),
         }
     }
 }
@@ -43,20 +30,16 @@ impl LocalOrAws {
 /// # Panics
 ///
 /// Panics if the env var contents is not a valid secp256k1 private key.
-pub fn load_wallet(key: &str) -> Result<LocalWallet, ConfigError> {
-    let key = load_string(key)?;
-
-    let bytes = hex::decode(key.strip_prefix("0x").unwrap_or(&key))?;
+pub fn wallet(private_key: &str) -> Result<LocalWallet, ConfigError> {
+    let bytes = hex::decode(private_key.strip_prefix("0x").unwrap_or(private_key))?;
     Ok(LocalWallet::from_slice(&bytes).unwrap())
 }
 
 /// Load the AWS signer from environment variables./s
-pub async fn load_aws_signer(key: &str, chain_id: Option<u64>) -> Result<AwsSigner, ConfigError> {
-    let key_id = load_string(key)?;
-
+pub async fn aws_signer(key_id: &str, chain_id: Option<u64>) -> Result<AwsSigner, ConfigError> {
     let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
     let client = aws_sdk_kms::Client::new(&config);
-    AwsSigner::new(client, key_id, chain_id)
+    AwsSigner::new(client, key_id.to_string(), chain_id)
         .await
         .map_err(Into::into)
 }

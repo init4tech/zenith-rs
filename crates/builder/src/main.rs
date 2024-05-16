@@ -12,6 +12,7 @@ use zenith_types::Zenith;
 
 use crate::config::load_builder_config;
 use crate::service::serve_builder_with_span;
+use crate::signer::LocalOrAws;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -19,12 +20,13 @@ async fn main() -> eyre::Result<()> {
     let span = tracing::info_span!("zenith-builder");
 
     // load config from env
-    let config = load_builder_config().await?;
+    let config = load_builder_config()?;
 
     // build provider from config
+    let builder_signer = LocalOrAws::load(&config.builder_key, Some(config.host_chain_id)).await?;
     let provider = ProviderBuilder::new()
         .with_recommended_fillers()
-        .signer(EthereumSigner::from(config.builder_signer.clone()))
+        .signer(EthereumSigner::from(builder_signer))
         .on_builtin(&config.host_rpc_url.clone())
         .await?;
 

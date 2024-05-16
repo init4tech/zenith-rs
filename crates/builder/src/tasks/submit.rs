@@ -10,7 +10,10 @@ use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::instrument;
 use zenith_types::{SignRequest, SignResponse};
 
-use crate::Zenith::{self, ZenithInstance};
+use crate::{
+    signer::LocalOrAws,
+    Zenith::{self, ZenithInstance},
+};
 
 use super::block::InProgressBlock;
 
@@ -192,7 +195,8 @@ where
 
         // If configured with a local signer, we use it. Otherwise, we ask
         // quincey (politely)
-        let signed = if let Some(signer) = &self.config.sequencer_signer {
+        let signed = if let Some(sequencer_key) = &self.config.sequencer_key {
+            let signer = LocalOrAws::load(sequencer_key, Some(self.config.host_chain_id)).await?;
             let sig = signer.sign_hash(&sig_request.signing_hash()).await?;
             tracing::debug!(
                 sig = hex::encode(sig.as_bytes()),
