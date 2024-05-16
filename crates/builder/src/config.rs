@@ -63,7 +63,7 @@ pub enum ConfigError {
     Parse(#[from] num::ParseIntError),
     /// Error parsing boolean environment variable
     #[error("failed to parse boolean environment variable")]
-    ParseBool(),
+    ParseBool,
     /// Error during [`AwsSigner`] instantiation
     #[error("failed to connect AWS signer: {0}")]
     AwsSigner(#[from] AwsSignerError),
@@ -133,6 +133,6 @@ pub fn load_bool(key: &str) -> Result<bool, ConfigError> {
         "false" => Ok(false),
         "1" => Ok(true),
         "0" => Ok(false),
-        _ => Err(ConfigError::ParseBool()),
+        _ => Err(ConfigError::ParseBool),
     }
 }
