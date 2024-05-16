@@ -32,7 +32,7 @@ impl LocalOrAws {
         chain_id: Option<u64>,
     ) -> Result<Option<Self>, ConfigError> {
         match load_string_option(key)? {
-            Some(_val) => Ok(Some(Self::load(&key, chain_id).await?)),
+            Some(_val) => Ok(Some(Self::load(key, chain_id).await?)),
             None => Ok(None),
         }
     }

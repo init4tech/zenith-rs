@@ -4,18 +4,18 @@ use alloy_signer_aws::AwsSignerError;
 use std::{borrow::Cow, env, num, str::FromStr};
 
 // Keys for .env variables that need to be set to configure the builder.
-const HOST_CHAIN_ID: &'static str = "HOST_CHAIN_ID";
-const RU_CHAIN_ID: &'static str = "RU_CHAIN_ID";
-const HOST_RPC_URL: &'static str = "HOST_RPC_URL";
-const ZENITH_ADDRESS: &'static str = "ZENITH_ADDRESS";
-const QUINCEY_URL: &'static str = "QUINCEY_URL";
-const SEQUENCER_KEY: &'static str = "SEQUENCER_KEY"; // empty (to use Quincey) OR AWS key ID (to use AWS signer) OR raw private key (to use local signer)
-const BUILDER_KEY: &'static str = "BUILDER_KEY"; // AWS key ID (to use AWS signer) OR raw private key (to use local signer)
-const INCOMING_TRANSACTIONS_BUFFER: &'static str = "INCOMING_TRANSACTIONS_BUFFER";
-const BLOCK_CONFIRMATION_BUFFER: &'static str = "BLOCK_CONFIRMATION_BUFFER";
-const SUBMIT_VIA_CALLDATA: &'static str = "SUBMIT_VIA_CALLDATA";
-const BUILDER_REWARDS_ADDRESS: &'static str = "BUILDER_REWARDS_ADDRESS";
-const ROLLUP_BLOCK_GAS_LIMIT: &'static str = "ROLLUP_BLOCK_GAS_LIMIT";
+const HOST_CHAIN_ID: &str = "HOST_CHAIN_ID";
+const RU_CHAIN_ID: &str = "RU_CHAIN_ID";
+const HOST_RPC_URL: &str = "HOST_RPC_URL";
+const ZENITH_ADDRESS: &str = "ZENITH_ADDRESS";
+const QUINCEY_URL: &str = "QUINCEY_URL";
+const SEQUENCER_KEY: &str = "SEQUENCER_KEY"; // empty (to use Quincey) OR AWS key ID (to use AWS signer) OR raw private key (to use local signer)
+const BUILDER_KEY: &str = "BUILDER_KEY"; // AWS key ID (to use AWS signer) OR raw private key (to use local signer)
+const INCOMING_TRANSACTIONS_BUFFER: &str = "INCOMING_TRANSACTIONS_BUFFER";
+const BLOCK_CONFIRMATION_BUFFER: &str = "BLOCK_CONFIRMATION_BUFFER";
+const SUBMIT_VIA_CALLDATA: &str = "SUBMIT_VIA_CALLDATA";
+const BUILDER_REWARDS_ADDRESS: &str = "BUILDER_REWARDS_ADDRESS";
+const ROLLUP_BLOCK_GAS_LIMIT: &str = "ROLLUP_BLOCK_GAS_LIMIT";
 
 /// Configuration for a builder running a specific rollup on a specific host
 /// chain.
@@ -73,20 +73,20 @@ pub enum ConfigError {
 }
 
 pub async fn load_builder_config() -> Result<BuilderConfig, ConfigError> {
-    let host_chain = load_u64(&HOST_CHAIN_ID)?;
+    let host_chain = load_u64(HOST_CHAIN_ID)?;
     Ok(BuilderConfig {
         host_chain_id: host_chain,
-        ru_chain_id: load_u64(&RU_CHAIN_ID)?,
-        host_rpc_url: load_url(&HOST_RPC_URL)?,
-        zenith_address: load_address(&ZENITH_ADDRESS)?,
-        quincey_url: load_url(&QUINCEY_URL)?,
-        sequencer_signer: LocalOrAws::load_option(&SEQUENCER_KEY, Some(host_chain)).await?,
-        builder_signer: LocalOrAws::load(&BUILDER_KEY, Some(host_chain)).await?,
-        incoming_transactions_buffer: load_u64(&INCOMING_TRANSACTIONS_BUFFER)?,
-        block_confirmation_buffer: load_u64(&BLOCK_CONFIRMATION_BUFFER)?,
-        submit_via_calldata: load_bool(&SUBMIT_VIA_CALLDATA)?,
-        builder_rewards_address: load_address(&BUILDER_REWARDS_ADDRESS)?,
-        rollup_block_gas_limit: load_u64(&ROLLUP_BLOCK_GAS_LIMIT)?,
+        ru_chain_id: load_u64(RU_CHAIN_ID)?,
+        host_rpc_url: load_url(HOST_RPC_URL)?,
+        zenith_address: load_address(ZENITH_ADDRESS)?,
+        quincey_url: load_url(QUINCEY_URL)?,
+        sequencer_signer: LocalOrAws::load_option(SEQUENCER_KEY, Some(host_chain)).await?,
+        builder_signer: LocalOrAws::load(BUILDER_KEY, Some(host_chain)).await?,
+        incoming_transactions_buffer: load_u64(INCOMING_TRANSACTIONS_BUFFER)?,
+        block_confirmation_buffer: load_u64(BLOCK_CONFIRMATION_BUFFER)?,
+        submit_via_calldata: load_bool(SUBMIT_VIA_CALLDATA)?,
+        builder_rewards_address: load_address(BUILDER_REWARDS_ADDRESS)?,
+        rollup_block_gas_limit: load_u64(ROLLUP_BLOCK_GAS_LIMIT)?,
     })
 }
 
