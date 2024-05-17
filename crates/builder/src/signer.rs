@@ -16,32 +16,32 @@ pub enum LocalOrAws {
 impl LocalOrAws {
     /// Load a privkey or AWS signer from environment variables.
     pub async fn load(key: &str, chain_id: Option<u64>) -> Result<Self, ConfigError> {
-        if let Ok(wallet) = wallet(key) {
+        if let Ok(wallet) = LocalOrAws::wallet(key) {
             Ok(LocalOrAws::Local(wallet))
         } else {
-            let signer = aws_signer(key, chain_id).await?;
+            let signer = LocalOrAws::aws_signer(key, chain_id).await?;
             Ok(LocalOrAws::Aws(signer))
         }
     }
-}
 
-/// Load the wallet from environment variables.
-///
-/// # Panics
-///
-/// Panics if the env var contents is not a valid secp256k1 private key.
-pub fn wallet(private_key: &str) -> Result<LocalWallet, ConfigError> {
-    let bytes = hex::decode(private_key.strip_prefix("0x").unwrap_or(private_key))?;
-    Ok(LocalWallet::from_slice(&bytes).unwrap())
-}
+    /// Load the wallet from environment variables.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the env var contents is not a valid secp256k1 private key.
+    fn wallet(private_key: &str) -> Result<LocalWallet, ConfigError> {
+        let bytes = hex::decode(private_key.strip_prefix("0x").unwrap_or(private_key))?;
+        Ok(LocalWallet::from_slice(&bytes).unwrap())
+    }
 
-/// Load the AWS signer from environment variables./s
-pub async fn aws_signer(key_id: &str, chain_id: Option<u64>) -> Result<AwsSigner, ConfigError> {
-    let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
-    let client = aws_sdk_kms::Client::new(&config);
-    AwsSigner::new(client, key_id.to_string(), chain_id)
-        .await
-        .map_err(Into::into)
+    /// Load the AWS signer from environment variables./s
+    async fn aws_signer(key_id: &str, chain_id: Option<u64>) -> Result<AwsSigner, ConfigError> {
+        let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
+        let client = aws_sdk_kms::Client::new(&config);
+        AwsSigner::new(client, key_id.to_string(), chain_id)
+            .await
+            .map_err(Into::into)
+    }
 }
 
 #[async_trait::async_trait]
