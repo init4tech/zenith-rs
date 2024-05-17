@@ -63,8 +63,8 @@ pub struct BuilderConfig {
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
     /// Error loading from environment variable
-    #[error("missing environment variable: {0}")]
-    Var(#[from] env::VarError),
+    #[error("missing or non-unicode environment variable: {0}")]
+    Var(String),
     /// Error parsing environment variable
     #[error("failed to parse environment variable: {0}")]
     Parse(#[from] num::ParseIntError),
@@ -80,6 +80,13 @@ pub enum ConfigError {
     /// Error connecting to the signer
     #[error("failed to connect to signer: {0}")]
     Signer(#[from] SignerError),
+}
+
+impl ConfigError {
+    /// Missing or non-unicode env var.
+    pub fn missing(s: &str) -> Self {
+        ConfigError::Var(s.to_string())
+    }
 }
 
 /// Provider type used by this transaction
@@ -105,7 +112,7 @@ impl BuilderConfig {
             zenith_address: load_address(ZENITH_ADDRESS)?,
             quincey_url: load_url(QUINCEY_URL)?,
             builder_port: load_u16(BUILDER_PORT)?,
-            sequencer_key: load_string_option(SEQUENCER_KEY)?,
+            sequencer_key: load_string_option(SEQUENCER_KEY),
             builder_key: load_string(BUILDER_KEY)?,
             incoming_transactions_buffer: load_u64(INCOMING_TRANSACTIONS_BUFFER)?,
             block_confirmation_buffer: load_u64(BLOCK_CONFIRMATION_BUFFER)?,
@@ -148,39 +155,34 @@ impl BuilderConfig {
 }
 
 fn load_string(key: &str) -> Result<String, ConfigError> {
-    env::var(key).map_err(Into::into)
+    env::var(key).map_err(|_| ConfigError::missing(key))
 }
 
-fn load_string_option(key: &str) -> Result<Option<String>, ConfigError> {
-    let val = env::var(key);
-    match val {
-        Ok(val) => Ok(Some(val)),
-        Err(env::VarError::NotPresent) => Ok(None),
-        Err(e) => Err(e.into()),
-    }
+fn load_string_option(key: &str) -> Option<String> {
+    load_string(key).ok()
 }
 
 fn load_u64(key: &str) -> Result<u64, ConfigError> {
-    let val = env::var(key)?;
+    let val = load_string(key)?;
     val.parse::<u64>().map_err(Into::into)
 }
 
 fn load_u16(key: &str) -> Result<u16, ConfigError> {
-    let val = env::var(key)?;
+    let val = load_string(key)?;
     val.parse::<u16>().map_err(Into::into)
 }
 
 fn load_url(key: &str) -> Result<Cow<'static, str>, ConfigError> {
-    env::var(key).map_err(Into::into).map(Into::into)
+    load_string(key).map_err(Into::into).map(Into::into)
 }
 
 fn load_address(key: &str) -> Result<Address, ConfigError> {
-    let address = env::var(key)?;
+    let address = load_string(key)?;
     Address::from_str(&address).map_err(Into::into)
 }
 
 fn load_bool(key: &str) -> Result<bool, ConfigError> {
-    let val = env::var(key)?;
+    let val = load_string(key)?;
     match val.as_str() {
         "true" => Ok(true),
         "false" => Ok(false),
