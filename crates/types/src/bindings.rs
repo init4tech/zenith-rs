@@ -10,6 +10,8 @@ sol!(
 
 impl Copy for Zenith::BlockHeader {}
 impl Copy for Zenith::ExitOrder {}
+
+impl Copy for Zenith::BlockSubmitted {}
 impl Copy for Zenith::Enter {}
 impl Copy for Zenith::ExitFilled {}
 impl Copy for Zenith::SequencerSet {}
@@ -18,10 +20,10 @@ impl Clone for Zenith::ZenithEvents {
     fn clone(&self) -> Self {
         match self {
             Self::BlockData(inner) => Self::BlockData(inner.clone()),
-            Self::BlockSubmitted(inner) => Self::BlockSubmitted(inner.clone()),
-            Self::Enter(inner) => Self::Enter(inner.clone()),
-            Self::ExitFilled(inner) => Self::ExitFilled(inner.clone()),
-            Self::SequencerSet(inner) => Self::SequencerSet(inner.clone()),
+            Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner)),
+            Self::Enter(inner) => Self::Enter(*inner),
+            Self::ExitFilled(inner) => Self::ExitFilled(*inner),
+            Self::SequencerSet(inner) => Self::SequencerSet(*inner),
             Self::Withdraw(inner) => Self::Withdraw(inner.clone()),
         }
     }
