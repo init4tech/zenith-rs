@@ -75,22 +75,25 @@ pub enum ConfigError {
     Wallet(#[from] alloy_signer_wallet::WalletError),
 }
 
-pub fn load_builder_config() -> Result<BuilderConfig, ConfigError> {
-    Ok(BuilderConfig {
-        host_chain_id: load_u64(HOST_CHAIN_ID)?,
-        ru_chain_id: load_u64(RU_CHAIN_ID)?,
-        host_rpc_url: load_url(HOST_RPC_URL)?,
-        zenith_address: load_address(ZENITH_ADDRESS)?,
-        quincey_url: load_url(QUINCEY_URL)?,
-        builder_port: load_u16(BUILDER_PORT)?,
-        sequencer_key: load_string_option(SEQUENCER_KEY)?,
-        builder_key: load_string(BUILDER_KEY)?,
-        incoming_transactions_buffer: load_u64(INCOMING_TRANSACTIONS_BUFFER)?,
-        block_confirmation_buffer: load_u64(BLOCK_CONFIRMATION_BUFFER)?,
-        submit_via_calldata: load_bool(SUBMIT_VIA_CALLDATA)?,
-        builder_rewards_address: load_address(BUILDER_REWARDS_ADDRESS)?,
-        rollup_block_gas_limit: load_u64(ROLLUP_BLOCK_GAS_LIMIT)?,
-    })
+impl BuilderConfig {
+    /// Load the builder configuration from environment variables.
+    pub fn load_from_env() -> Result<BuilderConfig, ConfigError> {
+        Ok(BuilderConfig {
+            host_chain_id: load_u64(HOST_CHAIN_ID)?,
+            ru_chain_id: load_u64(RU_CHAIN_ID)?,
+            host_rpc_url: load_url(HOST_RPC_URL)?,
+            zenith_address: load_address(ZENITH_ADDRESS)?,
+            quincey_url: load_url(QUINCEY_URL)?,
+            builder_port: load_u16(BUILDER_PORT)?,
+            sequencer_key: load_string_option(SEQUENCER_KEY)?,
+            builder_key: load_string(BUILDER_KEY)?,
+            incoming_transactions_buffer: load_u64(INCOMING_TRANSACTIONS_BUFFER)?,
+            block_confirmation_buffer: load_u64(BLOCK_CONFIRMATION_BUFFER)?,
+            submit_via_calldata: load_bool(SUBMIT_VIA_CALLDATA)?,
+            builder_rewards_address: load_address(BUILDER_REWARDS_ADDRESS)?,
+            rollup_block_gas_limit: load_u64(ROLLUP_BLOCK_GAS_LIMIT)?,
+        })
+    }
 }
 
 fn load_string(key: &str) -> Result<String, ConfigError> {

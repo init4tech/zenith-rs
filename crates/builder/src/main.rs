@@ -10,7 +10,7 @@ use alloy_provider::ProviderBuilder;
 use tokio::select;
 use zenith_types::Zenith;
 
-use crate::config::load_builder_config;
+use crate::config::BuilderConfig;
 use crate::service::serve_builder_with_span;
 use crate::signer::LocalOrAws;
 
@@ -20,7 +20,7 @@ async fn main() -> eyre::Result<()> {
     let span = tracing::info_span!("zenith-builder");
 
     // load config from env
-    let config = load_builder_config()?;
+    let config = BuilderConfig::load_from_env()?;
 
     // build provider from config
     let builder_signer = LocalOrAws::load(&config.builder_key, Some(config.host_chain_id)).await?;
