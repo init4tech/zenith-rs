@@ -1,8 +1,7 @@
 use alloy_consensus::SignableTransaction;
 use alloy_primitives::{Address, ChainId, B256};
 use alloy_signer::Signature;
-use alloy_signer_aws::AwsSigner;
-use alloy_signer_aws::AwsSignerError;
+use alloy_signer_aws::{AwsSigner, AwsSignerError};
 use alloy_signer_wallet::LocalWallet;
 use aws_config::BehaviorVersion;
 
