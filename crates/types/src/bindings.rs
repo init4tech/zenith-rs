@@ -20,7 +20,7 @@ impl Clone for Zenith::ZenithEvents {
     fn clone(&self) -> Self {
         match self {
             Self::BlockData(inner) => Self::BlockData(inner.clone()),
-            Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner)),
+            Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
             Self::Enter(inner) => Self::Enter(*inner),
             Self::ExitFilled(inner) => Self::ExitFilled(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
