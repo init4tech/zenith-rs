@@ -1,51 +1,46 @@
 use alloy_consensus::SimpleCoder;
 use alloy_network::TransactionBuilder;
-use alloy_primitives::{Address, FixedBytes, U256};
-use alloy_provider::{Provider, WalletProvider};
+use alloy_primitives::{FixedBytes, U256};
+use alloy_provider::{Provider as _, WalletProvider};
 use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
-use alloy_transport::BoxTransport;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::instrument;
-use zenith_types::{SignRequest, SignResponse};
+use zenith_types::{SignRequest, SignResponse, Zenith};
 
-use crate::Zenith::{self, ZenithInstance};
-
-use super::block::InProgressBlock;
+use crate::{
+    config::{Provider, ZenithInstance},
+    signer::LocalOrAws,
+    tasks::block::InProgressBlock,
+};
 
 /// Submits sidecars in ethereum txns to mainnet ethereum
-pub struct SubmitTask<P> {
+pub struct SubmitTask {
     /// Ethereum Provider
-    pub provider: P,
+    pub provider: Provider,
 
     /// Zenity
-    pub zenith: ZenithInstance<BoxTransport, P>,
+    pub zenith: ZenithInstance,
 
     /// Reqwest
     pub client: reqwest::Client,
 
+    /// Sequencer Signer
+    pub sequencer_signer: Option<LocalOrAws>,
+
     /// Config
-    pub config: crate::ChainConfig,
-
-    /// builder address
-    pub builder_rewards: Address,
-
-    /// Gas limit for RU block
-    pub gas_limit: u64,
+    pub config: crate::config::BuilderConfig,
 }
 
-impl<P> SubmitTask<P>
-where
-    P: Provider<BoxTransport> + WalletProvider,
-{
+impl SubmitTask {
     async fn get_confirm_by(&self) -> eyre::Result<u64> {
         self.provider
             .get_block(BlockId::Number(BlockNumberOrTag::Latest), false)
             .await
             .map_err(Into::<eyre::Report>::into)?
             .ok_or_else(|| eyre::eyre!("latest block is none"))
-            .map(|block| block.header.timestamp + self.config.confirmation_buffer)
+            .map(|block| block.header.timestamp + self.config.block_confirmation_buffer)
     }
 
     /// Get the next sequence number from the chain
@@ -91,8 +86,8 @@ where
             ru_chain_id: U256::from(self.config.ru_chain_id),
             sequence: U256::from(sequence),
             confirm_by: U256::from(confirm_by),
-            gas_limit: U256::from(self.gas_limit),
-            ru_reward_address: self.builder_rewards,
+            gas_limit: U256::from(self.config.rollup_block_gas_limit),
+            ru_reward_address: self.config.builder_rewards_address,
             contents: contents.contents_hash(),
         })
     }
@@ -157,13 +152,13 @@ where
             rewardAddress: resp.req.ru_reward_address,
         };
 
-        let tx = if self.config.use_calldata {
+        let tx = if self.config.submit_via_calldata {
             self.build_calldata_tx(header, v, r, s, in_progress)
         } else {
             self.build_blob_tx(header, v, r, s, in_progress)?
         }
         .with_from(self.provider.default_signer_address())
-        .with_to(self.config.zenith);
+        .with_to(self.config.zenith_address);
 
         tracing::debug!(
             sequence = %resp.req.sequence,
@@ -198,7 +193,7 @@ where
 
         // If configured with a local signer, we use it. Otherwise, we ask
         // quincey (politely)
-        let signed = if let Some(signer) = &self.config.local_sequencer_signer {
+        let signed = if let Some(signer) = &self.sequencer_signer {
             let sig = signer.sign_hash(&sig_request.signing_hash()).await?;
             tracing::debug!(
                 sig = hex::encode(sig.as_bytes()),
@@ -221,10 +216,7 @@ where
     }
 }
 
-impl<P> SubmitTask<P>
-where
-    P: Provider<BoxTransport> + WalletProvider + 'static,
-{
+impl SubmitTask {
     /// Spawn the task.
     pub fn spawn(self) -> (mpsc::UnboundedSender<InProgressBlock>, JoinHandle<()>) {
         let (sender, mut inbound) = mpsc::unbounded_channel();
