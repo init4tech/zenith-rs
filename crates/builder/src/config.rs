@@ -1,6 +1,13 @@
+use crate::signer::{LocalOrAws, SignerError};
+use alloy_network::{Ethereum, EthereumSigner};
 use alloy_primitives::Address;
-use alloy_signer_aws::AwsSignerError;
+use alloy_provider::{
+    fillers::{ChainIdFiller, FillProvider, GasFiller, JoinFill, NonceFiller, SignerFiller},
+    Identity, ProviderBuilder, RootProvider,
+};
+use alloy_transport::BoxTransport;
 use std::{borrow::Cow, env, num, str::FromStr};
+use zenith_types::Zenith;
 
 // Keys for .env variables that need to be set to configure the builder.
 const HOST_CHAIN_ID: &str = "HOST_CHAIN_ID";
@@ -64,16 +71,29 @@ pub enum ConfigError {
     /// Error parsing boolean environment variable
     #[error("failed to parse boolean environment variable")]
     ParseBool,
-    /// Error during [`AwsSigner`] instantiation
-    #[error("failed to connect AWS signer: {0}")]
-    AwsSigner(#[from] AwsSignerError),
-    /// Error parsing hex
+    /// Error parsing hex from environment variable
     #[error("failed to parse hex: {0}")]
     Hex(#[from] hex::FromHexError),
-    /// Error loading the private key
-    #[error("failed to load private key: {0}")]
-    Wallet(#[from] alloy_signer_wallet::WalletError),
+    /// Error connecting to the provider
+    #[error("failed to connect to provider: {0}")]
+    Provider(#[from] alloy_transport::TransportError),
+    /// Error connecting to the signer
+    #[error("failed to connect to signer: {0}")]
+    Signer(#[from] SignerError),
 }
+
+/// Provider type used by this transaction
+pub type Provider = FillProvider<
+    JoinFill<
+        JoinFill<JoinFill<JoinFill<Identity, GasFiller>, NonceFiller>, ChainIdFiller>,
+        SignerFiller<EthereumSigner>,
+    >,
+    RootProvider<BoxTransport>,
+    BoxTransport,
+    Ethereum,
+>;
+
+pub type ZenithInstance = Zenith::ZenithInstance<BoxTransport, Provider>;
 
 impl BuilderConfig {
     /// Load the builder configuration from environment variables.
@@ -93,6 +113,37 @@ impl BuilderConfig {
             builder_rewards_address: load_address(BUILDER_REWARDS_ADDRESS)?,
             rollup_block_gas_limit: load_u64(ROLLUP_BLOCK_GAS_LIMIT)?,
         })
+    }
+
+    pub async fn connect_builder_signer(&self) -> Result<LocalOrAws, ConfigError> {
+        LocalOrAws::load(&self.builder_key, Some(self.host_chain_id))
+            .await
+            .map_err(Into::into)
+    }
+
+    pub async fn connect_sequencer_signer(&self) -> Result<Option<LocalOrAws>, ConfigError> {
+        match &self.sequencer_key {
+            Some(sequencer_key) => LocalOrAws::load(sequencer_key, Some(self.host_chain_id))
+                .await
+                .map_err(Into::into)
+                .map(Some),
+            None => Ok(None),
+        }
+    }
+
+    /// Connect to the provider using the configuration.
+    pub async fn connect_provider(&self) -> Result<Provider, ConfigError> {
+        let builder_signer = self.connect_builder_signer().await?;
+        ProviderBuilder::new()
+            .with_recommended_fillers()
+            .signer(EthereumSigner::from(builder_signer))
+            .on_builtin(&self.host_rpc_url)
+            .await
+            .map_err(Into::into)
+    }
+
+    pub fn connect_zenith(&self, provider: Provider) -> ZenithInstance {
+        Zenith::new(self.zenith_address, provider)
     }
 }
 

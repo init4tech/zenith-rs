@@ -1,41 +1,39 @@
 use alloy_consensus::SimpleCoder;
 use alloy_network::TransactionBuilder;
 use alloy_primitives::{FixedBytes, U256};
-use alloy_provider::{Provider, WalletProvider};
+use alloy_provider::{Provider as _, WalletProvider};
 use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
-use alloy_transport::BoxTransport;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::instrument;
-use zenith_types::{SignRequest, SignResponse};
+use zenith_types::{SignRequest, SignResponse, Zenith};
 
 use crate::{
+    config::{Provider, ZenithInstance},
     signer::LocalOrAws,
-    Zenith::{self, ZenithInstance},
+    tasks::block::InProgressBlock,
 };
 
-use super::block::InProgressBlock;
-
 /// Submits sidecars in ethereum txns to mainnet ethereum
-pub struct SubmitTask<P> {
+pub struct SubmitTask {
     /// Ethereum Provider
-    pub provider: P,
+    pub provider: Provider,
 
     /// Zenity
-    pub zenith: ZenithInstance<BoxTransport, P>,
+    pub zenith: ZenithInstance,
 
     /// Reqwest
     pub client: reqwest::Client,
+
+    /// Sequencer Signer
+    pub sequencer_signer: Option<LocalOrAws>,
 
     /// Config
     pub config: crate::config::BuilderConfig,
 }
 
-impl<P> SubmitTask<P>
-where
-    P: Provider<BoxTransport> + WalletProvider,
-{
+impl SubmitTask {
     async fn get_confirm_by(&self) -> eyre::Result<u64> {
         self.provider
             .get_block(BlockId::Number(BlockNumberOrTag::Latest), false)
@@ -195,8 +193,7 @@ where
 
         // If configured with a local signer, we use it. Otherwise, we ask
         // quincey (politely)
-        let signed = if let Some(sequencer_key) = &self.config.sequencer_key {
-            let signer = LocalOrAws::load(sequencer_key, Some(self.config.host_chain_id)).await?;
+        let signed = if let Some(signer) = &self.sequencer_signer {
             let sig = signer.sign_hash(&sig_request.signing_hash()).await?;
             tracing::debug!(
                 sig = hex::encode(sig.as_bytes()),
@@ -219,10 +216,7 @@ where
     }
 }
 
-impl<P> SubmitTask<P>
-where
-    P: Provider<BoxTransport> + WalletProvider + 'static,
-{
+impl SubmitTask {
     /// Spawn the task.
     pub fn spawn(self) -> (mpsc::UnboundedSender<InProgressBlock>, JoinHandle<()>) {
         let (sender, mut inbound) = mpsc::unbounded_channel();

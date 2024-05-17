@@ -5,14 +5,10 @@ mod service;
 mod signer;
 mod tasks;
 
-use alloy_network::EthereumSigner;
-use alloy_provider::ProviderBuilder;
 use tokio::select;
-use zenith_types::Zenith;
 
 use crate::config::BuilderConfig;
 use crate::service::serve_builder_with_span;
-use crate::signer::LocalOrAws;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -22,21 +18,16 @@ async fn main() -> eyre::Result<()> {
     // load config from env
     let config = BuilderConfig::load_from_env()?;
 
-    // build provider from config
-    let builder_signer = LocalOrAws::load(&config.builder_key, Some(config.host_chain_id)).await?;
-    let provider = ProviderBuilder::new()
-        .with_recommended_fillers()
-        .signer(EthereumSigner::from(builder_signer))
-        .on_builtin(&config.host_rpc_url.clone())
-        .await?;
+    let provider = config.connect_provider().await?;
 
     tracing::debug!(
         rpc_url = config.host_rpc_url.as_ref(),
         "instantiated provider"
     );
 
-    // build zenith from config
-    let zenith = Zenith::new(config.zenith_address, provider.clone());
+    let sequencer_signer = config.connect_sequencer_signer().await?;
+
+    let zenith = config.connect_zenith(provider.clone());
 
     let port = config.builder_port;
 
@@ -46,6 +37,7 @@ async fn main() -> eyre::Result<()> {
         provider,
         zenith,
         client: reqwest::Client::new(),
+        sequencer_signer,
         config,
     };
 

@@ -1,8 +1,8 @@
-use crate::config::ConfigError;
 use alloy_consensus::SignableTransaction;
 use alloy_primitives::{Address, ChainId, B256};
 use alloy_signer::Signature;
 use alloy_signer_aws::AwsSigner;
+use alloy_signer_aws::AwsSignerError;
 use alloy_signer_wallet::LocalWallet;
 use aws_config::BehaviorVersion;
 
@@ -13,9 +13,22 @@ pub enum LocalOrAws {
     Aws(AwsSigner),
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum SignerError {
+    /// Error during [`AwsSigner`] instantiation
+    #[error("failed to connect AWS signer: {0}")]
+    AwsSigner(#[from] AwsSignerError),
+    /// Error loading the private key
+    #[error("failed to load private key: {0}")]
+    Wallet(#[from] alloy_signer_wallet::WalletError),
+    /// Error parsing hex
+    #[error("failed to parse hex: {0}")]
+    Hex(#[from] hex::FromHexError),
+}
+
 impl LocalOrAws {
     /// Load a privkey or AWS signer from environment variables.
-    pub async fn load(key: &str, chain_id: Option<u64>) -> Result<Self, ConfigError> {
+    pub async fn load(key: &str, chain_id: Option<u64>) -> Result<Self, SignerError> {
         if let Ok(wallet) = LocalOrAws::wallet(key) {
             Ok(LocalOrAws::Local(wallet))
         } else {
@@ -29,13 +42,13 @@ impl LocalOrAws {
     /// # Panics
     ///
     /// Panics if the env var contents is not a valid secp256k1 private key.
-    fn wallet(private_key: &str) -> Result<LocalWallet, ConfigError> {
+    fn wallet(private_key: &str) -> Result<LocalWallet, SignerError> {
         let bytes = hex::decode(private_key.strip_prefix("0x").unwrap_or(private_key))?;
         Ok(LocalWallet::from_slice(&bytes).unwrap())
     }
 
     /// Load the AWS signer from environment variables./s
-    async fn aws_signer(key_id: &str, chain_id: Option<u64>) -> Result<AwsSigner, ConfigError> {
+    async fn aws_signer(key_id: &str, chain_id: Option<u64>) -> Result<AwsSigner, SignerError> {
         let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
         let client = aws_sdk_kms::Client::new(&config);
         AwsSigner::new(client, key_id.to_string(), chain_id)
