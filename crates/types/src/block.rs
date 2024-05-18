@@ -146,9 +146,7 @@ where
     }
 
     fn seal(&self) {
-        let encoded = self
-            .encoded
-            .get_or_init(|| encode_transactions::<C>(&self.transactions));
+        let encoded = self.encoded.get_or_init(|| encode_transactions::<C>(&self.transactions));
         self.block_data_hash.get_or_init(|| keccak256(encoded));
     }
 
@@ -189,7 +187,7 @@ where
 /// envelopes.
 ///
 /// A [`encode_txns`] has been provided for completeness.
-pub fn decode_txns<C>(block_data: impl AsRef<[u8]>) -> Result<Vec<C::Tx>, Eip2718Error>
+pub(crate) fn decode_txns<C>(block_data: impl AsRef<[u8]>) -> Result<Vec<C::Tx>, Eip2718Error>
 where
     C: Coder,
 {
@@ -201,7 +199,9 @@ where
 }
 
 /// Encode a set of transactions into a single RLP-encoded buffer.
-pub fn encode_transactions<'a, C>(transactions: impl IntoIterator<Item = &'a C::Tx>) -> Vec<u8>
+pub(crate) fn encode_transactions<'a, C>(
+    transactions: impl IntoIterator<Item = &'a C::Tx>,
+) -> Vec<u8>
 where
     C: Coder,
     C::Tx: 'a,

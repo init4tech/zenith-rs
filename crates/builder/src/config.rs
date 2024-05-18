@@ -123,9 +123,7 @@ impl BuilderConfig {
     }
 
     pub async fn connect_builder_signer(&self) -> Result<LocalOrAws, ConfigError> {
-        LocalOrAws::load(&self.builder_key, Some(self.host_chain_id))
-            .await
-            .map_err(Into::into)
+        LocalOrAws::load(&self.builder_key, Some(self.host_chain_id)).await.map_err(Into::into)
     }
 
     pub async fn connect_sequencer_signer(&self) -> Result<Option<LocalOrAws>, ConfigError> {

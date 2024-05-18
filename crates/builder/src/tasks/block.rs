@@ -81,9 +81,7 @@ pub struct BlockBuilder {
 
 impl BlockBuilder {
     pub fn new(config: &BuilderConfig) -> Self {
-        Self {
-            incoming_transactions_buffer: config.incoming_transactions_buffer,
-        }
+        Self { incoming_transactions_buffer: config.incoming_transactions_buffer }
     }
 
     /// Spawn the block builder task, returning the inbound channel to it, and
