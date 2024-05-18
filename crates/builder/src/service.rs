@@ -30,27 +30,18 @@ pub struct AppError {
 impl AppError {
     /// Instantiate a new error with the bad request status code.
     pub fn bad_req<E: std::error::Error + Send + Sync + 'static>(e: E) -> Self {
-        Self {
-            code: StatusCode::BAD_REQUEST,
-            eyre: e.into(),
-        }
+        Self { code: StatusCode::BAD_REQUEST, eyre: e.into() }
     }
 
     /// Instantiate a new error with the bad request status code and an error
     /// string.
     pub fn bad_req_str(e: &str) -> Self {
-        Self {
-            code: StatusCode::BAD_REQUEST,
-            eyre: eyre::eyre!(e.to_owned()),
-        }
+        Self { code: StatusCode::BAD_REQUEST, eyre: eyre::eyre!(e.to_owned()) }
     }
 
     /// Instantiate a new error with the internal server error status code.
     pub fn server_err<E: std::error::Error + Send + Sync + 'static>(e: E) -> Self {
-        Self {
-            code: StatusCode::INTERNAL_SERVER_ERROR,
-            eyre: e.into(),
-        }
+        Self { code: StatusCode::INTERNAL_SERVER_ERROR, eyre: e.into() }
     }
 }
 

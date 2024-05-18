@@ -21,7 +21,6 @@ alloy-eips.workspace = true
 alloy-signer.workspace = true
 
 serde.workspace = true
-tracing.workspace = true
 alloy-rlp.workspace = true
 
 [dev-dependencies]

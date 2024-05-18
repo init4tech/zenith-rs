@@ -1,3 +1,16 @@
+#![doc = include_str!("../README.md")]
+#![warn(
+    missing_copy_implementations,
+    missing_debug_implementations,
+    missing_docs,
+    unreachable_pub,
+    clippy::missing_const_for_fn,
+    rustdoc::all
+)]
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+#![deny(unused_must_use, rust_2018_idioms)]
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
+
 mod bindings;
 pub use bindings::{RollupPassage, Zenith};
 
@@ -13,6 +26,7 @@ pub use resp::SignResponse;
 /// A [`RequestSigner`] signs [`SignRequest`]s by delegating to an
 /// [`alloy_signer::Signer`].
 pub trait RequestSigner {
+    /// Signs a [`SignRequest`] and returns the [`alloy_primitives::Signature`].
     fn sign_request(
         &self,
         request: &SignRequest,

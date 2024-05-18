@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 /// The domain binding for the signing service.
 const DOMAIN_BINDING: &str = "init4.sequencer.v0";
 
+/// A request to sign a rollup block.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct SignRequest {
     /// The chain ID of the host.
@@ -39,7 +40,7 @@ impl SignRequest {
 }
 
 impl core::fmt::Display for SignRequest {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
             "SignRequest {{ host_chain_id: {}, ru_chain_id: {}, sequence: {}, confirm_by: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",

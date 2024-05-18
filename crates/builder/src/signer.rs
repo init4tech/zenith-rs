@@ -50,9 +50,7 @@ impl LocalOrAws {
     async fn aws_signer(key_id: &str, chain_id: Option<u64>) -> Result<AwsSigner, SignerError> {
         let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
         let client = aws_sdk_kms::Client::new(&config);
-        AwsSigner::new(client, key_id.to_string(), chain_id)
-            .await
-            .map_err(Into::into)
+        AwsSigner::new(client, key_id.to_string(), chain_id).await.map_err(Into::into)
     }
 }
 
