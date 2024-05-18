@@ -9,19 +9,24 @@ use alloy_primitives::{keccak256, Address, B256};
 pub type ZenithTransaction = TxEnvelope;
 
 /// Encode/Decode trait for inner tx type
-pub trait Coder<T> {
+pub trait Coder {
+    /// The inner tx type.
+    type Tx: std::fmt::Debug + Clone + PartialEq + Eq;
+
     /// Encode the tx.
-    fn encode(t: &T) -> Vec<u8>;
+    fn encode(t: &Self::Tx) -> Vec<u8>;
 
     /// Decode the tx.
-    fn decode(buf: &mut &[u8]) -> Option<T>
+    fn decode(buf: &mut &[u8]) -> Option<Self::Tx>
     where
         Self: Sized;
 }
 
 pub struct Alloy2718Coder;
 
-impl Coder<ZenithTransaction> for Alloy2718Coder {
+impl Coder for Alloy2718Coder {
+    type Tx = ZenithTransaction;
+
     fn encode(t: &ZenithTransaction) -> Vec<u8> {
         t.encoded_2718()
     }
@@ -36,13 +41,13 @@ impl Coder<ZenithTransaction> for Alloy2718Coder {
 
 /// A Zenith block is just a list of transactions.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ZenithBlock<C: Coder<T> = Alloy2718Coder, T = ZenithTransaction> {
+pub struct ZenithBlock<C: Coder = Alloy2718Coder> {
     /// The zenith block header, which may be extracted from a
     /// [`crate::Zenith::BlockSubmitted`] event.
     header: ZenithHeader,
     /// The transactions in the block, which are extracted from the calldata or
     /// blob data.
-    transactions: Vec<T>,
+    transactions: Vec<<C as Coder>::Tx>,
 
     // memoization fields
     encoded: OnceLock<Vec<u8>>,
@@ -52,12 +57,12 @@ pub struct ZenithBlock<C: Coder<T> = Alloy2718Coder, T = ZenithTransaction> {
     _pd: std::marker::PhantomData<C>,
 }
 
-impl<C, T> ZenithBlock<C, T>
+impl<C> ZenithBlock<C>
 where
-    C: Coder<T>,
+    C: Coder,
 {
     /// Create a new zenith block.
-    pub fn new(header: ZenithHeader, transactions: Vec<T>) -> Self {
+    pub fn new(header: ZenithHeader, transactions: Vec<<C as Coder>::Tx>) -> Self {
         ZenithBlock {
             header,
             transactions,
@@ -73,7 +78,7 @@ where
         buf: impl AsRef<[u8]>,
     ) -> Result<Self, Eip2718Error> {
         let b = buf.as_ref();
-        let transactions = decode_txns::<C, T>(b)?;
+        let transactions = decode_txns::<C>(b)?;
         let h = keccak256(b);
         Ok(ZenithBlock {
             header,
@@ -85,7 +90,7 @@ where
     }
 
     /// Break the block into its parts.
-    pub fn into_parts(self) -> (ZenithHeader, Vec<T>) {
+    pub fn into_parts(self) -> (ZenithHeader, Vec<C::Tx>) {
         (self.header, self.transactions)
     }
 
@@ -102,29 +107,29 @@ where
     }
 
     /// Push a transaction into the block.
-    pub fn push_transaction(&mut self, tx: T) {
+    pub fn push_transaction(&mut self, tx: C::Tx) {
         self.unseal();
         self.transactions.push(tx);
     }
 
     /// Access to the transactions.
-    pub fn transactions(&self) -> &[T] {
+    pub fn transactions(&self) -> &[C::Tx] {
         &self.transactions
     }
 
     /// Mutable access to the transactions.
-    pub fn transactions_mut(&mut self) -> &mut Vec<T> {
+    pub fn transactions_mut(&mut self) -> &mut Vec<C::Tx> {
         self.unseal();
         &mut self.transactions
     }
 
     /// Iterate over the transactions.
-    pub fn transactions_iter(&self) -> std::slice::Iter<'_, T> {
+    pub fn transactions_iter(&self) -> std::slice::Iter<'_, C::Tx> {
         self.transactions.iter()
     }
 
     /// Iterate over mut transactions.
-    pub fn transactions_iter_mut(&mut self) -> std::slice::IterMut<'_, T> {
+    pub fn transactions_iter_mut(&mut self) -> std::slice::IterMut<'_, C::Tx> {
         self.unseal();
         self.transactions.iter_mut()
     }
@@ -142,7 +147,7 @@ where
     fn seal(&self) {
         let encoded = self
             .encoded
-            .get_or_init(|| encode_transactions::<C, T>(&self.transactions));
+            .get_or_init(|| encode_transactions::<C>(&self.transactions));
         self.block_data_hash.get_or_init(|| keccak256(encoded));
     }
 
@@ -183,9 +188,9 @@ where
 /// envelopes.
 ///
 /// A [`encode_txns`] has been provided for completeness.
-pub fn decode_txns<C, T>(block_data: impl AsRef<[u8]>) -> Result<Vec<T>, Eip2718Error>
+pub fn decode_txns<C>(block_data: impl AsRef<[u8]>) -> Result<Vec<C::Tx>, Eip2718Error>
 where
-    C: Coder<T>,
+    C: Coder,
 {
     let mut bd = block_data.as_ref();
 
@@ -198,10 +203,10 @@ where
 }
 
 /// Encode a set of transactions into a single RLP-encoded buffer.
-pub fn encode_transactions<'a, C, T>(transactions: impl IntoIterator<Item = &'a T>) -> Vec<u8>
+pub fn encode_transactions<'a, C>(transactions: impl IntoIterator<Item = &'a C::Tx>) -> Vec<u8>
 where
-    C: Coder<T>,
-    T: 'a,
+    C: Coder,
+    C::Tx: 'a,
 {
     let encoded_txns = transactions
         .into_iter()
@@ -247,14 +252,14 @@ mod test {
         ));
 
         let mut txs = vec![tx.clone()];
-        let encoded = encode_transactions::<Alloy2718Coder, TxEnvelope>(&txs);
-        let decoded = decode_txns::<Alloy2718Coder, TxEnvelope>(encoded).unwrap();
+        let encoded = encode_transactions::<Alloy2718Coder>(&txs);
+        let decoded = decode_txns::<Alloy2718Coder>(encoded).unwrap();
 
         assert_eq!(txs, decoded);
 
         txs.push(tx.clone());
-        let encoded = encode_transactions::<Alloy2718Coder, TxEnvelope>(&txs);
-        let decoded = decode_txns::<Alloy2718Coder, TxEnvelope>(encoded).unwrap();
+        let encoded = encode_transactions::<Alloy2718Coder>(&txs);
+        let decoded = decode_txns::<Alloy2718Coder>(encoded).unwrap();
 
         assert_eq!(txs, decoded);
     }
