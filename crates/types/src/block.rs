@@ -19,6 +19,7 @@ pub trait Coder<T> {
         Self: Sized;
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct Alloy2718Coder;
 
 impl Coder<ZenithTransaction> for Alloy2718Coder {
@@ -130,7 +131,7 @@ where
     }
 
     /// Access to the header.
-    pub fn header(&self) -> &ZenithHeader {
+    pub const fn header(&self) -> &ZenithHeader {
         &self.header
     }
 
@@ -140,9 +141,7 @@ where
     }
 
     fn seal(&self) {
-        let encoded = self
-            .encoded
-            .get_or_init(|| encode_transactions::<C, T>(&self.transactions));
+        let encoded = self.encoded.get_or_init(|| encode_transactions::<C, T>(&self.transactions));
         self.block_data_hash.get_or_init(|| keccak256(encoded));
     }
 
@@ -152,27 +151,27 @@ where
     }
 
     /// Get the chain ID of the block (discarding high bytes).
-    pub fn chain_id(&self) -> u64 {
+    pub const fn chain_id(&self) -> u64 {
         self.header.chain_id()
     }
 
     /// Get the sequence of the block (discarding high bytes).
-    pub fn sequence(&self) -> u64 {
+    pub const fn sequence(&self) -> u64 {
         self.header.sequence()
     }
 
     /// Get the confirm by time of the block (discarding high bytes).
-    pub fn confirm_by(&self) -> u64 {
+    pub const fn confirm_by(&self) -> u64 {
         self.header.confirm_by()
     }
 
     /// Get the gas limit of the block (discarding high bytes).
-    pub fn gas_limit(&self) -> u64 {
+    pub const fn gas_limit(&self) -> u64 {
         self.header.gas_limit()
     }
 
     /// Get the reward address of the block.
-    pub fn reward_address(&self) -> Address {
+    pub const fn reward_address(&self) -> Address {
         self.header.reward_address()
     }
 }
@@ -183,7 +182,7 @@ where
 /// envelopes.
 ///
 /// A [`encode_txns`] has been provided for completeness.
-pub fn decode_txns<C, T>(block_data: impl AsRef<[u8]>) -> Result<Vec<T>, Eip2718Error>
+pub(crate) fn decode_txns<C, T>(block_data: impl AsRef<[u8]>) -> Result<Vec<T>, Eip2718Error>
 where
     C: Coder<T>,
 {
@@ -191,22 +190,18 @@ where
 
     let rlp: Vec<Vec<u8>> = alloy_rlp::Decodable::decode(&mut bd)?;
 
-    Ok(rlp
-        .into_iter()
-        .flat_map(|buf| C::decode(&mut buf.as_slice()))
-        .collect())
+    Ok(rlp.into_iter().flat_map(|buf| C::decode(&mut buf.as_slice())).collect())
 }
 
 /// Encode a set of transactions into a single RLP-encoded buffer.
-pub fn encode_transactions<'a, C, T>(transactions: impl IntoIterator<Item = &'a T>) -> Vec<u8>
+pub(crate) fn encode_transactions<'a, C, T>(
+    transactions: impl IntoIterator<Item = &'a T>,
+) -> Vec<u8>
 where
     C: Coder<T>,
     T: 'a,
 {
-    let encoded_txns = transactions
-        .into_iter()
-        .map(|tx| C::encode(tx))
-        .collect::<Vec<Vec<u8>>>();
+    let encoded_txns = transactions.into_iter().map(|tx| C::encode(tx)).collect::<Vec<Vec<u8>>>();
 
     let mut buf = Vec::new();
     alloy_rlp::Encodable::encode(&encoded_txns, &mut buf);

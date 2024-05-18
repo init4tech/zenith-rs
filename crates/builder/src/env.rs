@@ -138,9 +138,7 @@ pub async fn load_aws_signer(key: &str, chain_id: Option<u64>) -> Result<AwsSign
 
     let key_id = load_key_id(key)?;
 
-    AwsSigner::new(client, key_id, chain_id)
-        .await
-        .map_err(Into::into)
+    AwsSigner::new(client, key_id, chain_id).await.map_err(Into::into)
 }
 
 pub fn load_key_id(key: &str) -> Result<String, ConfigError> {

@@ -115,9 +115,7 @@ where
         }
         .abi_encode();
         let sidecar = in_progress.encode_blob::<SimpleCoder>().build()?;
-        Ok(TransactionRequest::default()
-            .with_blob_sidecar(sidecar)
-            .with_input(data))
+        Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
     }
 
     fn build_calldata_tx(
@@ -204,10 +202,7 @@ where
                 sig = hex::encode(sig.as_bytes()),
                 "acquied signature from local signer"
             );
-            SignResponse {
-                req: sig_request,
-                sig,
-            }
+            SignResponse { req: sig_request, sig }
         } else {
             let resp: SignResponse = self.sup_quincey(&sig_request).await?;
             tracing::debug!(

@@ -18,8 +18,7 @@ impl SignResponse {
     ///
     /// - If recovery fails due to a k256 error.
     pub fn signer(&self) -> Result<Address, SignatureError> {
-        self.sig
-            .recover_address_from_prehash(&self.req.signing_hash())
+        self.sig.recover_address_from_prehash(&self.req.signing_hash())
     }
 }
 
