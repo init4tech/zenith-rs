@@ -6,7 +6,7 @@ use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
 use tokio::{sync::mpsc, task::JoinHandle};
-use tracing::instrument;
+use tracing::{debug, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
 
 use crate::{
@@ -73,7 +73,12 @@ impl SubmitTask {
             .await?
             .error_for_status()?;
 
-        resp.json().await.map_err(Into::into)
+        let body = resp.bytes().await?;
+
+        debug!(bytes = body.len(), "retrieved response body");
+        trace!(body = %String::from_utf8_lossy(&body), "response body");
+
+        serde_json::from_slice(&body).map_err(Into::into)
     }
 
     #[instrument(skip_all, err)]
