@@ -2,7 +2,7 @@ use crate::SignRequest;
 use alloy_primitives::{Address, Signature, SignatureError};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 /// A signature response from a [`RequestSigner`].
 pub struct SignResponse {
     /// The request that was signed.
@@ -47,5 +47,28 @@ mod test {
         let addr = resp.signer().unwrap();
 
         assert_eq!(addr, signer.address());
+    }
+
+    #[tokio::test]
+    async fn deser_roundtrip() {
+        let req = SignRequest {
+            host_chain_id: U256::from(1u64),
+            ru_chain_id: U256::from(2u64),
+            sequence: U256::from(3u64),
+            confirm_by: U256::from(4u64),
+            gas_limit: U256::from(5u64),
+            ru_reward_address: Address::repeat_byte(6),
+            contents: [7u8; 32].into(),
+        };
+        let signer = alloy_signer_wallet::LocalWallet::from_slice(&[8u8; 32]).unwrap();
+
+        let sig = signer.sign_request(&req).await.unwrap();
+
+        let resp = SignResponse { req, sig };
+
+        let json = serde_json::to_string(&resp).unwrap();
+        let resp2: SignResponse = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(resp, resp2);
     }
 }
