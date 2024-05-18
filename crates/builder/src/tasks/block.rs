@@ -4,6 +4,8 @@ use std::{sync::OnceLock, time::Duration};
 use tokio::{select, sync::mpsc, task::JoinHandle};
 use tracing::Instrument;
 
+use crate::config::BuilderConfig;
+
 #[derive(Debug, Default, Clone)]
 /// A block in progress.
 pub struct InProgressBlock {
@@ -74,10 +76,16 @@ impl InProgressBlock {
 }
 
 pub struct BlockBuilder {
-    pub wait_secs: u64,
+    pub incoming_transactions_buffer: u64,
 }
 
 impl BlockBuilder {
+    pub fn new(config: &BuilderConfig) -> Self {
+        Self {
+            incoming_transactions_buffer: config.incoming_transactions_buffer,
+        }
+    }
+
     /// Spawn the block builder task, returning the inbound channel to it, and
     /// a handle to the running task.
     pub fn spawn(
@@ -90,7 +98,7 @@ impl BlockBuilder {
         let handle = tokio::spawn(
             async move {
                 loop {
-                    let sleep = tokio::time::sleep(Duration::from_secs(self.wait_secs));
+                    let sleep = tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer));
                     tokio::pin!(sleep);
 
                     select! {

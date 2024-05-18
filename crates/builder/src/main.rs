@@ -1,103 +1,52 @@
 #![allow(dead_code)]
 
-mod env;
-use env::LocalOrAws;
-
+mod config;
 mod service;
+mod signer;
 mod tasks;
 
-use alloy_network::EthereumSigner;
-use alloy_network::TxSigner;
-use alloy_primitives::Address;
-use alloy_provider::ProviderBuilder;
-use std::borrow::Cow;
 use tokio::select;
-use zenith_types::Zenith;
 
-use crate::env::{load_quincey, load_rpc, load_zenith_address};
+use crate::config::BuilderConfig;
 use crate::service::serve_builder_with_span;
-
-/// Configuration for a builder running a specific rollup on a specific host
-/// chain.
-pub struct ChainConfig {
-    /// The chain ID of the host chain
-    pub host_chain_id: u64,
-    /// The chain ID of the host chain
-    pub ru_chain_id: u64,
-    /// Buffer time in seconds for the block to confirm
-    pub confirmation_buffer: u64,
-    /// address of the Zenith contract
-    pub zenith: Address,
-    /// URL for Quincey server to sign blocks. This prop is disregarded if a
-    /// local_sequencer_signer is configured via the "SEQUENCER_KEY" env var.
-    pub quincey_url: Cow<'static, str>,
-    /// URL for RPC node
-    pub rpc_url: Cow<'static, str>,
-
-    /// Wallet for signing blocks locally.
-    pub local_sequencer_signer: Option<LocalOrAws>,
-
-    /// Whether to use calldata or blob for transactions
-    pub use_calldata: bool,
-}
-
-impl ChainConfig {
-    /// Creates a new ChainConfig for the Holesky testnet.
-    const fn holesky(
-        local_sequencer_signer: Option<LocalOrAws>,
-        rpc_url: Cow<'static, str>,
-        quincey_url: Cow<'static, str>,
-        zenith: Address,
-    ) -> Self {
-        ChainConfig {
-            host_chain_id: 17000,
-            ru_chain_id: 17001,
-            confirmation_buffer: 60 * 20,
-            zenith,
-            quincey_url,
-            rpc_url,
-            local_sequencer_signer,
-            use_calldata: true,
-        }
-    }
-}
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     tracing_subscriber::fmt::try_init().unwrap();
-
     let span = tracing::info_span!("zenith-builder");
 
-    // finish app config by loading key from env
-    let config = ChainConfig::holesky(None, load_rpc()?, load_quincey()?, load_zenith_address()?);
+    // load config from env
+    let config = BuilderConfig::load_from_env()?;
 
-    // Load builder key from env
-    let wallet = LocalOrAws::load("BUILDER_KEY_ID", Some(config.host_chain_id)).await?;
-    let builder_rewards = wallet.address();
+    let provider = config.connect_provider().await?;
 
-    let provider = ProviderBuilder::new()
-        .with_recommended_fillers()
-        .signer(EthereumSigner::from(wallet))
-        .on_builtin(&config.rpc_url)
-        .await?;
-    tracing::debug!(rpc_url = config.rpc_url.as_ref(), "instantiated provider");
-    let zenith = Zenith::new(config.zenith, provider.clone());
+    tracing::debug!(
+        rpc_url = config.host_rpc_url.as_ref(),
+        "instantiated provider"
+    );
 
-    let build = tasks::block::BlockBuilder { wait_secs: 5 };
+    let sequencer_signer = config.connect_sequencer_signer().await?;
+
+    let zenith = config.connect_zenith(provider.clone());
+
+    let port = config.builder_port;
+
+    let build = tasks::block::BlockBuilder::new(&config);
+
     let submit = tasks::submit::SubmitTask {
         provider,
         zenith,
         client: reqwest::Client::new(),
+        sequencer_signer,
         config,
-        builder_rewards,
-        gas_limit: 30_000_000,
     };
 
     let (submit_channel, submit_jh) = submit.spawn();
 
     let (build_channel, build_jh) = build.spawn(submit_channel);
 
-    let server = serve_builder_with_span(build_channel, ([0, 0, 0, 0], 6969), span);
+    // server
+    let server = serve_builder_with_span(build_channel, ([0, 0, 0, 0], port), span);
 
     select! {
         _ = submit_jh => {
