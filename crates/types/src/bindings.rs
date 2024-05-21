@@ -2,6 +2,8 @@
 use alloy_primitives::Address;
 use alloy_sol_types::sol;
 
+use self::RollupPassage::{RollupPassageErrors, RollupPassageEvents};
+
 sol!(
     #[sol(rpc)]
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -16,6 +18,28 @@ impl Copy for Zenith::BlockSubmitted {}
 impl Copy for Zenith::Enter {}
 impl Copy for Zenith::ExitFilled {}
 impl Copy for Zenith::SequencerSet {}
+
+impl Copy for Zenith::BadSequence {}
+impl Copy for Zenith::BadSignature {}
+impl Copy for Zenith::BlockExpired {}
+impl Copy for Zenith::OneRollupBlockPerHostBlock {}
+impl Copy for Zenith::OnlySequencerAdmin {}
+impl Copy for Zenith::OnlyWithdrawalAdmin {}
+impl Copy for Zenith::OrderExpired {}
+
+impl Clone for Zenith::ZenithErrors {
+    fn clone(&self) -> Self {
+        match self {
+            Self::BadSequence(inner) => Self::BadSequence(*inner),
+            Self::BadSignature(inner) => Self::BadSignature(*inner),
+            Self::BlockExpired(inner) => Self::BlockExpired(*inner),
+            Self::OneRollupBlockPerHostBlock(inner) => Self::OneRollupBlockPerHostBlock(*inner),
+            Self::OnlySequencerAdmin(inner) => Self::OnlySequencerAdmin(*inner),
+            Self::OnlyWithdrawalAdmin(inner) => Self::OnlyWithdrawalAdmin(*inner),
+            Self::OrderExpired(inner) => Self::OrderExpired(*inner),
+        }
+    }
+}
 
 impl Clone for Zenith::ZenithEvents {
     fn clone(&self) -> Self {
@@ -89,3 +113,19 @@ sol!(
 
 impl Copy for RollupPassage::Exit {}
 impl Copy for RollupPassage::Sweep {}
+
+impl Copy for RollupPassage::OrderExpired {}
+impl Copy for RollupPassageEvents {}
+impl Copy for RollupPassageErrors {}
+
+impl Clone for RollupPassage::RollupPassageEvents {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl Clone for RollupPassage::RollupPassageErrors {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
