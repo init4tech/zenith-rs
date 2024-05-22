@@ -77,6 +77,19 @@ impl From<&Zenith::ExitFilled> for Zenith::ExitOrder {
     }
 }
 
+impl Zenith::ZenithEvents {
+    /// Get the chain ID of the event (discarding high bytes), returns `None`
+    /// if the event has no associated chain id.
+    pub fn chain_id(&self) -> Option<u64> {
+        match self {
+            Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            Zenith::ZenithEvents::Enter(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            Zenith::ZenithEvents::ExitFilled(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            _ => None,
+        }
+    }
+}
+
 impl Zenith::BlockHeader {
     /// Get the chain ID of the block (discarding high bytes).
     pub const fn chain_id(&self) -> u64 {
