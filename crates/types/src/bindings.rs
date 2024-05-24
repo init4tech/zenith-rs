@@ -93,7 +93,7 @@ impl Zenith::ZenithEvents {
 impl Zenith::BlockHeader {
     /// Get the chain ID of the block (discarding high bytes).
     pub const fn chain_id(&self) -> u64 {
-        self.gasLimit.as_limbs()[0]
+        self.chain_id.as_limbs()[0]
     }
 
     /// Get the sequence of the block (discarding high bytes).
@@ -103,7 +103,7 @@ impl Zenith::BlockHeader {
 
     /// Get the confirm by time of the block (discarding high bytes).
     pub const fn confirm_by(&self) -> u64 {
-        self.gasLimit.as_limbs()[0]
+        self.confirm_by.as_limbs()[0]
     }
 
     /// Get the gas limit of the block (discarding high bytes).
