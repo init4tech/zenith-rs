@@ -16,20 +16,20 @@ alloy-primitives = { version = "0.7", features = ["serde", "tiny-keccak"] }
 alloy-sol-types = { version = "0.7", features = ["json"] }
 alloy-rlp = { version = "0.3.4" }
 
-alloy-contract = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-consensus = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999", features = ["k256", "kzg"] }
-alloy-eips = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999"}
-alloy-json-rpc = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-network = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-node-bindings = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-provider = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999", features = ["ws"] }
-alloy-rpc-types = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-rpc-client = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-signer = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-signer-wallet = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-signer-aws = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-transport = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
-alloy-transport-http = { git = "https://github.com/alloy-rs/alloy.git", rev = "dd7a999" }
+alloy-contract = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-consensus = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b", features = ["k256", "kzg"] }
+alloy-eips = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b"}
+alloy-json-rpc = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-network = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-node-bindings = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-provider = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b", features = ["ws"] }
+alloy-rpc-types = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-rpc-client = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-signer = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-signer-wallet = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-signer-aws = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-transport = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
+alloy-transport-http = { git = "https://github.com/alloy-rs/alloy.git", rev = "64feb9b" }
 
 aws-config = "1.1.7"
 aws-sdk-kms = "1.15.0"
