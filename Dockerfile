@@ -31,6 +31,7 @@ RUN cargo build --release --target x86_64-unknown-linux-gnu --bin zenith-builder
 
 # Stage 3: Final image for running in the env
 FROM --platform=$TARGETPLATFORM debian:bookworm-slim
+RUN apt-get update && apt-get -y upgrade && apt-get install -y libssl-dev ca-certificates 
 
 COPY --from=builder /app/target/x86_64-unknown-linux-gnu/release/zenith-builder-example /usr/local/bin/zenith-builder-example
 
