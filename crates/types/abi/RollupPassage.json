@@ -1,35 +1,7 @@
 [
   {
     "type": "function",
-    "name": "submitEthExit",
-    "inputs": [
-      {
-        "name": "tokenOut_H",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "recipient_H",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "deadline",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "amountOutMinimum_H",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "submitExit",
+    "name": "exit",
     "inputs": [
       {
         "name": "tokenIn_RU",
@@ -63,34 +35,21 @@
       }
     ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "payable"
   },
   {
     "type": "function",
     "name": "sweep",
     "inputs": [
       {
-        "name": "recipient",
+        "name": "token",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "tokens",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "sweepEth",
-    "inputs": [
-      {
         "name": "recipient",
         "type": "address",
-        "internalType": "address payable"
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -144,10 +103,22 @@
     "name": "Sweep",
     "inputs": [
       {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
         "name": "recipient",
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false

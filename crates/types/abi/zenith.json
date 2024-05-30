@@ -94,6 +94,19 @@
   },
   {
     "type": "function",
+    "name": "defaultRollupChainId",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "enter",
     "inputs": [
       {
@@ -102,12 +115,12 @@
         "internalType": "uint256"
       },
       {
-        "name": "rollupRecipient",
+        "name": "token",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "token",
+        "name": "rollupRecipient",
         "type": "address",
         "internalType": "address"
       },
@@ -140,34 +153,27 @@
   },
   {
     "type": "function",
-    "name": "fulfillExits",
+    "name": "fulfillExit",
     "inputs": [
       {
-        "name": "orders",
-        "type": "tuple[]",
-        "internalType": "struct Passage.ExitOrder[]",
-        "components": [
-          {
-            "name": "rollupChainId",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "token",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "recipient",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "amount",
-            "type": "uint256",
-            "internalType": "uint256"
-          }
-        ]
+        "name": "rollupChainId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -326,31 +332,19 @@
     "name": "withdraw",
     "inputs": [
       {
-        "name": "withdrawals",
-        "type": "tuple[]",
-        "internalType": "struct Passage.Withdrawal[]",
-        "components": [
-          {
-            "name": "recipient",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "ethAmount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "tokens",
-            "type": "address[]",
-            "internalType": "address[]"
-          },
-          {
-            "name": "tokenAmounts",
-            "type": "uint256[]",
-            "internalType": "uint256[]"
-          }
-        ]
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -438,7 +432,7 @@
       {
         "name": "rollupChainId",
         "type": "uint256",
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256"
       },
       {
@@ -464,12 +458,12 @@
   },
   {
     "type": "event",
-    "name": "ExitFilled",
+    "name": "ExitFulfilled",
     "inputs": [
       {
         "name": "rollupChainId",
         "type": "uint256",
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256"
       },
       {
@@ -514,35 +508,25 @@
   },
   {
     "type": "event",
-    "name": "Withdraw",
+    "name": "Withdrawal",
     "inputs": [
       {
-        "name": "withdrawal",
-        "type": "tuple",
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
         "indexed": false,
-        "internalType": "struct Passage.Withdrawal",
-        "components": [
-          {
-            "name": "recipient",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "ethAmount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "tokens",
-            "type": "address[]",
-            "internalType": "address[]"
-          },
-          {
-            "name": "tokenAmounts",
-            "type": "uint256[]",
-            "internalType": "uint256[]"
-          }
-        ]
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -587,11 +571,6 @@
   {
     "type": "error",
     "name": "OnlyWithdrawalAdmin",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "OrderExpired",
     "inputs": []
   }
 ]

@@ -8,16 +8,16 @@ sol!(
     #[sol(rpc)]
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     Zenith,
-    "abi/zenith.json"
+    "abi/Zenith.json"
 );
 
 impl Copy for Zenith::BlockHeader {}
-impl Copy for Zenith::ExitOrder {}
 
 impl Copy for Zenith::BlockSubmitted {}
 impl Copy for Zenith::Enter {}
-impl Copy for Zenith::ExitFilled {}
+impl Copy for Zenith::ExitFulfilled {}
 impl Copy for Zenith::SequencerSet {}
+impl Copy for Zenith::Withdrawal {}
 
 impl Copy for Zenith::BadSequence {}
 impl Copy for Zenith::BadSignature {}
@@ -25,7 +25,6 @@ impl Copy for Zenith::BlockExpired {}
 impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
 impl Copy for Zenith::OnlyWithdrawalAdmin {}
-impl Copy for Zenith::OrderExpired {}
 
 impl Clone for Zenith::ZenithErrors {
     fn clone(&self) -> Self {
@@ -36,7 +35,6 @@ impl Clone for Zenith::ZenithErrors {
             Self::OneRollupBlockPerHostBlock(inner) => Self::OneRollupBlockPerHostBlock(*inner),
             Self::OnlySequencerAdmin(inner) => Self::OnlySequencerAdmin(*inner),
             Self::OnlyWithdrawalAdmin(inner) => Self::OnlyWithdrawalAdmin(*inner),
-            Self::OrderExpired(inner) => Self::OrderExpired(*inner),
         }
     }
 }
@@ -47,9 +45,9 @@ impl Clone for Zenith::ZenithEvents {
             Self::BlockData(inner) => Self::BlockData(inner.clone()),
             Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
             Self::Enter(inner) => Self::Enter(*inner),
-            Self::ExitFilled(inner) => Self::ExitFilled(*inner),
+            Self::ExitFulfilled(inner) => Self::ExitFulfilled(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
-            Self::Withdraw(inner) => Self::Withdraw(inner.clone()),
+            Self::Withdrawal(inner) => Self::Withdrawal(inner.clone()),
         }
     }
 }
@@ -66,17 +64,6 @@ impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     }
 }
 
-impl From<&Zenith::ExitFilled> for Zenith::ExitOrder {
-    fn from(event: &Zenith::ExitFilled) -> Zenith::ExitOrder {
-        Zenith::ExitOrder {
-            rollupChainId: event.rollupChainId,
-            token: event.token,
-            recipient: event.hostRecipient,
-            amount: event.amount,
-        }
-    }
-}
-
 impl Zenith::ZenithEvents {
     /// Get the chain ID of the event (discarding high bytes), returns `None`
     /// if the event has no associated chain id.
@@ -84,7 +71,7 @@ impl Zenith::ZenithEvents {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             Zenith::ZenithEvents::Enter(inner) => Some(inner.rollupChainId.as_limbs()[0]),
-            Zenith::ZenithEvents::ExitFilled(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            Zenith::ZenithEvents::ExitFulfilled(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             _ => None,
         }
     }
@@ -121,7 +108,7 @@ sol!(
     #[sol(rpc)]
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     RollupPassage,
-    "abi/passage.json"
+    "abi/RollupPassage.json"
 );
 
 impl Copy for RollupPassage::Exit {}
