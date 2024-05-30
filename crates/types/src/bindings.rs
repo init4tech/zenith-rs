@@ -1,3 +1,4 @@
+#![allow(clippy::too_many_arguments)]
 #![allow(missing_docs)]
 use alloy_primitives::Address;
 use alloy_sol_types::sol;
@@ -29,14 +30,7 @@ impl Copy for Zenith::ZenithErrors {}
 
 impl Clone for Zenith::ZenithErrors {
     fn clone(&self) -> Self {
-        match self {
-            Self::BadSequence(inner) => Self::BadSequence(*inner),
-            Self::BadSignature(inner) => Self::BadSignature(*inner),
-            Self::BlockExpired(inner) => Self::BlockExpired(*inner),
-            Self::OneRollupBlockPerHostBlock(inner) => Self::OneRollupBlockPerHostBlock(*inner),
-            Self::OnlySequencerAdmin(inner) => Self::OnlySequencerAdmin(*inner),
-            Self::OnlyWithdrawalAdmin(inner) => Self::OnlyWithdrawalAdmin(*inner),
-        }
+        *self
     }
 }
 
@@ -62,6 +56,13 @@ impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
             gasLimit: event.gasLimit,
             rewardAddress: event.rewardAddress,
         }
+    }
+}
+
+impl Zenith::SwapFulfilled {
+    /// Get the target chain ID of the swap (discarding high bytes).
+    pub const fn origin_chain_id(&self) -> u64 {
+        self.originChainId.as_limbs()[0]
     }
 }
 
@@ -129,5 +130,19 @@ impl Clone for RollupPassage::RollupPassageEvents {
 impl Clone for RollupPassage::RollupPassageErrors {
     fn clone(&self) -> Self {
         *self
+    }
+}
+
+impl RollupPassage::SwapFulfilled {
+    /// Get the target chain ID of the swap (discarding high bytes).
+    pub const fn origin_chain_id(&self) -> u64 {
+        self.originChainId.as_limbs()[0]
+    }
+}
+
+impl RollupPassage::Swap {
+    /// Get the target chain ID of the swap (discarding high bytes).
+    pub const fn target_chain_id(&self) -> u64 {
+        self.targetChainId.as_limbs()[0]
     }
 }
