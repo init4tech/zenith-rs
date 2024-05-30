@@ -153,10 +153,10 @@
   },
   {
     "type": "function",
-    "name": "fulfillExit",
+    "name": "fulfillSwap",
     "inputs": [
       {
-        "name": "rollupChainId",
+        "name": "originChainId",
         "type": "uint256",
         "internalType": "uint256"
       },
@@ -458,37 +458,6 @@
   },
   {
     "type": "event",
-    "name": "ExitFulfilled",
-    "inputs": [
-      {
-        "name": "rollupChainId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "token",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "hostRecipient",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "SequencerSet",
     "inputs": [
       {
@@ -502,6 +471,37 @@
         "type": "bool",
         "indexed": true,
         "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SwapFulfilled",
+    "inputs": [
+      {
+        "name": "originChainId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false

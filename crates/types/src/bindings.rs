@@ -15,9 +15,9 @@ impl Copy for Zenith::BlockHeader {}
 
 impl Copy for Zenith::BlockSubmitted {}
 impl Copy for Zenith::Enter {}
-impl Copy for Zenith::ExitFulfilled {}
 impl Copy for Zenith::SequencerSet {}
 impl Copy for Zenith::Withdrawal {}
+impl Copy for Zenith::SwapFulfilled {}
 
 impl Copy for Zenith::BadSequence {}
 impl Copy for Zenith::BadSignature {}
@@ -25,6 +25,7 @@ impl Copy for Zenith::BlockExpired {}
 impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
 impl Copy for Zenith::OnlyWithdrawalAdmin {}
+impl Copy for Zenith::ZenithErrors {}
 
 impl Clone for Zenith::ZenithErrors {
     fn clone(&self) -> Self {
@@ -45,7 +46,7 @@ impl Clone for Zenith::ZenithEvents {
             Self::BlockData(inner) => Self::BlockData(inner.clone()),
             Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
             Self::Enter(inner) => Self::Enter(*inner),
-            Self::ExitFulfilled(inner) => Self::ExitFulfilled(*inner),
+            Self::SwapFulfilled(inner) => Self::SwapFulfilled(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
             Self::Withdrawal(inner) => Self::Withdrawal(*inner),
         }
@@ -67,11 +68,11 @@ impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
 impl Zenith::ZenithEvents {
     /// Get the chain ID of the event (discarding high bytes), returns `None`
     /// if the event has no associated chain id.
-    pub const fn chain_id(&self) -> Option<u64> {
+    pub const fn rollup_chain_id(&self) -> Option<u64> {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             Zenith::ZenithEvents::Enter(inner) => Some(inner.rollupChainId.as_limbs()[0]),
-            Zenith::ZenithEvents::ExitFulfilled(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            Zenith::ZenithEvents::SwapFulfilled(inner) => Some(inner.originChainId.as_limbs()[0]),
             _ => None,
         }
     }
@@ -111,8 +112,9 @@ sol!(
     "abi/RollupPassage.json"
 );
 
-impl Copy for RollupPassage::Exit {}
+impl Copy for RollupPassage::Swap {}
 impl Copy for RollupPassage::Sweep {}
+impl Copy for RollupPassage::SwapFulfilled {}
 
 impl Copy for RollupPassage::OrderExpired {}
 impl Copy for RollupPassageEvents {}

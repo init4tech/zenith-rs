@@ -1,20 +1,53 @@
 [
   {
     "type": "function",
-    "name": "exit",
+    "name": "fulfillSwap",
     "inputs": [
       {
-        "name": "tokenIn_RU",
+        "name": "originChainId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "token",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "tokenOut_H",
+        "name": "recipient",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "recipient_H",
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "swap",
+    "inputs": [
+      {
+        "name": "targetChainId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenIn",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenOut",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "recipient",
         "type": "address",
         "internalType": "address"
       },
@@ -24,12 +57,12 @@
         "internalType": "uint256"
       },
       {
-        "name": "amountIn_RU",
+        "name": "amountIn",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "amountOutMinimum_H",
+        "name": "amountOut",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -57,24 +90,30 @@
   },
   {
     "type": "event",
-    "name": "Exit",
+    "name": "Swap",
     "inputs": [
       {
-        "name": "tokenIn_RU",
+        "name": "targetChainId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenIn",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "tokenOut_H",
+        "name": "tokenOut",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "recipient_H",
+        "name": "recipient",
         "type": "address",
-        "indexed": true,
+        "indexed": false,
         "internalType": "address"
       },
       {
@@ -84,13 +123,44 @@
         "internalType": "uint256"
       },
       {
-        "name": "amountIn_RU",
+        "name": "amountIn",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
       },
       {
-        "name": "amountOutMinimum_H",
+        "name": "amountOut",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SwapFulfilled",
+    "inputs": [
+      {
+        "name": "originChainId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
