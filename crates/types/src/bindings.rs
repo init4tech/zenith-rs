@@ -47,7 +47,7 @@ impl Clone for Zenith::ZenithEvents {
             Self::Enter(inner) => Self::Enter(*inner),
             Self::ExitFulfilled(inner) => Self::ExitFulfilled(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
-            Self::Withdrawal(inner) => Self::Withdrawal(inner.clone()),
+            Self::Withdrawal(inner) => Self::Withdrawal(*inner),
         }
     }
 }
