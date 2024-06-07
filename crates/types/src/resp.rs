@@ -2,8 +2,9 @@ use crate::SignRequest;
 use alloy_primitives::{Address, Signature, SignatureError};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 /// A signature response from a [`RequestSigner`].
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct SignResponse {
     /// The request that was signed.
     pub req: SignRequest,
