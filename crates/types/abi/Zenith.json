@@ -74,13 +74,13 @@
             "name": "rewardAddress",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "blockDataHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
           }
         ]
-      },
-      {
-        "name": "blockDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ],
     "outputs": [
@@ -222,7 +222,7 @@
     "name": "nextSequence",
     "inputs": [
       {
-        "name": "",
+        "name": "_rollupChainId",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -295,13 +295,13 @@
             "name": "rewardAddress",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "blockDataHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
           }
         ]
-      },
-      {
-        "name": "blockDataHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
       },
       {
         "name": "v",
@@ -319,7 +319,7 @@
         "internalType": "bytes32"
       },
       {
-        "name": "blockData",
+        "name": "",
         "type": "bytes",
         "internalType": "bytes"
       }
@@ -362,19 +362,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "type": "event",
-    "name": "BlockData",
-    "inputs": [
-      {
-        "name": "blockData",
-        "type": "bytes",
-        "indexed": false,
-        "internalType": "bytes"
-      }
-    ],
-    "anonymous": false
   },
   {
     "type": "event",

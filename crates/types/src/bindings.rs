@@ -37,7 +37,6 @@ impl Clone for Zenith::ZenithErrors {
 impl Clone for Zenith::ZenithEvents {
     fn clone(&self) -> Self {
         match self {
-            Self::BlockData(inner) => Self::BlockData(inner.clone()),
             Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
             Self::Enter(inner) => Self::Enter(*inner),
             Self::SwapFulfilled(inner) => Self::SwapFulfilled(*inner),
@@ -55,6 +54,7 @@ impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
             confirmBy: event.confirmBy,
             gasLimit: event.gasLimit,
             rewardAddress: event.rewardAddress,
+            blockDataHash: event.blockDataHash,
         }
     }
 }
