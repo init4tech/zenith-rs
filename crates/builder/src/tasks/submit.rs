@@ -136,7 +136,14 @@ impl SubmitTask {
             .with_to(self.config.zenith_address);
 
         if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).await {
-            bail!(e)
+            error!(
+                code = e.code,
+                message = %e.message,
+                data = ?e.data,
+                "error in transaction submission"
+            );
+
+            bail!("bailing transaction submission")
         }
 
         tracing::debug!(
