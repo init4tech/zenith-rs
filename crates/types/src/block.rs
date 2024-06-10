@@ -1,9 +1,9 @@
-use std::{marker::PhantomData, sync::OnceLock};
+use std::marker::PhantomData;
 
 use crate::Zenith::BlockHeader as ZenithHeader;
 use alloy_consensus::TxEnvelope;
 use alloy_eips::eip2718::{Decodable2718, Eip2718Error, Encodable2718};
-use alloy_primitives::{keccak256, Address, B256};
+use alloy_primitives::{Address, B256, U256};
 
 /// Zenith processes normal Ethereum txns.
 pub type ZenithTransaction = TxEnvelope;
@@ -49,11 +49,6 @@ pub struct ZenithBlock<C: Coder = Alloy2718Coder> {
     /// The transactions in the block, which are extracted from the calldata or
     /// blob data.
     transactions: Vec<<C as Coder>::Tx>,
-
-    // memoization fields
-    encoded: OnceLock<Vec<u8>>,
-    block_data_hash: OnceLock<B256>,
-
     /// The coder
     _pd: std::marker::PhantomData<C>,
 }
@@ -64,13 +59,7 @@ where
 {
     /// Create a new zenith block.
     pub fn new(header: ZenithHeader, transactions: Vec<<C as Coder>::Tx>) -> Self {
-        ZenithBlock {
-            header,
-            transactions,
-            encoded: OnceLock::new(),
-            block_data_hash: OnceLock::new(),
-            _pd: PhantomData,
-        }
+        ZenithBlock { header, transactions, _pd: PhantomData }
     }
 
     /// Decode tx data in the block.
@@ -80,14 +69,7 @@ where
     ) -> Result<Self, Eip2718Error> {
         let b = buf.as_ref();
         let transactions = decode_txns::<C>(b)?;
-        let h = keccak256(b);
-        Ok(ZenithBlock {
-            header,
-            transactions,
-            encoded: b.to_owned().into(),
-            block_data_hash: h.into(),
-            _pd: PhantomData,
-        })
+        Ok(ZenithBlock { header, transactions, _pd: PhantomData })
     }
 
     /// Break the block into its parts.
@@ -95,33 +77,9 @@ where
         (self.header, self.transactions)
     }
 
-    /// Encode the transactions in the block.
-    pub fn encoded_txns(&self) -> &[u8] {
-        self.seal();
-        self.encoded.get().unwrap().as_slice()
-    }
-
-    /// The hash of the encoded transactions.
-    pub fn block_data_hash(&self) -> B256 {
-        self.seal();
-        *self.block_data_hash.get().unwrap()
-    }
-
-    /// Push a transaction into the block.
-    pub fn push_transaction(&mut self, tx: C::Tx) {
-        self.unseal();
-        self.transactions.push(tx);
-    }
-
     /// Access to the transactions.
     pub fn transactions(&self) -> &[C::Tx] {
         &self.transactions
-    }
-
-    /// Mutable access to the transactions.
-    pub fn transactions_mut(&mut self) -> &mut Vec<C::Tx> {
-        self.unseal();
-        &mut self.transactions
     }
 
     /// Iterate over the transactions.
@@ -129,55 +87,39 @@ where
         self.transactions.iter()
     }
 
-    /// Iterate over mut transactions.
-    pub fn transactions_iter_mut(&mut self) -> std::slice::IterMut<'_, C::Tx> {
-        self.unseal();
-        self.transactions.iter_mut()
-    }
-
     /// Access to the header.
     pub const fn header(&self) -> &ZenithHeader {
         &self.header
     }
 
-    /// Mutable access to the header.
-    pub fn header_mut(&mut self) -> &mut ZenithHeader {
-        &mut self.header
-    }
-
-    fn seal(&self) {
-        let encoded = self.encoded.get_or_init(|| encode_transactions::<C>(&self.transactions));
-        self.block_data_hash.get_or_init(|| keccak256(encoded));
-    }
-
-    fn unseal(&mut self) {
-        self.encoded.take();
-        self.block_data_hash.take();
-    }
-
     /// Get the chain ID of the block (discarding high bytes).
-    pub const fn chain_id(&self) -> u64 {
+    pub const fn chain_id(&self) -> U256 {
         self.header.chain_id()
     }
 
     /// Get the sequence of the block (discarding high bytes).
-    pub const fn sequence(&self) -> u64 {
+    pub const fn sequence(&self) -> U256 {
         self.header.sequence()
     }
 
     /// Get the confirm by time of the block (discarding high bytes).
-    pub const fn confirm_by(&self) -> u64 {
+    pub const fn confirm_by(&self) -> U256 {
         self.header.confirm_by()
     }
 
     /// Get the gas limit of the block (discarding high bytes).
-    pub const fn gas_limit(&self) -> u64 {
+    pub const fn gas_limit(&self) -> U256 {
         self.header.gas_limit()
     }
 
     /// Get the reward address of the block.
     pub const fn reward_address(&self) -> Address {
         self.header.reward_address()
+    }
+
+    /// The hash of the encoded transactions.
+    pub const fn block_data_hash(&self) -> B256 {
+        self.header.block_data_hash()
     }
 }
 

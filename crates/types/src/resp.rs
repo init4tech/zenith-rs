@@ -26,18 +26,21 @@ impl SignResponse {
 mod test {
     use super::*;
     use crate::{RequestSigner, SignRequest};
-    use alloy_primitives::U256;
+    use alloy_primitives::{U256, B256};
+    use crate::Zenith::BlockHeader as ZenithHeader;
 
     #[tokio::test]
     async fn test_sign_response() {
         let req = SignRequest {
             host_chain_id: U256::from(1u64),
-            ru_chain_id: U256::from(2u64),
-            sequence: U256::from(3u64),
-            confirm_by: U256::from(4u64),
-            gas_limit: U256::from(5u64),
-            ru_reward_address: Address::repeat_byte(6),
-            contents: [7u8; 32].into(),
+            header: ZenithHeader {
+                rollupChainId: U256::from(2u64),
+                sequence: U256::from(3u64),
+                confirmBy: U256::from(4u64),
+                gasLimit: U256::from(5u64),
+                rewardAddress: Address::repeat_byte(6),
+                blockDataHash: B256::repeat_byte(7),
+            },
         };
         let signer = alloy_signer_wallet::LocalWallet::from_slice(&[8u8; 32]).unwrap();
 
@@ -53,13 +56,16 @@ mod test {
     async fn deser_roundtrip() {
         let req = SignRequest {
             host_chain_id: U256::from(1u64),
-            ru_chain_id: U256::from(2u64),
-            sequence: U256::from(3u64),
-            confirm_by: U256::from(4u64),
-            gas_limit: U256::from(5u64),
-            ru_reward_address: Address::repeat_byte(6),
-            contents: [7u8; 32].into(),
+            header: ZenithHeader {
+                rollupChainId: U256::from(2u64),
+                sequence: U256::from(3u64),
+                confirmBy: U256::from(4u64),
+                gasLimit: U256::from(5u64),
+                rewardAddress: Address::repeat_byte(6),
+                blockDataHash: B256::repeat_byte(7),
+            },
         };
+
         let signer = alloy_signer_wallet::LocalWallet::from_slice(&[8u8; 32]).unwrap();
 
         let sig = signer.sign_request(&req).await.unwrap();

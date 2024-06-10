@@ -8,6 +8,7 @@ use alloy_sol_types::SolCall;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
+use Zenith::BlockHeader as ZenithHeader;
 
 use crate::{
     config::{Provider, ZenithInstance},
@@ -61,7 +62,7 @@ impl SubmitTask {
     /// Get the signature from our main man quincey.
     async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<SignResponse> {
         tracing::info!(
-            sequence = %sig_request.sequence,
+            sequence = %sig_request.header.sequence(),
             "pinging quincey for signature"
         );
 
@@ -82,18 +83,20 @@ impl SubmitTask {
     }
 
     #[instrument(skip_all, err)]
-    async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
+    async fn construct_sig_request(&self, block: &InProgressBlock) -> eyre::Result<SignRequest> {
         let sequence = self.get_next_sequence().await?;
         let confirm_by = self.get_confirm_by().await?;
 
         Ok(SignRequest {
             host_chain_id: U256::from(self.config.host_chain_id),
-            ru_chain_id: U256::from(self.config.ru_chain_id),
-            sequence: U256::from(sequence),
-            confirm_by: U256::from(confirm_by),
-            gas_limit: U256::from(self.config.rollup_block_gas_limit),
-            ru_reward_address: self.config.builder_rewards_address,
-            contents: contents.contents_hash(),
+            header: ZenithHeader {
+                rollupChainId: U256::from(self.config.ru_chain_id),
+                sequence: U256::from(sequence),
+                confirmBy: U256::from(confirm_by),
+                gasLimit: U256::from(self.config.rollup_block_gas_limit),
+                rewardAddress: self.config.builder_rewards_address,
+                blockDataHash: block.block_data_hash(),
+            },
         })
     }
 
@@ -105,15 +108,7 @@ impl SubmitTask {
         s: FixedBytes<32>,
         in_progress: &InProgressBlock,
     ) -> eyre::Result<TransactionRequest> {
-        let data = Zenith::submitBlockCall {
-            header,
-            blockDataHash: in_progress.contents_hash(),
-            v,
-            r,
-            s,
-            blockData: Default::default(),
-        }
-        .abi_encode();
+        let data = Zenith::submitBlockCall { header, v, r, s, _4: Default::default() }.abi_encode();
         let sidecar = in_progress.encode_blob::<SimpleCoder>().build()?;
         Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
     }
@@ -124,17 +119,8 @@ impl SubmitTask {
         v: u8,
         r: FixedBytes<32>,
         s: FixedBytes<32>,
-        in_progress: &InProgressBlock,
     ) -> TransactionRequest {
-        let data = Zenith::submitBlockCall {
-            header,
-            blockDataHash: in_progress.contents_hash(),
-            v,
-            r,
-            s,
-            blockData: in_progress.encode_calldata().clone(),
-        }
-        .abi_encode();
+        let data = Zenith::submitBlockCall { header, v, r, s, _4: Default::default() }.abi_encode();
         TransactionRequest::default().with_input(data)
     }
 
@@ -147,25 +133,17 @@ impl SubmitTask {
         let r: FixedBytes<32> = resp.sig.r().into();
         let s: FixedBytes<32> = resp.sig.s().into();
 
-        let header = Zenith::BlockHeader {
-            rollupChainId: U256::from(self.config.ru_chain_id),
-            sequence: resp.req.sequence,
-            gasLimit: resp.req.gas_limit,
-            confirmBy: resp.req.confirm_by,
-            rewardAddress: resp.req.ru_reward_address,
-        };
-
         let tx = if self.config.submit_via_calldata {
-            self.build_calldata_tx(header, v, r, s, in_progress)
+            self.build_calldata_tx(resp.req.header, v, r, s)
         } else {
-            self.build_blob_tx(header, v, r, s, in_progress)?
+            self.build_blob_tx(resp.req.header, v, r, s, in_progress)?
         }
         .with_from(self.provider.default_signer_address())
         .with_to(self.config.zenith_address);
 
         tracing::debug!(
-            sequence = %resp.req.sequence,
-            gas_limit = %resp.req.gas_limit,
+            sequence = %resp.req.header.sequence(),
+            gas_limit = %resp.req.header.gas_limit(),
             "sending transaction to network"
         );
 
@@ -175,8 +153,8 @@ impl SubmitTask {
 
         tracing::info!(
             %tx_hash,
-            sequence = %resp.req.sequence,
-            gas_limit = %resp.req.gas_limit,
+            sequence = %resp.req.header.sequence(),
+            gas_limit = %resp.req.header.gas_limit(),
             "dispatched to network"
         );
 
@@ -189,8 +167,8 @@ impl SubmitTask {
         let sig_request = self.construct_sig_request(in_progress).await?;
 
         tracing::debug!(
-            sequence = %sig_request.sequence,
-            confirm_by = %sig_request.confirm_by,
+            sequence = %sig_request.header.sequence(),
+            confirm_by = %sig_request.header.confirm_by(),
             "constructed signature request"
         );
 
