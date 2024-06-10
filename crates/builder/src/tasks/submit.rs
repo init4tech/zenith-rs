@@ -105,37 +105,9 @@ impl SubmitTask {
         s: FixedBytes<32>,
         in_progress: &InProgressBlock,
     ) -> eyre::Result<TransactionRequest> {
-        let data = Zenith::submitBlockCall {
-            header,
-            blockDataHash: in_progress.contents_hash(),
-            v,
-            r,
-            s,
-            blockData: Default::default(),
-        }
-        .abi_encode();
+        let data = Zenith::submitBlockCall { header, v, r, s, _4: Default::default() }.abi_encode();
         let sidecar = in_progress.encode_blob::<SimpleCoder>().build()?;
         Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
-    }
-
-    fn build_calldata_tx(
-        &self,
-        header: Zenith::BlockHeader,
-        v: u8,
-        r: FixedBytes<32>,
-        s: FixedBytes<32>,
-        in_progress: &InProgressBlock,
-    ) -> TransactionRequest {
-        let data = Zenith::submitBlockCall {
-            header,
-            blockDataHash: in_progress.contents_hash(),
-            v,
-            r,
-            s,
-            blockData: in_progress.encode_calldata().clone(),
-        }
-        .abi_encode();
-        TransactionRequest::default().with_input(data)
     }
 
     async fn submit_transaction(
@@ -153,15 +125,13 @@ impl SubmitTask {
             gasLimit: resp.req.gas_limit,
             confirmBy: resp.req.confirm_by,
             rewardAddress: resp.req.ru_reward_address,
+            blockDataHash: in_progress.contents_hash(),
         };
 
-        let tx = if self.config.submit_via_calldata {
-            self.build_calldata_tx(header, v, r, s, in_progress)
-        } else {
-            self.build_blob_tx(header, v, r, s, in_progress)?
-        }
-        .with_from(self.provider.default_signer_address())
-        .with_to(self.config.zenith_address);
+        let tx = self
+            .build_blob_tx(header, v, r, s, in_progress)?
+            .with_from(self.provider.default_signer_address())
+            .with_to(self.config.zenith_address);
 
         tracing::debug!(
             sequence = %resp.req.sequence,

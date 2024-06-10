@@ -20,7 +20,6 @@ const SEQUENCER_KEY: &str = "SEQUENCER_KEY"; // empty (to use Quincey) OR AWS ke
 const BUILDER_KEY: &str = "BUILDER_KEY"; // AWS key ID (to use AWS signer) OR raw private key (to use local signer)
 const INCOMING_TRANSACTIONS_BUFFER: &str = "INCOMING_TRANSACTIONS_BUFFER";
 const BLOCK_CONFIRMATION_BUFFER: &str = "BLOCK_CONFIRMATION_BUFFER";
-const SUBMIT_VIA_CALLDATA: &str = "SUBMIT_VIA_CALLDATA";
 const BUILDER_REWARDS_ADDRESS: &str = "BUILDER_REWARDS_ADDRESS";
 const ROLLUP_BLOCK_GAS_LIMIT: &str = "ROLLUP_BLOCK_GAS_LIMIT";
 
@@ -50,9 +49,6 @@ pub struct BuilderConfig {
     pub incoming_transactions_buffer: u64,
     /// Buffer in seconds in which the `submitBlock` transaction must confirm on the Host chain.
     pub block_confirmation_buffer: u64,
-    /// TRUE to use calldata as DA for submitting blocks; FALSE to use blobs.
-    /// NOTE: a "smart" builder would determine this programmatically based on current lowest fees.
-    pub submit_via_calldata: bool,
     /// Address on Rollup to which Builder will receive user transaction fees.
     pub builder_rewards_address: Address,
     /// Gas limit for RU block.
@@ -116,7 +112,6 @@ impl BuilderConfig {
             builder_key: load_string(BUILDER_KEY)?,
             incoming_transactions_buffer: load_u64(INCOMING_TRANSACTIONS_BUFFER)?,
             block_confirmation_buffer: load_u64(BLOCK_CONFIRMATION_BUFFER)?,
-            submit_via_calldata: load_bool(SUBMIT_VIA_CALLDATA)?,
             builder_rewards_address: load_address(BUILDER_REWARDS_ADDRESS)?,
             rollup_block_gas_limit: load_u64(ROLLUP_BLOCK_GAS_LIMIT)?,
         })
