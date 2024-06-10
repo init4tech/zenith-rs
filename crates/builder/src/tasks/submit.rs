@@ -8,7 +8,7 @@ use alloy_sol_types::SolCall;
 use alloy_transport::TransportError;
 use eyre::bail;
 use tokio::{sync::mpsc, task::JoinHandle};
-use tracing::{debug, instrument, trace};
+use tracing::{debug, error, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
 
 use crate::{
@@ -83,7 +83,7 @@ impl SubmitTask {
         serde_json::from_slice(&body).map_err(Into::into)
     }
 
-    #[instrument(skip_all, err)]
+    #[instrument(skip_all)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
         let sequence = self.get_next_sequence().await?;
         let confirm_by = self.get_confirm_by().await?;
@@ -136,7 +136,6 @@ impl SubmitTask {
             .with_to(self.config.zenith_address);
 
         if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).await {
-            tracing::error!(%e, "error in transaction simulation");
             bail!(e)
         }
 
@@ -201,7 +200,7 @@ impl SubmitTask {
             loop {
                 if let Some(in_progress) = inbound.recv().await {
                     if let Err(e) = self.handle_inbound(&in_progress).await {
-                        tracing::error!(%e, "error in block submission. Dropping block.");
+                        error!(%e, "error in block submission. Dropping block.");
                     }
                 } else {
                     tracing::debug!("upstream task gone");
