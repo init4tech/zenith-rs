@@ -6,6 +6,7 @@ const DOMAIN_BINDING: &str = "init4.sequencer.v0";
 
 /// A request to sign a rollup block.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct SignRequest {
     /// The chain ID of the host.
     pub host_chain_id: U256,
