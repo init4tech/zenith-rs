@@ -140,21 +140,6 @@ where
     Ok(rlp.into_iter().flat_map(|buf| C::decode(&mut buf.as_slice())).collect())
 }
 
-/// Encode a set of transactions into a single RLP-encoded buffer.
-pub(crate) fn encode_transactions<'a, C>(
-    transactions: impl IntoIterator<Item = &'a C::Tx>,
-) -> Vec<u8>
-where
-    C: Coder,
-    C::Tx: 'a,
-{
-    let encoded_txns = transactions.into_iter().map(|tx| C::encode(tx)).collect::<Vec<Vec<u8>>>();
-
-    let mut buf = Vec::new();
-    alloy_rlp::Encodable::encode(&encoded_txns, &mut buf);
-    buf
-}
-
 #[cfg(test)]
 mod test {
     use alloy_consensus::{Signed, TxEip1559};
@@ -162,6 +147,20 @@ mod test {
     use alloy_signer::Signature;
 
     use super::*;
+
+    /// Encode a set of transactions into a single RLP-encoded buffer.
+    fn encode_transactions<'a, C>(transactions: impl IntoIterator<Item = &'a C::Tx>) -> Vec<u8>
+    where
+        C: Coder,
+        C::Tx: 'a,
+    {
+        let encoded_txns =
+            transactions.into_iter().map(|tx| C::encode(tx)).collect::<Vec<Vec<u8>>>();
+
+        let mut buf = Vec::new();
+        alloy_rlp::Encodable::encode(&encoded_txns, &mut buf);
+        buf
+    }
 
     #[test]
     fn encode_decode() {
