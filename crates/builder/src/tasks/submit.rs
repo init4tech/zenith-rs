@@ -5,6 +5,8 @@ use alloy_provider::{Provider as _, WalletProvider};
 use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
+use alloy_transport::TransportError;
+use eyre::bail;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
@@ -132,6 +134,11 @@ impl SubmitTask {
             .build_blob_tx(header, v, r, s, in_progress)?
             .with_from(self.provider.default_signer_address())
             .with_to(self.config.zenith_address);
+
+        if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).await {
+            tracing::error!(%e, "error in transaction simulation");
+            bail!(e)
+        }
 
         tracing::debug!(
             sequence = %resp.req.sequence,
