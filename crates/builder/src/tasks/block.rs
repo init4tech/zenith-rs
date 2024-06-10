@@ -57,7 +57,7 @@ impl InProgressBlock {
     }
 
     /// Calculate the hash of the in-progress block, finishing the block.
-    pub fn contents_hash(&self) -> alloy_primitives::B256 {
+    pub fn block_data_hash(&self) -> alloy_primitives::B256 {
         self.seal();
         *self.hash.get().unwrap()
     }

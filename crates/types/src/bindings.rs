@@ -1,6 +1,6 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(missing_docs)]
-use alloy_primitives::Address;
+use alloy_primitives::{Address, B256, U256};
 use alloy_sol_types::sol;
 
 use self::RollupPassage::{RollupPassageErrors, RollupPassageEvents};
@@ -81,28 +81,33 @@ impl Zenith::ZenithEvents {
 
 impl Zenith::BlockHeader {
     /// Get the chain ID of the block (discarding high bytes).
-    pub const fn chain_id(&self) -> u64 {
-        self.rollupChainId.as_limbs()[0]
+    pub const fn chain_id(&self) -> U256 {
+        self.rollupChainId
     }
 
     /// Get the sequence of the block (discarding high bytes).
-    pub const fn sequence(&self) -> u64 {
-        self.sequence.as_limbs()[0]
+    pub const fn sequence(&self) -> U256 {
+        self.sequence
     }
 
     /// Get the confirm by time of the block (discarding high bytes).
-    pub const fn confirm_by(&self) -> u64 {
-        self.confirmBy.as_limbs()[0]
+    pub const fn confirm_by(&self) -> U256 {
+        self.confirmBy
     }
 
     /// Get the gas limit of the block (discarding high bytes).
-    pub const fn gas_limit(&self) -> u64 {
-        self.gasLimit.as_limbs()[0]
+    pub const fn gas_limit(&self) -> U256 {
+        self.gasLimit
     }
 
     /// Get the reward address of the block.
     pub const fn reward_address(&self) -> Address {
         self.rewardAddress
+    }
+
+    /// Get the data hash of the block.
+    pub const fn block_data_hash(&self) -> B256 {
+        self.blockDataHash
     }
 }
 
