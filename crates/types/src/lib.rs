@@ -12,7 +12,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 mod bindings;
-pub use bindings::{RollupPassage, Zenith};
+pub use bindings::{Orders, Zenith};
 
 mod block;
 pub use block::{Coder, ZenithBlock, ZenithTransaction};
