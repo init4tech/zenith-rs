@@ -3,7 +3,7 @@
 use alloy_primitives::Address;
 use alloy_sol_types::sol;
 
-use self::RollupPassage::{RollupPassageErrors, RollupPassageEvents};
+use self::Orders::{OrdersErrors, OrdersEvents};
 
 sol!(
     #[sol(rpc)]
@@ -12,20 +12,21 @@ sol!(
     "abi/Zenith.json"
 );
 
+// Zenith types
 impl Copy for Zenith::BlockHeader {}
-
 impl Copy for Zenith::BlockSubmitted {}
-impl Copy for Zenith::Enter {}
 impl Copy for Zenith::SequencerSet {}
-impl Copy for Zenith::Withdrawal {}
-impl Copy for Zenith::SwapFulfilled {}
-
 impl Copy for Zenith::BadSequence {}
 impl Copy for Zenith::BadSignature {}
 impl Copy for Zenith::BlockExpired {}
 impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
+
+// Passage types
+impl Copy for Zenith::Enter {}
+impl Copy for Zenith::Withdrawal {}
 impl Copy for Zenith::OnlyWithdrawalAdmin {}
+
 impl Copy for Zenith::ZenithErrors {}
 
 impl Clone for Zenith::ZenithErrors {
@@ -39,7 +40,6 @@ impl Clone for Zenith::ZenithEvents {
         match self {
             Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
             Self::Enter(inner) => Self::Enter(*inner),
-            Self::SwapFulfilled(inner) => Self::SwapFulfilled(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
             Self::Withdrawal(inner) => Self::Withdrawal(*inner),
         }
@@ -59,13 +59,6 @@ impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     }
 }
 
-impl Zenith::SwapFulfilled {
-    /// Get the target chain ID of the swap (discarding high bytes).
-    pub const fn origin_chain_id(&self) -> u64 {
-        self.originChainId.as_limbs()[0]
-    }
-}
-
 impl Zenith::ZenithEvents {
     /// Get the chain ID of the event (discarding high bytes), returns `None`
     /// if the event has no associated chain id.
@@ -73,7 +66,6 @@ impl Zenith::ZenithEvents {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             Zenith::ZenithEvents::Enter(inner) => Some(inner.rollupChainId.as_limbs()[0]),
-            Zenith::ZenithEvents::SwapFulfilled(inner) => Some(inner.originChainId.as_limbs()[0]),
             _ => None,
         }
     }
@@ -109,38 +101,37 @@ impl Zenith::BlockHeader {
 sol!(
     #[sol(rpc)]
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    RollupPassage,
-    "abi/RollupPassage.json"
+    Orders,
+    "abi/Orders.json"
 );
 
-impl Copy for RollupPassage::Swap {}
-impl Copy for RollupPassage::Sweep {}
-impl Copy for RollupPassage::SwapFulfilled {}
+impl Copy for Orders::Swap {}
+impl Copy for Orders::Sweep {}
+impl Copy for Orders::SwapFulfilled {}
+impl Copy for Orders::OrderExpired {}
+impl Copy for OrdersEvents {}
+impl Copy for OrdersErrors {}
 
-impl Copy for RollupPassage::OrderExpired {}
-impl Copy for RollupPassageEvents {}
-impl Copy for RollupPassageErrors {}
-
-impl Clone for RollupPassage::RollupPassageEvents {
+impl Clone for Orders::OrdersEvents {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl Clone for RollupPassage::RollupPassageErrors {
+impl Clone for Orders::OrdersErrors {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl RollupPassage::SwapFulfilled {
+impl Orders::SwapFulfilled {
     /// Get the target chain ID of the swap (discarding high bytes).
     pub const fn origin_chain_id(&self) -> u64 {
         self.originChainId.as_limbs()[0]
     }
 }
 
-impl RollupPassage::Swap {
+impl Orders::Swap {
     /// Get the target chain ID of the swap (discarding high bytes).
     pub const fn target_chain_id(&self) -> u64 {
         self.targetChainId.as_limbs()[0]
