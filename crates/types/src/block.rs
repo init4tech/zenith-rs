@@ -2,7 +2,7 @@ use std::{marker::PhantomData, sync::OnceLock};
 
 use crate::Zenith::BlockHeader as ZenithHeader;
 use alloy_consensus::TxEnvelope;
-use alloy_eips::eip2718::{Decodable2718, Eip2718Error, Encodable2718};
+use alloy_eips::eip2718::{Decodable2718, Encodable2718};
 use alloy_primitives::{keccak256, Address, B256};
 use alloy_rlp::Decodable;
 
@@ -82,20 +82,17 @@ where
     /// - Attempt to decode each item in the list as a transaction
     ///     - On failure, discard the item
     /// - Return a list of succesfully decoded transactions
-    pub fn from_header_and_data(
-        header: ZenithHeader,
-        buf: impl AsRef<[u8]>,
-    ) -> Result<Self, Eip2718Error> {
+    pub fn from_header_and_data(header: ZenithHeader, buf: impl AsRef<[u8]>) -> Self {
         let b = buf.as_ref();
         let transactions = decode_txns::<C>(b);
         let h = keccak256(b);
-        Ok(ZenithBlock {
+        ZenithBlock {
             header,
             transactions,
             encoded: b.to_owned().into(),
             block_data_hash: h.into(),
             _pd: PhantomData,
-        })
+        }
     }
 
     /// Break the block into its parts.
