@@ -2,8 +2,9 @@ use std::{marker::PhantomData, sync::OnceLock};
 
 use crate::Zenith::BlockHeader as ZenithHeader;
 use alloy_consensus::TxEnvelope;
-use alloy_eips::eip2718::{Decodable2718, Eip2718Error, Encodable2718};
+use alloy_eips::eip2718::{Decodable2718, Encodable2718};
 use alloy_primitives::{keccak256, Address, B256};
+use alloy_rlp::Decodable;
 
 /// Zenith processes normal Ethereum txns.
 pub type ZenithTransaction = TxEnvelope;
@@ -74,20 +75,24 @@ where
     }
 
     /// Decode tx data in the block.
-    pub fn from_header_and_data(
-        header: ZenithHeader,
-        buf: impl AsRef<[u8]>,
-    ) -> Result<Self, Eip2718Error> {
+    ///
+    /// This will perform the following steps:
+    /// - Attempt to decode the data as an RLP list
+    ///     - On failure, discard all data, returning an empty tx list
+    /// - Attempt to decode each item in the list as a transaction
+    ///     - On failure, discard the item
+    /// - Return a list of succesfully decoded transactions
+    pub fn from_header_and_data(header: ZenithHeader, buf: impl AsRef<[u8]>) -> Self {
         let b = buf.as_ref();
-        let transactions = decode_txns::<C>(b)?;
+        let transactions = decode_txns::<C>(b);
         let h = keccak256(b);
-        Ok(ZenithBlock {
+        ZenithBlock {
             header,
             transactions,
             encoded: b.to_owned().into(),
             block_data_hash: h.into(),
             _pd: PhantomData,
-        })
+        }
     }
 
     /// Break the block into its parts.
@@ -187,15 +192,16 @@ where
 /// envelopes.
 ///
 /// A [`encode_txns`] has been provided for completeness.
-pub(crate) fn decode_txns<C>(block_data: impl AsRef<[u8]>) -> Result<Vec<C::Tx>, Eip2718Error>
+pub(crate) fn decode_txns<C>(block_data: impl AsRef<[u8]>) -> Vec<C::Tx>
 where
     C: Coder,
 {
     let mut bd = block_data.as_ref();
 
-    let rlp: Vec<Vec<u8>> = alloy_rlp::Decodable::decode(&mut bd)?;
-
-    Ok(rlp.into_iter().flat_map(|buf| C::decode(&mut buf.as_slice())).collect())
+    Vec::<Vec<u8>>::decode(&mut bd)
+        .map(|rlp| rlp.into_iter().flat_map(|buf| C::decode(&mut buf.as_slice())).collect())
+        .ok()
+        .unwrap_or_default()
 }
 
 /// Encode a set of transactions into a single RLP-encoded buffer.
@@ -248,14 +254,21 @@ mod test {
 
         let mut txs = vec![tx.clone()];
         let encoded = encode_transactions::<Alloy2718Coder>(&txs);
-        let decoded = decode_txns::<Alloy2718Coder>(encoded).unwrap();
+        let decoded = decode_txns::<Alloy2718Coder>(encoded);
 
         assert_eq!(txs, decoded);
 
         txs.push(tx.clone());
         let encoded = encode_transactions::<Alloy2718Coder>(&txs);
-        let decoded = decode_txns::<Alloy2718Coder>(encoded).unwrap();
+        let decoded = decode_txns::<Alloy2718Coder>(encoded);
 
         assert_eq!(txs, decoded);
+    }
+
+    #[test]
+    fn graceful_junk() {
+        let junk = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let decoded = decode_txns::<Alloy2718Coder>(&junk);
+        assert!(decoded.is_empty());
     }
 }
