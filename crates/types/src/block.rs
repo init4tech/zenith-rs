@@ -75,6 +75,13 @@ where
     }
 
     /// Decode tx data in the block.
+    ///
+    /// This will perform the following steps:
+    /// - Attempt to decode the data as an RLP list
+    ///     - On failure, discard all data, returning an empty tx list
+    /// - Attempt to decode each item in the list as a transaction
+    ///     - On failure, discard the item
+    /// - Return a list of succesfully decoded transactions
     pub fn from_header_and_data(
         header: ZenithHeader,
         buf: impl AsRef<[u8]>,
