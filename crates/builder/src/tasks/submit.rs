@@ -38,7 +38,7 @@ pub struct SubmitTask {
 impl SubmitTask {
     async fn get_confirm_by(&self) -> eyre::Result<u64> {
         self.provider
-            .get_block(BlockId::Number(BlockNumberOrTag::Latest), false)
+            .get_block(BlockId::Number(BlockNumberOrTag::Latest), Default::default())
             .await
             .map_err(Into::<eyre::Report>::into)?
             .ok_or_else(|| eyre::eyre!("latest block is none"))
