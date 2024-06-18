@@ -2,7 +2,7 @@ use alloy_consensus::SimpleCoder;
 use alloy_network::TransactionBuilder;
 use alloy_primitives::{FixedBytes, U256};
 use alloy_provider::{Provider as _, WalletProvider};
-use alloy_rpc_types::{BlockId, BlockNumberOrTag, TransactionRequest};
+use alloy_rpc_types_eth::{BlockId, BlockNumberOrTag, TransactionRequest};
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
 use alloy_transport::TransportError;

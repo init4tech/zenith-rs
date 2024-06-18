@@ -2,13 +2,13 @@ use alloy_consensus::SignableTransaction;
 use alloy_primitives::{Address, ChainId, B256};
 use alloy_signer::Signature;
 use alloy_signer_aws::{AwsSigner, AwsSignerError};
-use alloy_signer_wallet::LocalWallet;
+use alloy_signer_local::{LocalSignerError, PrivateKeySigner};
 use aws_config::BehaviorVersion;
 
 /// Abstraction over local signer or
 #[derive(Debug, Clone)]
 pub enum LocalOrAws {
-    Local(LocalWallet),
+    Local(PrivateKeySigner),
     Aws(AwsSigner),
 }
 
@@ -19,7 +19,7 @@ pub enum SignerError {
     AwsSigner(#[from] AwsSignerError),
     /// Error loading the private key
     #[error("failed to load private key: {0}")]
-    Wallet(#[from] alloy_signer_wallet::WalletError),
+    Wallet(#[from] LocalSignerError),
     /// Error parsing hex
     #[error("failed to parse hex: {0}")]
     Hex(#[from] hex::FromHexError),
@@ -41,9 +41,9 @@ impl LocalOrAws {
     /// # Panics
     ///
     /// Panics if the env var contents is not a valid secp256k1 private key.
-    fn wallet(private_key: &str) -> Result<LocalWallet, SignerError> {
+    fn wallet(private_key: &str) -> Result<PrivateKeySigner, SignerError> {
         let bytes = hex::decode(private_key.strip_prefix("0x").unwrap_or(private_key))?;
-        Ok(LocalWallet::from_slice(&bytes).unwrap())
+        Ok(PrivateKeySigner::from_slice(&bytes).unwrap())
     }
 
     /// Load the AWS signer from environment variables./s
