@@ -23,9 +23,6 @@ pub use req::SignRequest;
 mod resp;
 pub use resp::SignResponse;
 
-pub use alloy_consensus;
-pub use alloy_eips;
-
 /// A [`RequestSigner`] signs [`SignRequest`]s by delegating to an
 /// [`alloy_signer::Signer`].
 pub trait RequestSigner {
