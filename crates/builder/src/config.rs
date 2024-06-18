@@ -1,8 +1,8 @@
 use crate::signer::{LocalOrAws, SignerError};
-use alloy_network::{Ethereum, EthereumSigner};
+use alloy_network::{Ethereum, EthereumWallet};
 use alloy_primitives::Address;
 use alloy_provider::{
-    fillers::{ChainIdFiller, FillProvider, GasFiller, JoinFill, NonceFiller, SignerFiller},
+    fillers::{ChainIdFiller, FillProvider, GasFiller, JoinFill, NonceFiller, WalletFiller},
     Identity, ProviderBuilder, RootProvider,
 };
 use alloy_transport::BoxTransport;
@@ -89,7 +89,7 @@ impl ConfigError {
 pub type Provider = FillProvider<
     JoinFill<
         JoinFill<JoinFill<JoinFill<Identity, GasFiller>, NonceFiller>, ChainIdFiller>,
-        SignerFiller<EthereumSigner>,
+        WalletFiller<EthereumWallet>,
     >,
     RootProvider<BoxTransport>,
     BoxTransport,
@@ -136,7 +136,7 @@ impl BuilderConfig {
         let builder_signer = self.connect_builder_signer().await?;
         ProviderBuilder::new()
             .with_recommended_fillers()
-            .signer(EthereumSigner::from(builder_signer))
+            .wallet(EthereumWallet::from(builder_signer))
             .on_builtin(&self.host_rpc_url)
             .await
             .map_err(Into::into)

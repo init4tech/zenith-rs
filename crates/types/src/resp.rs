@@ -40,7 +40,7 @@ mod test {
             ru_reward_address: Address::repeat_byte(6),
             contents: [7u8; 32].into(),
         };
-        let signer = alloy_signer_wallet::LocalWallet::from_slice(&[8u8; 32]).unwrap();
+        let signer = alloy_signer_local::PrivateKeySigner::from_slice(&[8u8; 32]).unwrap();
 
         let sig = signer.sign_request(&req).await.unwrap();
 
@@ -61,7 +61,7 @@ mod test {
             ru_reward_address: Address::repeat_byte(6),
             contents: [7u8; 32].into(),
         };
-        let signer = alloy_signer_wallet::LocalWallet::from_slice(&[8u8; 32]).unwrap();
+        let signer = alloy_signer_local::PrivateKeySigner::from_slice(&[8u8; 32]).unwrap();
 
         let sig = signer.sign_request(&req).await.unwrap();
 
