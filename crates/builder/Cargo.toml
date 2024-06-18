@@ -1,11 +1,11 @@
 [package]
 name = "zenith-builder-example"
 version = "0.1.0"
+description = "Zenith Builder Example"
 
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
-license.workspace = true
 homepage.workspace = true
 repository.workspace = true
 
