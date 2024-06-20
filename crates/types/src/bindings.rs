@@ -67,6 +67,7 @@ impl Zenith::ZenithEvents {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             Zenith::ZenithEvents::Enter(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            Zenith::ZenithEvents::Transact(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             _ => None,
         }
     }
