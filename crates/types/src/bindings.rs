@@ -41,6 +41,7 @@ impl Clone for Zenith::ZenithEvents {
             Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
             Self::Enter(inner) => Self::Enter(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
+            Self::Transact(inner) => Self::Transact(inner.clone()),
             Self::Withdrawal(inner) => Self::Withdrawal(*inner),
         }
     }
