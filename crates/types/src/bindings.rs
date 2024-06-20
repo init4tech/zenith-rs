@@ -41,6 +41,7 @@ impl Clone for Zenith::ZenithEvents {
             Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
             Self::Enter(inner) => Self::Enter(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
+            Self::Transact(inner) => Self::Transact(inner.clone()),
             Self::Withdrawal(inner) => Self::Withdrawal(*inner),
         }
     }
@@ -66,6 +67,7 @@ impl Zenith::ZenithEvents {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             Zenith::ZenithEvents::Enter(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            Zenith::ZenithEvents::Transact(inner) => Some(inner.rollupChainId.as_limbs()[0]),
             _ => None,
         }
     }
