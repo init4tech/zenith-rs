@@ -65,11 +65,35 @@ impl Zenith::ZenithEvents {
     /// if the event has no associated chain id.
     pub const fn rollup_chain_id(&self) -> Option<u64> {
         match self {
-            Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollupChainId.as_limbs()[0]),
-            Zenith::ZenithEvents::Enter(inner) => Some(inner.rollupChainId.as_limbs()[0]),
-            Zenith::ZenithEvents::Transact(inner) => Some(inner.rollupChainId.as_limbs()[0]),
+            Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
+            Zenith::ZenithEvents::Enter(inner) => Some(inner.rollup_chain_id()),
+            Zenith::ZenithEvents::Transact(inner) => Some(inner.rollup_chain_id()),
             _ => None,
         }
+    }
+}
+
+impl Zenith::BlockSubmitted {
+    /// Get the chain ID of the event (discarding high bytes), returns `None`
+    /// if the event has no associated chain id.
+    pub const fn rollup_chain_id(&self) -> u64 {
+        self.rollupChainId.as_limbs()[0]
+    }
+}
+
+impl Zenith::Enter {
+    /// Get the chain ID of the event (discarding high bytes), returns `None`
+    /// if the event has no associated chain id.
+    pub const fn rollup_chain_id(&self) -> u64 {
+        self.rollupChainId.as_limbs()[0]
+    }
+}
+
+impl Zenith::Transact {
+    /// Get the chain ID of the event (discarding high bytes), returns `None`
+    /// if the event has no associated chain id.
+    pub const fn rollup_chain_id(&self) -> u64 {
+        self.rollupChainId.as_limbs()[0]
     }
 }
 
