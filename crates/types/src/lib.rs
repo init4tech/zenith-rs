@@ -15,7 +15,7 @@ mod bindings;
 pub use bindings::{Orders, Zenith};
 
 mod block;
-pub use block::{Coder, ZenithBlock, ZenithTransaction};
+pub use block::{decode_txns, encode_txns, Alloy2718Coder, Coder, ZenithBlock, ZenithTransaction};
 
 mod req;
 pub use req::SignRequest;
