@@ -23,6 +23,8 @@ pub trait Coder {
         Self: Sized;
 }
 
+/// Coder for [`encode_txns`] and [`decode_txns`] that operates on
+/// [`TxEnvelope`].
 #[derive(Copy, Clone, Debug)]
 pub struct Alloy2718Coder;
 
@@ -151,7 +153,7 @@ where
     }
 
     fn seal(&self) {
-        let encoded = self.encoded.get_or_init(|| encode_transactions::<C>(&self.transactions));
+        let encoded = self.encoded.get_or_init(|| encode_txns::<C>(&self.transactions));
         self.block_data_hash.get_or_init(|| keccak256(encoded));
     }
 
@@ -191,8 +193,10 @@ where
 /// A transaction is an RLP-encoded list of EIP-2718-encoded transaction
 /// envelopes.
 ///
-/// A [`encode_txns`] has been provided for completeness.
-pub(crate) fn decode_txns<C>(block_data: impl AsRef<[u8]>) -> Vec<C::Tx>
+/// The function is generic over the coder type, which is used to decode the
+/// transactions. This allows for different transaction types to be decoded
+/// using different coders.
+pub fn decode_txns<C>(block_data: impl AsRef<[u8]>) -> Vec<C::Tx>
 where
     C: Coder,
 {
@@ -205,9 +209,11 @@ where
 }
 
 /// Encode a set of transactions into a single RLP-encoded buffer.
-pub(crate) fn encode_transactions<'a, C>(
-    transactions: impl IntoIterator<Item = &'a C::Tx>,
-) -> Vec<u8>
+///
+/// The function is generic over the coder type, which is used to encode the
+/// transactions. This allows for different transaction types to be encoded
+/// using different encodings.
+pub fn encode_txns<'a, C>(transactions: impl IntoIterator<Item = &'a C::Tx>) -> Vec<u8>
 where
     C: Coder,
     C::Tx: 'a,
@@ -253,13 +259,13 @@ mod test {
         ));
 
         let mut txs = vec![tx.clone()];
-        let encoded = encode_transactions::<Alloy2718Coder>(&txs);
+        let encoded = encode_txns::<Alloy2718Coder>(&txs);
         let decoded = decode_txns::<Alloy2718Coder>(encoded);
 
         assert_eq!(txs, decoded);
 
         txs.push(tx.clone());
-        let encoded = encode_transactions::<Alloy2718Coder>(&txs);
+        let encoded = encode_txns::<Alloy2718Coder>(&txs);
         let decoded = decode_txns::<Alloy2718Coder>(encoded);
 
         assert_eq!(txs, decoded);

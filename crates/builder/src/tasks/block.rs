@@ -3,6 +3,7 @@ use alloy_primitives::{keccak256, Bytes, B256};
 use std::{sync::OnceLock, time::Duration};
 use tokio::{select, sync::mpsc, task::JoinHandle};
 use tracing::Instrument;
+use zenith_types::{encode_txns, Alloy2718Coder};
 
 use crate::config::BuilderConfig;
 
@@ -39,7 +40,7 @@ impl InProgressBlock {
 
     /// Seal the block by encoding the transactions and calculating the contentshash.
     fn seal(&self) {
-        self.raw_encoding.get_or_init(|| alloy_rlp::encode(&self.transactions).into());
+        self.raw_encoding.get_or_init(|| encode_txns::<Alloy2718Coder>(&self.transactions).into());
         self.hash.get_or_init(|| keccak256(self.raw_encoding.get().unwrap().as_ref()));
     }
 
