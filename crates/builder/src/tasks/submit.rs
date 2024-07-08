@@ -53,7 +53,7 @@ impl SubmitTask {
     /// blocks. Seems fine lol.
     async fn get_next_sequence(&self) -> eyre::Result<u64> {
         self.zenith
-            .nextSequence(U256::from(self.config.ru_chain_id))
+            // .nextSequence(U256::from(self.config.ru_chain_id))
             .call()
             .await
             .map(|resp| resp._0.as_limbs()[0])
@@ -122,12 +122,17 @@ impl SubmitTask {
         let s: FixedBytes<32> = resp.sig.s().into();
 
         let header = Zenith::BlockHeader {
-            rollupChainId: U256::from(self.config.ru_chain_id),
-            sequence: resp.req.sequence,
-            gasLimit: resp.req.gas_limit,
-            confirmBy: resp.req.confirm_by,
-            rewardAddress: resp.req.ru_reward_address,
-            blockDataHash: in_progress.contents_hash(),
+            hostBlockNumber: todo!(),
+            gasLimit: todo!(),
+            rollupChainId: todo!(),
+            blockDataHash: todo!(),
+            rewardAddress: todo!(),
+            // rollupChainId: U256::from(self.config.ru_chain_id),
+            // sequence: resp.req.sequence,
+            // gasLimit: resp.req.gas_limit,
+            // confirmBy: resp.req.confirm_by,
+            // rewardAddress: resp.req.ru_reward_address,
+            // blockDataHash: in_progress.contents_hash(),
         };
 
         let tx = self

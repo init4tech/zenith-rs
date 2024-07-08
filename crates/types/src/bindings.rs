@@ -12,51 +12,106 @@ sol!(
     "abi/Zenith.json"
 );
 
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    Passage,
+    "abi/Passage.json"
+);
+
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    HostOrders,
+    "abi/HostOrders.json"
+);
+
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    RollupOrders,
+    "abi/RollupOrders.json"
+);
+
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    OrderDestination,
+    "abi/OrderDestination.json"
+);
+
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    OrderOrigin,
+    "abi/OrderOrigin.json"
+);
+
 // Zenith types
 impl Copy for Zenith::BlockHeader {}
 impl Copy for Zenith::BlockSubmitted {}
 impl Copy for Zenith::SequencerSet {}
-impl Copy for Zenith::BadSequence {}
 impl Copy for Zenith::BadSignature {}
-impl Copy for Zenith::BlockExpired {}
 impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
 
+// TODO ensure these are not reimplemented somewhere else
+// impl Copy for Zenith::BadSequence {}
+// impl Copy for Zenith::BlockExpired {}
+
 // Passage types
-impl Copy for Zenith::Enter {}
-impl Copy for Zenith::Withdrawal {}
-impl Copy for Zenith::OnlyWithdrawalAdmin {}
+impl Copy for Passage::Enter {}
+impl Copy for Passage::EnterToken {}
+impl Copy for Passage::EnterConfigured {}
+impl Copy for Passage::Withdrawal {}
+impl Copy for Passage::OnlyTokenAdmin   {}
 
-impl Copy for Zenith::ZenithErrors {}
+// TODO these cann't be impl because they are not Copy? How to fix? 
+// impl Copy for Passage::Transact {}
+// impl Copy for Passage::TransactToken {}
+// impl Copy for Passage::DefaultRollupChainId {}                      
 
-impl Clone for Zenith::ZenithErrors {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
+// TODO ensure zenith errors are impl if they are used
+// impl Copy for Zenith::ZenithErrors {}
+// impl Clone for Zenith::ZenithErrors {
+//     fn clone(&self) -> Self {
+//         *self
+//     }
+// }
+
 
 impl Clone for Zenith::ZenithEvents {
     fn clone(&self) -> Self {
         match self {
             Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
-            Self::Enter(inner) => Self::Enter(*inner),
             Self::SequencerSet(inner) => Self::SequencerSet(*inner),
-            Self::Transact(inner) => Self::Transact(inner.clone()),
-            Self::Withdrawal(inner) => Self::Withdrawal(*inner),
         }
     }
 }
 
+impl Clone for Passage::PassageEvents {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Enter(inner) => Self::Enter(*inner),
+            Self::Withdrawal(inner) => Self::Withdrawal(*inner),
+            Self::EnterConfigured(inner) => Self::EnterConfigured(*inner),
+            Self::EnterToken(inner) => Self::EnterToken(*inner),
+            Self::Transact(inner) => Self::Transact(inner.clone()),
+        }
+    }
+}       
+
 impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
-        Zenith::BlockHeader {
-            rollupChainId: event.rollupChainId,
-            sequence: event.sequence,
-            confirmBy: event.confirmBy,
-            gasLimit: event.gasLimit,
-            rewardAddress: event.rewardAddress,
-            blockDataHash: event.blockDataHash,
-        }
+        todo!("format block header from new zenith block submitted event")
+        // Zenith::BlockHeader {
+        //     rollupChainId: event.rollupChainId,
+        //     hostBlockNumber: event.sequence,
+        //     confirmBy: event.confirmBy,
+        //     gasLimit: event.gasLimit,
+        //     rewardAddress: event.rewardAddress,
+        //     blockDataHash: event.blockDataHash,
+        // }
     }
 }
 
@@ -66,8 +121,9 @@ impl Zenith::ZenithEvents {
     pub const fn rollup_chain_id(&self) -> Option<u64> {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
-            Zenith::ZenithEvents::Enter(inner) => Some(inner.rollup_chain_id()),
-            Zenith::ZenithEvents::Transact(inner) => Some(inner.rollup_chain_id()),
+            _ => todo!(),
+            // Zenith::ZenithEvents::Enter(inner) => Some(inner.rollup_chain_id()),
+            // Zenith::ZenithEvents::Transact(inner) => Some(inner.rollup_chain_id()),
             _ => None,
         }
     }
@@ -81,7 +137,7 @@ impl Zenith::BlockSubmitted {
     }
 }
 
-impl Zenith::Enter {
+impl Passage::Enter {
     /// Get the chain ID of the event (discarding high bytes), returns `None`
     /// if the event has no associated chain id.
     pub const fn rollup_chain_id(&self) -> u64 {
@@ -89,9 +145,7 @@ impl Zenith::Enter {
     }
 }
 
-impl Zenith::Transact {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
+impl Passage::Transact {    
     pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
     }
@@ -105,12 +159,14 @@ impl Zenith::BlockHeader {
 
     /// Get the sequence of the block (discarding high bytes).
     pub const fn sequence(&self) -> u64 {
-        self.sequence.as_limbs()[0]
+        todo!()
+        // self.sequence().limbs()[0]
     }
 
     /// Get the confirm by time of the block (discarding high bytes).
     pub const fn confirm_by(&self) -> u64 {
-        self.confirmBy.as_limbs()[0]
+        todo!()
+        // self.confirmBy.as_limbs()[0]
     }
 
     /// Get the gas limit of the block (discarding high bytes).
