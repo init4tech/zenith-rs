@@ -12,7 +12,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 mod bindings;
-pub use bindings::{Orders, Zenith, Passage};
+pub use bindings::{RollupOrders, Zenith, Passage};
 
 mod block;
 pub use block::{decode_txns, encode_txns, Alloy2718Coder, Coder, ZenithBlock, ZenithTransaction};

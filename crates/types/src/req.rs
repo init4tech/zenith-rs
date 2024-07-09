@@ -8,14 +8,12 @@ const DOMAIN_BINDING: &str = "init4.sequencer.v0";
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct SignRequest {
+    /// The block number of the host.
+    pub host_block_number: U256, // TODO assign this correctly?
     /// The chain ID of the host.
     pub host_chain_id: U256,
     /// The chain ID of the rollup.
     pub ru_chain_id: U256,
-    /// The sequence number of the rollup block.
-    pub sequence: U256,
-    /// The rollup block must be confirmed by this time.
-    pub confirm_by: U256,
     /// The gas limit of the rollup block.
     pub gas_limit: U256,
     /// The reward address for the builder.
@@ -31,9 +29,7 @@ impl SignRequest {
         hasher.update(DOMAIN_BINDING);
         hasher.update(self.host_chain_id.to_be_bytes::<32>());
         hasher.update(self.ru_chain_id.to_be_bytes::<32>());
-        hasher.update(self.sequence.to_be_bytes::<32>());
         hasher.update(self.gas_limit.to_be_bytes::<32>());
-        hasher.update(self.confirm_by.to_be_bytes::<32>());
         hasher.update(self.ru_reward_address);
         hasher.update(self.contents);
         hasher.finalize()
@@ -44,11 +40,9 @@ impl core::fmt::Display for SignRequest {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
-            "SignRequest {{ host_chain_id: {}, ru_chain_id: {}, sequence: {}, confirm_by: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",
+            "SignRequest {{ host_chain_id: {}, ru_chain_id: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",
             self.host_chain_id,
             self.ru_chain_id,
-            self.sequence,
-            self.confirm_by,
             self.gas_limit,
             self.ru_reward_address,
             self.contents
@@ -64,10 +58,9 @@ mod test {
     #[test]
     fn roundtrip() {
         let req = SignRequest {
+            host_block_number: U256::from(0), // TODO assign correct host block number
             host_chain_id: U256::from(1),
             ru_chain_id: U256::from(2),
-            sequence: U256::from(3),
-            confirm_by: U256::from(4),
             gas_limit: U256::from(5),
             ru_reward_address: Address::repeat_byte(6),
             contents: B256::repeat_byte(7),

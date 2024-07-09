@@ -36,34 +36,9 @@ pub struct SubmitTask {
 }
 
 impl SubmitTask {
-    async fn get_confirm_by(&self) -> eyre::Result<u64> {
-        self.provider
-            .get_block(BlockId::Number(BlockNumberOrTag::Latest), Default::default())
-            .await
-            .map_err(Into::<eyre::Report>::into)?
-            .ok_or_else(|| eyre::eyre!("latest block is none"))
-            .map(|block| block.header.timestamp + self.config.block_confirmation_buffer)
-    }
-
-    /// Get the next sequence number from the chain
-    ///
-    /// # Note
-    ///
-    /// Produces bad output if the rollup has more than 18446744073709551615
-    /// blocks. Seems fine lol.
-    async fn get_next_sequence(&self) -> eyre::Result<u64> {
-        self.zenith
-            // .nextSequence(U256::from(self.config.ru_chain_id))
-            .call()
-            .await
-            .map(|resp| resp._0.as_limbs()[0])
-            .map_err(Into::into)
-    }
-
-    /// Get the signature from our main man quincey.
     async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<SignResponse> {
         tracing::info!(
-            sequence = %sig_request.sequence,
+            // sequence = %sig_request.TODO(), // TODO log correct sequence number
             "pinging quincey for signature"
         );
 
@@ -85,14 +60,10 @@ impl SubmitTask {
 
     #[instrument(skip_all)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
-        let sequence = self.get_next_sequence().await?;
-        let confirm_by = self.get_confirm_by().await?;
-
         Ok(SignRequest {
+            host_block_number: U256::from(0), // TODO get and set proper sequence number
             host_chain_id: U256::from(self.config.host_chain_id),
             ru_chain_id: U256::from(self.config.ru_chain_id),
-            sequence: U256::from(sequence),
-            confirm_by: U256::from(confirm_by),
             gas_limit: U256::from(self.config.rollup_block_gas_limit),
             ru_reward_address: self.config.builder_rewards_address,
             contents: contents.contents_hash(),
@@ -152,7 +123,7 @@ impl SubmitTask {
         }
 
         tracing::debug!(
-            sequence = %resp.req.sequence,
+            // sequence = %resp.req.sequence, // TODO log correct host block number
             gas_limit = %resp.req.gas_limit,
             "sending transaction to network"
         );
@@ -163,7 +134,7 @@ impl SubmitTask {
 
         tracing::info!(
             %tx_hash,
-            sequence = %resp.req.sequence,
+            // sequence = %resp.req.sequence, // TODO log correct host block number
             gas_limit = %resp.req.gas_limit,
             "dispatched to network"
         );
@@ -177,8 +148,7 @@ impl SubmitTask {
         let sig_request = self.construct_sig_request(in_progress).await?;
 
         tracing::debug!(
-            sequence = %sig_request.sequence,
-            confirm_by = %sig_request.confirm_by,
+            // sequence = %sig_request.sequence,// TODO log correct host block number and rollup chain id
             "constructed signature request"
         );
 

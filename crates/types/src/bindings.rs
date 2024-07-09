@@ -1,9 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(missing_docs)]
-use alloy_primitives::Address;
+use alloy_primitives::{Address, U256};
 use alloy_sol_types::sol;
-
-use self::Orders::{OrdersErrors, OrdersEvents};
 
 sol!(
     #[sol(rpc)]
@@ -42,16 +40,7 @@ impl Copy for Passage::Enter {}
 impl Copy for Passage::EnterToken {}
 impl Copy for Passage::EnterConfigured {}
 impl Copy for Passage::Withdrawal {}
-impl Copy for Passage::OnlyTokenAdmin   {}
-
-// TODO ensure zenith errors are impl if they are used
-// impl Copy for Zenith::ZenithErrors {}
-// impl Clone for Zenith::ZenithErrors {
-//     fn clone(&self) -> Self {
-//         *self
-//     }
-// }
-
+impl Copy for Passage::OnlyTokenAdmin {}
 
 impl Clone for Zenith::ZenithEvents {
     fn clone(&self) -> Self {
@@ -72,14 +61,13 @@ impl Clone for Passage::PassageEvents {
             Self::Transact(inner) => Self::Transact(inner.clone()),
         }
     }
-}       
+}
 
 impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
         Zenith::BlockHeader {
             rollupChainId: event.rollupChainId,
-            hostBlockNumber: event.sequence,
-            confirmBy: event.confirmBy,
+            hostBlockNumber: U256::from(0), // TODO get and set proper sequence number
             gasLimit: event.gasLimit,
             rewardAddress: event.rewardAddress,
             blockDataHash: event.blockDataHash,
@@ -93,10 +81,9 @@ impl Zenith::ZenithEvents {
     pub const fn rollup_chain_id(&self) -> Option<u64> {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
-            _ => todo!(),
-            // Zenith::ZenithEvents::Enter(inner) => Some(inner.rollup_chain_id()),
-            // Zenith::ZenithEvents::Transact(inner) => Some(inner.rollup_chain_id()),
-            _ => None,
+            Zenith::ZenithEvents::SequencerSet(_val) => {
+                todo!()
+            }
         }
     }
 }
@@ -117,7 +104,7 @@ impl Passage::Enter {
     }
 }
 
-impl Passage::Transact {    
+impl Passage::Transact {
     pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
     }
