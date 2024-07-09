@@ -22,29 +22,8 @@ sol!(
 sol!(
     #[sol(rpc)]
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    HostOrders,
-    "abi/HostOrders.json"
-);
-
-sol!(
-    #[sol(rpc)]
-    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     RollupOrders,
     "abi/RollupOrders.json"
-);
-
-sol!(
-    #[sol(rpc)]
-    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    OrderDestination,
-    "abi/OrderDestination.json"
-);
-
-sol!(
-    #[sol(rpc)]
-    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    OrderOrigin,
-    "abi/OrderOrigin.json"
 );
 
 // Zenith types
@@ -55,7 +34,6 @@ impl Copy for Zenith::BadSignature {}
 impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
 
-// TODO ensure these are not reimplemented somewhere else
 // impl Copy for Zenith::BadSequence {}
 // impl Copy for Zenith::BlockExpired {}
 
@@ -65,11 +43,6 @@ impl Copy for Passage::EnterToken {}
 impl Copy for Passage::EnterConfigured {}
 impl Copy for Passage::Withdrawal {}
 impl Copy for Passage::OnlyTokenAdmin   {}
-
-// TODO these cann't be impl because they are not Copy? How to fix? 
-// impl Copy for Passage::Transact {}
-// impl Copy for Passage::TransactToken {}
-// impl Copy for Passage::DefaultRollupChainId {}                      
 
 // TODO ensure zenith errors are impl if they are used
 // impl Copy for Zenith::ZenithErrors {}
@@ -103,15 +76,14 @@ impl Clone for Passage::PassageEvents {
 
 impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
-        todo!("format block header from new zenith block submitted event")
-        // Zenith::BlockHeader {
-        //     rollupChainId: event.rollupChainId,
-        //     hostBlockNumber: event.sequence,
-        //     confirmBy: event.confirmBy,
-        //     gasLimit: event.gasLimit,
-        //     rewardAddress: event.rewardAddress,
-        //     blockDataHash: event.blockDataHash,
-        // }
+        Zenith::BlockHeader {
+            rollupChainId: event.rollupChainId,
+            hostBlockNumber: event.sequence,
+            confirmBy: event.confirmBy,
+            gasLimit: event.gasLimit,
+            rewardAddress: event.rewardAddress,
+            blockDataHash: event.blockDataHash,
+        }
     }
 }
 
@@ -180,42 +152,42 @@ impl Zenith::BlockHeader {
     }
 }
 
-sol!(
-    #[sol(rpc)]
-    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    Orders,
-    "abi/Orders.json"
-);
+// sol!(
+//     #[sol(rpc)]
+//     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+//     Orders,
+//     "abi/Orders.json"
+// );
 
-impl Copy for Orders::Swap {}
-impl Copy for Orders::Sweep {}
-impl Copy for Orders::SwapFulfilled {}
-impl Copy for Orders::OrderExpired {}
-impl Copy for OrdersEvents {}
-impl Copy for OrdersErrors {}
+// impl Copy for Orders::Swap {}
+// impl Copy for Orders::Sweep {}
+// impl Copy for Orders::SwapFulfilled {}
+// impl Copy for Orders::OrderExpired {}
+// impl Copy for OrdersEvents {}
+// impl Copy for OrdersErrors {}
 
-impl Clone for Orders::OrdersEvents {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
+// impl Clone for Orders::OrdersEvents {
+//     fn clone(&self) -> Self {
+//         *self
+//     }
+// }
 
-impl Clone for Orders::OrdersErrors {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
+// impl Clone for Orders::OrdersErrors {
+//     fn clone(&self) -> Self {
+//         *self
+//     }
+// }
 
-impl Orders::SwapFulfilled {
-    /// Get the target chain ID of the swap (discarding high bytes).
-    pub const fn origin_chain_id(&self) -> u64 {
-        self.originChainId.as_limbs()[0]
-    }
-}
+// impl Orders::SwapFulfilled {
+//     /// Get the target chain ID of the swap (discarding high bytes).
+//     pub const fn origin_chain_id(&self) -> u64 {
+//         self.originChainId.as_limbs()[0]
+//     }
+// }
 
-impl Orders::Swap {
-    /// Get the target chain ID of the swap (discarding high bytes).
-    pub const fn target_chain_id(&self) -> u64 {
-        self.targetChainId.as_limbs()[0]
-    }
-}
+// impl Orders::Swap {
+//     /// Get the target chain ID of the swap (discarding high bytes).
+//     pub const fn target_chain_id(&self) -> u64 {
+//         self.targetChainId.as_limbs()[0]
+//     }
+// }
