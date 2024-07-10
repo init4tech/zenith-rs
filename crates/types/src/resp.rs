@@ -40,9 +40,7 @@ mod test {
             contents: [7u8; 32].into(),
         };
         let signer = alloy_signer_local::PrivateKeySigner::from_slice(&[8u8; 32]).unwrap();
-
         let sig = signer.sign_request(&req).await.unwrap();
-
         let resp = SignResponse { req, sig };
         let addr = resp.signer().unwrap();
 
@@ -52,7 +50,7 @@ mod test {
     #[tokio::test]
     async fn deser_roundtrip() {
         let req = SignRequest {
-            host_block_number: U256::from(0), // TODO assign correct host block number
+            host_block_number: U256::from(0),
             host_chain_id: U256::from(1u64),
             ru_chain_id: U256::from(2u64),
             gas_limit: U256::from(5u64),

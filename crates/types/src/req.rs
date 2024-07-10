@@ -27,6 +27,7 @@ impl SignRequest {
     pub fn signing_hash(&self) -> B256 {
         let mut hasher = Keccak256::new();
         hasher.update(DOMAIN_BINDING);
+        hasher.update(self.host_block_number.to_be_bytes::<32>());
         hasher.update(self.host_chain_id.to_be_bytes::<32>());
         hasher.update(self.ru_chain_id.to_be_bytes::<32>());
         hasher.update(self.gas_limit.to_be_bytes::<32>());
@@ -40,7 +41,8 @@ impl core::fmt::Display for SignRequest {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
-            "SignRequest {{ host_chain_id: {}, ru_chain_id: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",
+            "SignRequest {{ host_block_number: {}, host_chain_id: {}, ru_chain_id: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",
+            self.host_block_number,
             self.host_chain_id,
             self.ru_chain_id,
             self.gas_limit,
@@ -58,7 +60,7 @@ mod test {
     #[test]
     fn roundtrip() {
         let req = SignRequest {
-            host_block_number: U256::from(0), // TODO assign correct host block number
+            host_block_number: U256::from(0),            
             host_chain_id: U256::from(1),
             ru_chain_id: U256::from(2),
             gas_limit: U256::from(5),
@@ -69,10 +71,12 @@ mod test {
         let ser = serde_json::to_string(&req).unwrap();
         let de: SignRequest = serde_json::from_str(&ser).unwrap();
         assert_eq!(req, de);
+
         assert_eq!(
             req.signing_hash(),
-            b256!("eabffc9ed79f68618d3628a804d40199c7888cb5274407ee0ad9ef95c7144d0f")
+            b256!("8c89d2c9e8d725ee335a4f35869a001db64d2f6ce2effe7f09d3ef92f6d251ec")
         );
+
         assert_eq!(de.signing_hash(), req.signing_hash());
     }
 }

@@ -167,16 +167,6 @@ where
         self.header.chain_id()
     }
 
-    /// Get the sequence of the block (discarding high bytes).
-    pub const fn sequence(&self) -> u64 {
-        self.header.sequence()
-    }
-
-    /// Get the confirm by time of the block (discarding high bytes).
-    pub const fn confirm_by(&self) -> u64 {
-        self.header.confirm_by()
-    }
-
     /// Get the gas limit of the block (discarding high bytes).
     pub const fn gas_limit(&self) -> u64 {
         self.header.gas_limit()
