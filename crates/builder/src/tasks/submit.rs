@@ -6,7 +6,7 @@ use alloy_rpc_types_eth::TransactionRequest;
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
 use alloy_transport::TransportError;
-use eyre::bail;
+use eyre::{bail, eyre, OptionExt};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
@@ -38,6 +38,7 @@ pub struct SubmitTask {
 impl SubmitTask {
     async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<SignResponse> {
         tracing::info!(
+            host_block_number = %sig_request.host_block_number,
             sequence = %sig_request.ru_chain_id,
             "pinging quincey for signature"
         );
@@ -60,10 +61,13 @@ impl SubmitTask {
 
     #[instrument(skip_all)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
+        let ru_chain_id = U256::from(self.config.ru_chain_id);
+        let next_block_height = self.next_host_block_height(ru_chain_id).await?;
+
         Ok(SignRequest {
-            host_block_number: U256::from(0), // TODO get and set proper sequence number
+            host_block_number: next_block_height,
             host_chain_id: U256::from(self.config.host_chain_id),
-            ru_chain_id: U256::from(self.config.ru_chain_id),
+            ru_chain_id: ru_chain_id,
             gas_limit: U256::from(self.config.rollup_block_gas_limit),
             ru_reward_address: self.config.builder_rewards_address,
             contents: contents.contents_hash(),
@@ -81,6 +85,12 @@ impl SubmitTask {
         let data = Zenith::submitBlockCall { header, v, r, s, _4: Default::default() }.abi_encode();
         let sidecar = in_progress.encode_blob::<SimpleCoder>().build()?;
         Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
+    }
+
+    async fn next_host_block_height(&self, ru_chain_id: U256) -> eyre::Result<U256> {
+        let result = self.zenith.lastSubmittedAtBlock(ru_chain_id).call().await?;
+        let next = result._0.checked_add(U256::from(1)).ok_or_else(|| U256::from(1))?;
+        Ok(next)
     }
 
     async fn submit_transaction(

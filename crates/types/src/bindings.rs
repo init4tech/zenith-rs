@@ -63,13 +63,16 @@ impl Clone for Passage::PassageEvents {
     }
 }
 
+// PROBLEM: This From implementation for BlockHeader needs an accurate `hostBlockNumber`, but the BlockSubmitted event does not provide it.
+// Do we _need_ this From impl, or can we get rid of it? 
+// Either way, I think this is a problem - One possible solution is to add the host block number to the BlockSubmitted event
+// because the mapping in Signet/Zenith.sol will not provider historical record, only a current record.
+// 
 impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
     fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
-        // QUESTION: this needs to check the sequencer, I think? 
-        // Does that require provider access?
         Zenith::BlockHeader {
             rollupChainId: event.rollupChainId,
-            hostBlockNumber: U256::from(0), // TODO get and set proper sequence number
+            hostBlockNumber: U256::from(0), // TODO 
             gasLimit: event.gasLimit,
             rewardAddress: event.rewardAddress,
             blockDataHash: event.blockDataHash,
@@ -83,7 +86,7 @@ impl Zenith::ZenithEvents {
     pub const fn rollup_chain_id(&self) -> Option<u64> {
         match self {
             Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
-            Zenith::ZenithEvents::SequencerSet(_val) => { None } // Calling rollup chain id on a sequencer set should return None, right? Or should it return the rollup chain id of the 
+            Zenith::ZenithEvents::SequencerSet(_) => { None }  // Question: Does this need to do anything specific? Or should this intentionally be none for this event type?
         }
     }
 }

@@ -245,7 +245,7 @@ mod test {
                 input: bytes!("08090a0b0c0d0e0f"),
             },
             sig,
-            b256!("87fdda4563f2f98ac9c3f076bca48a59309df94f13fb8abf8471b3b8b51a2816"),
+            b256!("87fdda4563f2f98ac9c3f076bca48a59309df94f13fb8abf8471b3b8b51a2816"), // TODO double check sequencer signature
         ));
 
         let mut txs = vec![tx.clone()];
