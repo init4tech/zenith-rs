@@ -52,6 +52,7 @@ impl Zenith::BlockSubmitted {
 }
 
 // returns a BlockHeader from a BlockSubmitted event with the given host block number
+#[allow(dead_code)]
 pub(crate) const fn header_from_block_submitted(
     event: &Zenith::BlockSubmitted,
     host_block_number: U256,
