@@ -56,7 +56,10 @@ impl Zenith::BlockSubmitted {
 }
 
 impl Zenith::BlockHeader {
-    pub fn from_block_submitted(host_block_submitted: Zenith::BlockSubmitted, host_block_number: U256) -> Zenith::BlockHeader {
+    pub const fn from_block_submitted(
+        host_block_submitted: Zenith::BlockSubmitted,
+        host_block_number: U256,
+    ) -> Zenith::BlockHeader {
         Zenith::BlockHeader {
             rollupChainId: host_block_submitted.rollupChainId,
             hostBlockNumber: host_block_number,
@@ -129,7 +132,7 @@ impl Passage::Transact {
         self.to
     }
 
-    pub fn data(&self) -> &Bytes {
+    pub const fn data(&self) -> &Bytes {
         &self.data
     }
 

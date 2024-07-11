@@ -168,7 +168,7 @@ where
     }
 
     /// Gets the block height according to the header
-    pub fn block_height(&self) -> u64 {
+    pub const fn block_height(&self) -> u64 {
         self.header.host_block_number()
     }
 
