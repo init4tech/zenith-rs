@@ -67,7 +67,7 @@ impl SubmitTask {
         Ok(SignRequest {
             host_block_number: next_block_height,
             host_chain_id: U256::from(self.config.host_chain_id),
-            ru_chain_id: ru_chain_id,
+            ru_chain_id,
             gas_limit: U256::from(self.config.rollup_block_gas_limit),
             ru_reward_address: self.config.builder_rewards_address,
             contents: contents.contents_hash(),
@@ -89,7 +89,10 @@ impl SubmitTask {
 
     async fn next_host_block_height(&self, ru_chain_id: U256) -> eyre::Result<U256> {
         let result = self.zenith.lastSubmittedAtBlock(ru_chain_id).call().await?;
-        let next = result._0.checked_add(U256::from(1)).ok_or_else(|| eyre!("next host block height overflow"))?;
+        let next = result
+            ._0
+            .checked_add(U256::from(1))
+            .ok_or_else(|| eyre!("next host block height overflow"))?;
         Ok(next)
     }
 

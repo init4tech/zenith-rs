@@ -60,7 +60,7 @@ mod test {
     #[test]
     fn roundtrip() {
         let req = SignRequest {
-            host_block_number: U256::from(0),            
+            host_block_number: U256::from(0),
             host_chain_id: U256::from(1),
             ru_chain_id: U256::from(2),
             gas_limit: U256::from(5),

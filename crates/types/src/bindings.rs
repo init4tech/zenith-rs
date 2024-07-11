@@ -35,7 +35,7 @@ impl Copy for Zenith::IncorrectHostBlock {}
 
 impl Zenith::BlockSubmitted {
     pub const fn sequencer(&self) -> Address {
-        self.sequencer        
+        self.sequencer
     }
     pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
@@ -52,13 +52,16 @@ impl Zenith::BlockSubmitted {
 }
 
 // returns a BlockHeader from a BlockSubmitted event with the given host block number
-pub(crate) fn header_from_block_submitted(event: &Zenith::BlockSubmitted, host_block_number: U256) -> Zenith::BlockHeader {
+pub(crate) fn header_from_block_submitted(
+    event: &Zenith::BlockSubmitted,
+    host_block_number: U256,
+) -> Zenith::BlockHeader {
     Zenith::BlockHeader {
         rollupChainId: event.rollupChainId,
         hostBlockNumber: host_block_number,
         gasLimit: event.gasLimit,
         rewardAddress: event.rewardAddress,
-        blockDataHash: event.blockDataHash, 
+        blockDataHash: event.blockDataHash,
     }
 }
 
@@ -117,14 +120,14 @@ impl Passage::Transact {
 impl Passage::Withdrawal {
     pub const fn token(&self) -> Address {
         self.token
-    }   
+    }
     pub const fn recipient(&self) -> Address {
         self.recipient
     }
     pub const fn amount(&self) -> u64 {
         self.amount.as_limbs()[0]
     }
-} 
+}
 
 impl Zenith::BlockHeader {
     /// Get the host block number of the block
@@ -182,7 +185,7 @@ impl RollupOrders::Output {
     pub const fn chain_id(&self) -> u32 {
         self.chainId
     }
-}    
+}
 
 impl RollupOrders::Order {
     pub fn inputs(&self) -> &[RollupOrders::Input] {
@@ -202,14 +205,14 @@ impl RollupOrders::Sweep {
     }
     pub const fn token(&self) -> Address {
         self.token
-    }   
+    }
     pub const fn amount(&self) -> u64 {
         self.amount.as_limbs()[0]
     }
 }
 
-impl RollupOrders::Filled { 
+impl RollupOrders::Filled {
     pub fn outputs(&self) -> &[RollupOrders::Output] {
         &self.outputs.as_slice()
-    }   
+    }
 }
