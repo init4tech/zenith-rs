@@ -167,6 +167,11 @@ where
         self.header.chain_id()
     }
 
+    /// Gets the block height according to the header
+    pub fn block_height(&self) -> u64 {
+        self.header.host_block_number()
+    }
+
     /// Get the gas limit of the block (discarding high bytes).
     pub const fn gas_limit(&self) -> u64 {
         self.header.gas_limit()

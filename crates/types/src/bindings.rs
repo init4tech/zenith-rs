@@ -37,17 +37,33 @@ impl Zenith::BlockSubmitted {
     pub const fn sequencer(&self) -> Address {
         self.sequencer
     }
+
     pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
     }
+
     pub const fn gas_limit(&self) -> u64 {
         self.gasLimit.as_limbs()[0]
     }
+
     pub const fn reward_address(&self) -> Address {
         self.rewardAddress
     }
+
     pub const fn block_data_hash(&self) -> FixedBytes<32> {
         self.blockDataHash
+    }
+}
+
+impl Zenith::BlockHeader {
+    pub fn from_block_submitted(host_block_submitted: Zenith::BlockSubmitted, host_block_number: U256) -> Zenith::BlockHeader {
+        Zenith::BlockHeader {
+            rollupChainId: host_block_submitted.rollupChainId,
+            hostBlockNumber: host_block_number,
+            gasLimit: host_block_submitted.gasLimit,
+            rewardAddress: host_block_submitted.rewardAddress,
+            blockDataHash: host_block_submitted.blockDataHash,
+        }
     }
 }
 
@@ -104,17 +120,29 @@ impl Passage::Transact {
     pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
     }
+
     pub const fn sender(&self) -> Address {
         self.sender
     }
+
     pub const fn to(&self) -> Address {
         self.to
     }
-    pub fn data(&self) -> Bytes {
-        self.data.clone()
+
+    pub fn data(&self) -> &Bytes {
+        &self.data
     }
+
     pub const fn value(&self) -> U256 {
         self.value
+    }
+
+    pub fn max_fee_per_gas(&self) -> u128 {
+        self.maxFeePerGas.to::<u128>()
+    }
+
+    pub fn gas(&self) -> u128 {
+        self.gas.to::<u128>()
     }
 }
 
@@ -168,6 +196,7 @@ impl RollupOrders::Input {
     pub const fn token(&self) -> Address {
         self.token
     }
+
     pub const fn amount(&self) -> u64 {
         self.amount.as_limbs()[0]
     }
@@ -177,12 +206,15 @@ impl RollupOrders::Output {
     pub const fn token(&self) -> Address {
         self.token
     }
+
     pub const fn amount(&self) -> u64 {
         self.amount.as_limbs()[0]
     }
+
     pub const fn recipient(&self) -> Address {
         self.recipient
     }
+
     pub const fn chain_id(&self) -> u32 {
         self.chainId
     }
@@ -192,9 +224,11 @@ impl RollupOrders::Order {
     pub fn inputs(&self) -> &[RollupOrders::Input] {
         &self.inputs
     }
+
     pub fn outputs(&self) -> &[RollupOrders::Output] {
         &self.outputs
     }
+
     pub const fn deadline(&self) -> u64 {
         self.deadline.as_limbs()[0]
     }
@@ -204,9 +238,11 @@ impl RollupOrders::Sweep {
     pub const fn recipient(&self) -> Address {
         self.recipient
     }
+
     pub const fn token(&self) -> Address {
         self.token
     }
+
     pub const fn amount(&self) -> u64 {
         self.amount.as_limbs()[0]
     }

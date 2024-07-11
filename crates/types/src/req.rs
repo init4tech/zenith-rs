@@ -27,9 +27,9 @@ impl SignRequest {
     pub fn signing_hash(&self) -> B256 {
         let mut hasher = Keccak256::new();
         hasher.update(DOMAIN_BINDING);
-        hasher.update(self.host_block_number.to_be_bytes::<32>());
         hasher.update(self.host_chain_id.to_be_bytes::<32>());
         hasher.update(self.ru_chain_id.to_be_bytes::<32>());
+        hasher.update(self.host_block_number.to_be_bytes::<32>());
         hasher.update(self.gas_limit.to_be_bytes::<32>());
         hasher.update(self.ru_reward_address);
         hasher.update(self.contents);
@@ -41,9 +41,9 @@ impl core::fmt::Display for SignRequest {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
-            "SignRequest {{ host_block_number: {}, host_chain_id: {}, ru_chain_id: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",
-            self.host_block_number,
+            "SignRequest {{ host_chain_id: {}, host_block_number: {}, ru_chain_id: {}, gas_limit: {}, ru_reward_address: {}, contents: {} }}",
             self.host_chain_id,
+            self.host_block_number,
             self.ru_chain_id,
             self.gas_limit,
             self.ru_reward_address,
@@ -74,7 +74,7 @@ mod test {
 
         assert_eq!(
             req.signing_hash(),
-            b256!("8c89d2c9e8d725ee335a4f35869a001db64d2f6ce2effe7f09d3ef92f6d251ec")
+            b256!("74388c53a86cf15b3e8b11fa5f499dac87819fd00c20cfec4557b7d551b2c445")
         );
 
         assert_eq!(de.signing_hash(), req.signing_hash());

@@ -39,7 +39,7 @@ impl SubmitTask {
     async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<SignResponse> {
         tracing::info!(
             host_block_number = %sig_request.host_block_number,
-            sequence = %sig_request.ru_chain_id,
+            ru_chain_id = %sig_request.ru_chain_id,
             "pinging quincey for signature"
         );
 
@@ -62,10 +62,10 @@ impl SubmitTask {
     #[instrument(skip_all)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
         let ru_chain_id = U256::from(self.config.ru_chain_id);
-        let next_block_height = self.next_host_block_height(ru_chain_id).await?;
+        let next_block_height = self.next_host_block_height().await?;
 
         Ok(SignRequest {
-            host_block_number: next_block_height,
+            host_block_number: U256::from(next_block_height),
             host_chain_id: U256::from(self.config.host_chain_id),
             ru_chain_id,
             gas_limit: U256::from(self.config.rollup_block_gas_limit),
@@ -87,12 +87,9 @@ impl SubmitTask {
         Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
     }
 
-    async fn next_host_block_height(&self, ru_chain_id: U256) -> eyre::Result<U256> {
-        let result = self.zenith.lastSubmittedAtBlock(ru_chain_id).call().await?;
-        let next = result
-            ._0
-            .checked_add(U256::from(1))
-            .ok_or_else(|| eyre!("next host block height overflow"))?;
+    async fn next_host_block_height(&self) -> eyre::Result<u64> {
+        let result = self.provider.get_block_number().await?;
+        let next = result.checked_add(1).ok_or_else(|| eyre!("next host block height overflow"))?;
         Ok(next)
     }
 
