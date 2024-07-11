@@ -3,8 +3,6 @@
 use alloy_primitives::{Address, Bytes, FixedBytes, U256};
 use alloy_sol_types::sol;
 
-use RollupOrders::{Input, Output, Order};
-
 sol!(
     #[sol(rpc)]
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -35,21 +33,42 @@ impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
 impl Copy for Zenith::IncorrectHostBlock {}
 
+impl Zenith::ZenithEvents {
+    /// Get the chain ID of the event (discarding high bytes), returns `None`
+    /// if the event has no associated chain id.
+    pub const fn rollup_chain_id(&self) -> Option<u64> {
+        match self {
+            Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
+            Zenith::ZenithEvents::SequencerSet(_) => { None }
+        }
+    }
+}
+
+impl Zenith::BlockSubmitted {
+    /// Get the chain ID of the event (discarding high bytes), returns `None`
+    /// if the event has no associated chain id.
+    pub const fn rollup_chain_id(&self) -> u64 {
+        self.rollupChainId.as_limbs()[0]
+    }
+}
+
+// returns a BlockHeader from a BlockSubmitted event with the given host block number
+pub(crate) fn header_from_block_submitted(event: &Zenith::BlockSubmitted, host_block_number: U256) -> Zenith::BlockHeader {
+    Zenith::BlockHeader {
+        rollupChainId: event.rollupChainId,
+        hostBlockNumber: host_block_number,
+        gasLimit: event.gasLimit,
+        rewardAddress: event.rewardAddress,
+        blockDataHash: event.blockDataHash, 
+    }
+}
+
 // Passage types
 impl Copy for Passage::EnterConfigured {}
 impl Copy for Passage::Withdrawal {}
 impl Copy for Passage::OnlyTokenAdmin {}
 impl Copy for Passage::Enter {}
 impl Copy for Passage::EnterToken {}
-
-impl Clone for Zenith::ZenithEvents {
-    fn clone(&self) -> Self {
-        match self {
-            Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
-            Self::SequencerSet(inner) => Self::SequencerSet(*inner),
-        }
-    }
-}
 
 impl Clone for Passage::PassageEvents {
     fn clone(&self) -> Self {
@@ -60,25 +79,6 @@ impl Clone for Passage::PassageEvents {
             Self::EnterToken(inner) => Self::EnterToken(*inner),
             Self::Transact(inner) => Self::Transact(inner.clone()),
         }
-    }
-}
-
-impl Zenith::ZenithEvents {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
-    pub const fn rollup_chain_id(&self) -> Option<u64> {
-        match self {
-            Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
-            Zenith::ZenithEvents::SequencerSet(_) => { None }  // Question: Does this need to do anything specific? Or should this intentionally be none for this event type?
-        }
-    }
-}
-
-impl Zenith::BlockSubmitted {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
-    pub const fn rollup_chain_id(&self) -> u64 {
-        self.rollupChainId.as_limbs()[0]
     }
 }
 
@@ -107,8 +107,6 @@ impl Passage::Transact {
     pub const fn to(&self) -> Address {
         self.to
     }
-    // QUESTION: can this not be const? 
-    // It can't be const because of clone on data field
     pub fn data(&self) -> Bytes {
         self.data.clone()
     }
@@ -156,11 +154,12 @@ impl Zenith::BlockHeader {
     }
 }
 
+// RollupOrders types
 impl RollupOrders::OrderExpired {}
 impl RollupOrders::OnlyBuilder {}
 
-impl Copy for Input {}
-impl Copy for Output {}
+impl Copy for RollupOrders::Input {}
+impl Copy for RollupOrders::Output {}
 
 impl RollupOrders::Input {
     pub const fn token(&self) -> Address {
@@ -181,18 +180,16 @@ impl RollupOrders::Output {
     pub const fn recipient(&self) -> Address {
         self.recipient
     }
-    // QUESTION: Should Orders.sol instead return a u64 for chainId consistency?
-    // Technically, it's an upcast to u64 so no loss of precision?
     pub const fn chain_id(&self) -> u32 {
         self.chainId
     }
 }    
 
-impl Order {
-    pub fn inputs(&self) -> &[Input] {
+impl RollupOrders::Order {
+    pub fn inputs(&self) -> &[RollupOrders::Input] {
         &self.inputs
     }
-    pub fn outputs(&self) -> &[Output] {
+    pub fn outputs(&self) -> &[RollupOrders::Output] {
         &self.outputs
     }
     pub const fn deadline(&self) -> u64 {
@@ -216,15 +213,4 @@ impl RollupOrders::Filled {
     pub fn outputs(&self) -> &[RollupOrders::Output] {
         &self.outputs.as_slice()
     }   
-}
-
-// returns a BlockHeader from a BlockSubmitted event with the given host block number
-pub(crate) fn header_from_block_submitted(event: &Zenith::BlockSubmitted, host_block_number: U256) -> Zenith::BlockHeader {
-    Zenith::BlockHeader {
-        rollupChainId: event.rollupChainId,
-        hostBlockNumber: host_block_number,
-        gasLimit: event.gasLimit,
-        rewardAddress: event.rewardAddress,
-        blockDataHash: event.blockDataHash, 
-    }
 }

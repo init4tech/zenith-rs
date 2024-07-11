@@ -6,7 +6,7 @@ use alloy_rpc_types_eth::TransactionRequest;
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
 use alloy_transport::TransportError;
-use eyre::{bail, eyre, OptionExt};
+use eyre::{bail, eyre};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
@@ -89,7 +89,7 @@ impl SubmitTask {
 
     async fn next_host_block_height(&self, ru_chain_id: U256) -> eyre::Result<U256> {
         let result = self.zenith.lastSubmittedAtBlock(ru_chain_id).call().await?;
-        let next = result._0.checked_add(U256::from(1)).ok_or_else(|| U256::from(1))?;
+        let next = result._0.checked_add(U256::from(1)).ok_or_else(|| eyre!("next host block height overflow"))?;
         Ok(next)
     }
 
