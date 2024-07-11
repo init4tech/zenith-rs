@@ -32,7 +32,7 @@ mod test {
     #[tokio::test]
     async fn test_sign_response() {
         let req = SignRequest {
-            host_block_number: U256::from(0), // TODO assign correct host block number
+            host_block_number: U256::from(0),
             host_chain_id: U256::from(1u64),
             ru_chain_id: U256::from(2u64),
             gas_limit: U256::from(5u64),

@@ -63,23 +63,6 @@ impl Clone for Passage::PassageEvents {
     }
 }
 
-// PROBLEM: This From implementation for BlockHeader needs an accurate `hostBlockNumber`, but the BlockSubmitted event does not provide it.
-// Do we _need_ this From impl, or can we get rid of it? 
-// Either way, I think this is a problem - One possible solution is to add the host block number to the BlockSubmitted event
-// because the mapping in Signet/Zenith.sol will not provider historical record, only a current record.
-// 
-impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
-    fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
-        Zenith::BlockHeader {
-            rollupChainId: event.rollupChainId,
-            hostBlockNumber: U256::from(0), // TODO 
-            gasLimit: event.gasLimit,
-            rewardAddress: event.rewardAddress,
-            blockDataHash: event.blockDataHash,
-        }
-    }
-}
-
 impl Zenith::ZenithEvents {
     /// Get the chain ID of the event (discarding high bytes), returns `None`
     /// if the event has no associated chain id.
@@ -233,4 +216,15 @@ impl RollupOrders::Filled {
     pub fn outputs(&self) -> &[RollupOrders::Output] {
         &self.outputs.as_slice()
     }   
+}
+
+// returns a BlockHeader from a BlockSubmitted event with the given host block number
+pub(crate) fn header_from_block_submitted(event: &Zenith::BlockSubmitted, host_block_number: U256) -> Zenith::BlockHeader {
+    Zenith::BlockHeader {
+        rollupChainId: event.rollupChainId,
+        hostBlockNumber: host_block_number,
+        gasLimit: event.gasLimit,
+        rewardAddress: event.rewardAddress,
+        blockDataHash: event.blockDataHash, 
+    }
 }

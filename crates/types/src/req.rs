@@ -9,7 +9,7 @@ const DOMAIN_BINDING: &str = "init4.sequencer.v0";
 #[serde(rename_all = "camelCase")]
 pub struct SignRequest {
     /// The block number of the host.
-    pub host_block_number: U256, // TODO assign this correctly?
+    pub host_block_number: U256,
     /// The chain ID of the host.
     pub host_chain_id: U256,
     /// The chain ID of the rollup.
@@ -74,7 +74,7 @@ mod test {
 
         assert_eq!(
             req.signing_hash(),
-            b256!("8c89d2c9e8d725ee335a4f35869a001db64d2f6ce2effe7f09d3ef92f6d251ec") // TODO double check this signature
+            b256!("8c89d2c9e8d725ee335a4f35869a001db64d2f6ce2effe7f09d3ef92f6d251ec")
         );
 
         assert_eq!(de.signing_hash(), req.signing_hash());
