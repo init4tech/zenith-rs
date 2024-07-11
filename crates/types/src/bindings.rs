@@ -52,7 +52,7 @@ impl Zenith::BlockSubmitted {
 }
 
 // returns a BlockHeader from a BlockSubmitted event with the given host block number
-pub(crate) fn header_from_block_submitted(
+pub(crate) const fn header_from_block_submitted(
     event: &Zenith::BlockSubmitted,
     host_block_number: U256,
 ) -> Zenith::BlockHeader {
@@ -213,6 +213,6 @@ impl RollupOrders::Sweep {
 
 impl RollupOrders::Filled {
     pub fn outputs(&self) -> &[RollupOrders::Output] {
-        &self.outputs.as_slice()
+        self.outputs.as_slice()
     }
 }

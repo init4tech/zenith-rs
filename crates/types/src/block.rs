@@ -66,7 +66,7 @@ where
     C: Coder,
 {
     /// Create a new zenith block.
-    pub fn new(header: ZenithHeader, transactions: Vec<<C as Coder>::Tx>) -> Self {
+    pub const fn new(header: ZenithHeader, transactions: Vec<<C as Coder>::Tx>) -> Self {
         ZenithBlock {
             header,
             transactions,
