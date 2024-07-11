@@ -33,22 +33,21 @@ impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
 impl Copy for Zenith::IncorrectHostBlock {}
 
-impl Zenith::ZenithEvents {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
-    pub const fn rollup_chain_id(&self) -> Option<u64> {
-        match self {
-            Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
-            Zenith::ZenithEvents::SequencerSet(_) => { None }
-        }
-    }
-}
-
 impl Zenith::BlockSubmitted {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
+    pub const fn sequencer(&self) -> Address {
+        self.sequencer        
+    }
     pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
+    }
+    pub const fn gas_limit(&self) -> u64 {
+        self.gasLimit.as_limbs()[0]
+    }
+    pub const fn reward_address(&self) -> Address {
+        self.rewardAddress
+    }
+    pub const fn block_data_hash(&self) -> FixedBytes<32> {
+        self.blockDataHash
     }
 }
 
