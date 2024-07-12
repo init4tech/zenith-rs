@@ -1,9 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(missing_docs)]
-use alloy_primitives::Address;
+use alloy_primitives::{Address, Bytes, FixedBytes, U256};
 use alloy_sol_types::sol;
-
-use self::Orders::{OrdersErrors, OrdersEvents};
 
 sol!(
     #[sol(rpc)]
@@ -12,105 +10,166 @@ sol!(
     "abi/Zenith.json"
 );
 
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    Passage,
+    "abi/Passage.json"
+);
+
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    RollupOrders,
+    "abi/RollupOrders.json"
+);
+
 // Zenith types
 impl Copy for Zenith::BlockHeader {}
 impl Copy for Zenith::BlockSubmitted {}
 impl Copy for Zenith::SequencerSet {}
-impl Copy for Zenith::BadSequence {}
 impl Copy for Zenith::BadSignature {}
-impl Copy for Zenith::BlockExpired {}
 impl Copy for Zenith::OneRollupBlockPerHostBlock {}
 impl Copy for Zenith::OnlySequencerAdmin {}
-
-// Passage types
-impl Copy for Zenith::Enter {}
-impl Copy for Zenith::Withdrawal {}
-impl Copy for Zenith::OnlyWithdrawalAdmin {}
-
-impl Copy for Zenith::ZenithErrors {}
-
-impl Clone for Zenith::ZenithErrors {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
-
-impl Clone for Zenith::ZenithEvents {
-    fn clone(&self) -> Self {
-        match self {
-            Self::BlockSubmitted(inner) => Self::BlockSubmitted(*inner),
-            Self::Enter(inner) => Self::Enter(*inner),
-            Self::SequencerSet(inner) => Self::SequencerSet(*inner),
-            Self::Transact(inner) => Self::Transact(inner.clone()),
-            Self::Withdrawal(inner) => Self::Withdrawal(*inner),
-        }
-    }
-}
-
-impl From<&Zenith::BlockSubmitted> for Zenith::BlockHeader {
-    fn from(event: &Zenith::BlockSubmitted) -> Zenith::BlockHeader {
-        Zenith::BlockHeader {
-            rollupChainId: event.rollupChainId,
-            sequence: event.sequence,
-            confirmBy: event.confirmBy,
-            gasLimit: event.gasLimit,
-            rewardAddress: event.rewardAddress,
-            blockDataHash: event.blockDataHash,
-        }
-    }
-}
-
-impl Zenith::ZenithEvents {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
-    pub const fn rollup_chain_id(&self) -> Option<u64> {
-        match self {
-            Zenith::ZenithEvents::BlockSubmitted(inner) => Some(inner.rollup_chain_id()),
-            Zenith::ZenithEvents::Enter(inner) => Some(inner.rollup_chain_id()),
-            Zenith::ZenithEvents::Transact(inner) => Some(inner.rollup_chain_id()),
-            _ => None,
-        }
-    }
-}
+impl Copy for Zenith::IncorrectHostBlock {}
 
 impl Zenith::BlockSubmitted {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
+    pub const fn sequencer(&self) -> Address {
+        self.sequencer
+    }
+
     pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
     }
-}
 
-impl Zenith::Enter {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
-    pub const fn rollup_chain_id(&self) -> u64 {
-        self.rollupChainId.as_limbs()[0]
+    pub const fn gas_limit(&self) -> u64 {
+        self.gasLimit.as_limbs()[0]
     }
-}
 
-impl Zenith::Transact {
-    /// Get the chain ID of the event (discarding high bytes), returns `None`
-    /// if the event has no associated chain id.
-    pub const fn rollup_chain_id(&self) -> u64 {
-        self.rollupChainId.as_limbs()[0]
+    pub const fn reward_address(&self) -> Address {
+        self.rewardAddress
+    }
+
+    pub const fn block_data_hash(&self) -> FixedBytes<32> {
+        self.blockDataHash
     }
 }
 
 impl Zenith::BlockHeader {
-    /// Get the chain ID of the block (discarding high bytes).
-    pub const fn chain_id(&self) -> u64 {
+    pub const fn from_block_submitted(
+        host_block_submitted: Zenith::BlockSubmitted,
+        host_block_number: U256,
+    ) -> Zenith::BlockHeader {
+        Zenith::BlockHeader {
+            rollupChainId: host_block_submitted.rollupChainId,
+            hostBlockNumber: host_block_number,
+            gasLimit: host_block_submitted.gasLimit,
+            rewardAddress: host_block_submitted.rewardAddress,
+            blockDataHash: host_block_submitted.blockDataHash,
+        }
+    }
+}
+
+// returns a BlockHeader from a BlockSubmitted event with the given host block number
+#[allow(dead_code)]
+pub(crate) const fn header_from_block_submitted(
+    event: &Zenith::BlockSubmitted,
+    host_block_number: U256,
+) -> Zenith::BlockHeader {
+    Zenith::BlockHeader {
+        rollupChainId: event.rollupChainId,
+        hostBlockNumber: host_block_number,
+        gasLimit: event.gasLimit,
+        rewardAddress: event.rewardAddress,
+        blockDataHash: event.blockDataHash,
+    }
+}
+
+// Passage types
+impl Copy for Passage::EnterConfigured {}
+impl Copy for Passage::Withdrawal {}
+impl Copy for Passage::OnlyTokenAdmin {}
+impl Copy for Passage::Enter {}
+impl Copy for Passage::EnterToken {}
+
+impl Clone for Passage::PassageEvents {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Enter(inner) => Self::Enter(*inner),
+            Self::Withdrawal(inner) => Self::Withdrawal(*inner),
+            Self::EnterConfigured(inner) => Self::EnterConfigured(*inner),
+            Self::EnterToken(inner) => Self::EnterToken(*inner),
+            Self::Transact(inner) => Self::Transact(inner.clone()),
+        }
+    }
+}
+
+impl Passage::Enter {
+    /// Get the chain ID of the event (discarding high bytes), returns `None`
+    /// if the event has no associated chain id.
+    pub const fn rollup_chain_id(&self) -> u64 {
+        self.rollupChainId.as_limbs()[0]
+    }
+}
+
+impl Passage::PassageErrors {}
+impl Passage::OnlyTokenAdmin {}
+impl Passage::EnterToken {}
+impl Passage::EnterConfigured {}
+impl Passage::Enter {}
+impl Passage::DisallowedEnter {}
+
+impl Passage::Transact {
+    pub const fn rollup_chain_id(&self) -> u64 {
         self.rollupChainId.as_limbs()[0]
     }
 
-    /// Get the sequence of the block (discarding high bytes).
-    pub const fn sequence(&self) -> u64 {
-        self.sequence.as_limbs()[0]
+    pub const fn sender(&self) -> Address {
+        self.sender
     }
 
-    /// Get the confirm by time of the block (discarding high bytes).
-    pub const fn confirm_by(&self) -> u64 {
-        self.confirmBy.as_limbs()[0]
+    pub const fn to(&self) -> Address {
+        self.to
+    }
+
+    pub const fn data(&self) -> &Bytes {
+        &self.data
+    }
+
+    pub const fn value(&self) -> U256 {
+        self.value
+    }
+
+    pub fn max_fee_per_gas(&self) -> u128 {
+        self.maxFeePerGas.to::<u128>()
+    }
+
+    pub fn gas(&self) -> u128 {
+        self.gas.to::<u128>()
+    }
+}
+
+impl Passage::Withdrawal {
+    pub const fn token(&self) -> Address {
+        self.token
+    }
+    pub const fn recipient(&self) -> Address {
+        self.recipient
+    }
+    pub const fn amount(&self) -> u64 {
+        self.amount.as_limbs()[0]
+    }
+}
+
+impl Zenith::BlockHeader {
+    /// Get the host block number of the block
+    pub const fn host_block_number(&self) -> u64 {
+        self.hostBlockNumber.as_limbs()[0]
+    }
+
+    /// Get the chain ID of the block (discarding high bytes).
+    pub const fn chain_id(&self) -> u64 {
+        self.rollupChainId.as_limbs()[0]
     }
 
     /// Get the gas limit of the block (discarding high bytes).
@@ -122,44 +181,78 @@ impl Zenith::BlockHeader {
     pub const fn reward_address(&self) -> Address {
         self.rewardAddress
     }
-}
 
-sol!(
-    #[sol(rpc)]
-    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    Orders,
-    "abi/Orders.json"
-);
-
-impl Copy for Orders::Swap {}
-impl Copy for Orders::Sweep {}
-impl Copy for Orders::SwapFulfilled {}
-impl Copy for Orders::OrderExpired {}
-impl Copy for OrdersEvents {}
-impl Copy for OrdersErrors {}
-
-impl Clone for Orders::OrdersEvents {
-    fn clone(&self) -> Self {
-        *self
+    /// Get the block data hash, i.e. the committment to the data of the block.
+    pub const fn block_data_hash(&self) -> FixedBytes<32> {
+        self.blockDataHash
     }
 }
 
-impl Clone for Orders::OrdersErrors {
-    fn clone(&self) -> Self {
-        *self
+// RollupOrders types
+impl RollupOrders::OrderExpired {}
+impl RollupOrders::OnlyBuilder {}
+
+impl Copy for RollupOrders::Input {}
+impl Copy for RollupOrders::Output {}
+
+impl RollupOrders::Input {
+    pub const fn token(&self) -> Address {
+        self.token
+    }
+
+    pub const fn amount(&self) -> u64 {
+        self.amount.as_limbs()[0]
     }
 }
 
-impl Orders::SwapFulfilled {
-    /// Get the target chain ID of the swap (discarding high bytes).
-    pub const fn origin_chain_id(&self) -> u64 {
-        self.originChainId.as_limbs()[0]
+impl RollupOrders::Output {
+    pub const fn token(&self) -> Address {
+        self.token
+    }
+
+    pub const fn amount(&self) -> u64 {
+        self.amount.as_limbs()[0]
+    }
+
+    pub const fn recipient(&self) -> Address {
+        self.recipient
+    }
+
+    pub const fn chain_id(&self) -> u32 {
+        self.chainId
     }
 }
 
-impl Orders::Swap {
-    /// Get the target chain ID of the swap (discarding high bytes).
-    pub const fn target_chain_id(&self) -> u64 {
-        self.targetChainId.as_limbs()[0]
+impl RollupOrders::Order {
+    pub fn inputs(&self) -> &[RollupOrders::Input] {
+        &self.inputs
+    }
+
+    pub fn outputs(&self) -> &[RollupOrders::Output] {
+        &self.outputs
+    }
+
+    pub const fn deadline(&self) -> u64 {
+        self.deadline.as_limbs()[0]
+    }
+}
+
+impl RollupOrders::Sweep {
+    pub const fn recipient(&self) -> Address {
+        self.recipient
+    }
+
+    pub const fn token(&self) -> Address {
+        self.token
+    }
+
+    pub const fn amount(&self) -> u64 {
+        self.amount.as_limbs()[0]
+    }
+}
+
+impl RollupOrders::Filled {
+    pub fn outputs(&self) -> &[RollupOrders::Output] {
+        self.outputs.as_slice()
     }
 }

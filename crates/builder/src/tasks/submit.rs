@@ -2,11 +2,11 @@ use alloy_consensus::SimpleCoder;
 use alloy_network::TransactionBuilder;
 use alloy_primitives::{FixedBytes, U256};
 use alloy_provider::{Provider as _, WalletProvider};
-use alloy_rpc_types_eth::{BlockId, BlockNumberOrTag, TransactionRequest};
+use alloy_rpc_types_eth::TransactionRequest;
 use alloy_signer::Signer;
 use alloy_sol_types::SolCall;
 use alloy_transport::TransportError;
-use eyre::bail;
+use eyre::{bail, eyre};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
@@ -36,34 +36,10 @@ pub struct SubmitTask {
 }
 
 impl SubmitTask {
-    async fn get_confirm_by(&self) -> eyre::Result<u64> {
-        self.provider
-            .get_block(BlockId::Number(BlockNumberOrTag::Latest), Default::default())
-            .await
-            .map_err(Into::<eyre::Report>::into)?
-            .ok_or_else(|| eyre::eyre!("latest block is none"))
-            .map(|block| block.header.timestamp + self.config.block_confirmation_buffer)
-    }
-
-    /// Get the next sequence number from the chain
-    ///
-    /// # Note
-    ///
-    /// Produces bad output if the rollup has more than 18446744073709551615
-    /// blocks. Seems fine lol.
-    async fn get_next_sequence(&self) -> eyre::Result<u64> {
-        self.zenith
-            .nextSequence(U256::from(self.config.ru_chain_id))
-            .call()
-            .await
-            .map(|resp| resp._0.as_limbs()[0])
-            .map_err(Into::into)
-    }
-
-    /// Get the signature from our main man quincey.
     async fn sup_quincey(&self, sig_request: &SignRequest) -> eyre::Result<SignResponse> {
         tracing::info!(
-            sequence = %sig_request.sequence,
+            host_block_number = %sig_request.host_block_number,
+            ru_chain_id = %sig_request.ru_chain_id,
             "pinging quincey for signature"
         );
 
@@ -85,14 +61,13 @@ impl SubmitTask {
 
     #[instrument(skip_all)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
-        let sequence = self.get_next_sequence().await?;
-        let confirm_by = self.get_confirm_by().await?;
+        let ru_chain_id = U256::from(self.config.ru_chain_id);
+        let next_block_height = self.next_host_block_height().await?;
 
         Ok(SignRequest {
+            host_block_number: U256::from(next_block_height),
             host_chain_id: U256::from(self.config.host_chain_id),
-            ru_chain_id: U256::from(self.config.ru_chain_id),
-            sequence: U256::from(sequence),
-            confirm_by: U256::from(confirm_by),
+            ru_chain_id,
             gas_limit: U256::from(self.config.rollup_block_gas_limit),
             ru_reward_address: self.config.builder_rewards_address,
             contents: contents.contents_hash(),
@@ -112,6 +87,12 @@ impl SubmitTask {
         Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
     }
 
+    async fn next_host_block_height(&self) -> eyre::Result<u64> {
+        let result = self.provider.get_block_number().await?;
+        let next = result.checked_add(1).ok_or_else(|| eyre!("next host block height overflow"))?;
+        Ok(next)
+    }
+
     async fn submit_transaction(
         &self,
         resp: &SignResponse,
@@ -122,10 +103,9 @@ impl SubmitTask {
         let s: FixedBytes<32> = resp.sig.s().into();
 
         let header = Zenith::BlockHeader {
+            hostBlockNumber: resp.req.host_block_number,
             rollupChainId: U256::from(self.config.ru_chain_id),
-            sequence: resp.req.sequence,
             gasLimit: resp.req.gas_limit,
-            confirmBy: resp.req.confirm_by,
             rewardAddress: resp.req.ru_reward_address,
             blockDataHash: in_progress.contents_hash(),
         };
@@ -147,7 +127,7 @@ impl SubmitTask {
         }
 
         tracing::debug!(
-            sequence = %resp.req.sequence,
+            host_block_number = %resp.req.host_block_number,
             gas_limit = %resp.req.gas_limit,
             "sending transaction to network"
         );
@@ -158,7 +138,7 @@ impl SubmitTask {
 
         tracing::info!(
             %tx_hash,
-            sequence = %resp.req.sequence,
+            ru_chain_id = %resp.req.ru_chain_id,
             gas_limit = %resp.req.gas_limit,
             "dispatched to network"
         );
@@ -172,9 +152,9 @@ impl SubmitTask {
         let sig_request = self.construct_sig_request(in_progress).await?;
 
         tracing::debug!(
-            sequence = %sig_request.sequence,
-            confirm_by = %sig_request.confirm_by,
-            "constructed signature request"
+            host_block_number = %sig_request.host_block_number,
+            ru_chain_id = %sig_request.ru_chain_id,
+            "constructed signature request for host block"
         );
 
         // If configured with a local signer, we use it. Otherwise, we ask
@@ -183,23 +163,21 @@ impl SubmitTask {
             let sig = signer.sign_hash(&sig_request.signing_hash()).await?;
             tracing::debug!(
                 sig = hex::encode(sig.as_bytes()),
-                "acquied signature from local signer"
+                "acquired signature from local signer"
             );
             SignResponse { req: sig_request, sig }
         } else {
             let resp: SignResponse = self.sup_quincey(&sig_request).await?;
             tracing::debug!(
                 sig = hex::encode(resp.sig.as_bytes()),
-                "acquied signature from quincey"
+                "acquired signature from quincey"
             );
             resp
         };
 
         self.submit_transaction(&signed, in_progress).await
     }
-}
 
-impl SubmitTask {
     /// Spawn the task.
     pub fn spawn(self) -> (mpsc::UnboundedSender<InProgressBlock>, JoinHandle<()>) {
         let (sender, mut inbound) = mpsc::unbounded_channel();
