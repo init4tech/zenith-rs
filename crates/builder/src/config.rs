@@ -22,6 +22,7 @@ const INCOMING_TRANSACTIONS_BUFFER: &str = "INCOMING_TRANSACTIONS_BUFFER";
 const BLOCK_CONFIRMATION_BUFFER: &str = "BLOCK_CONFIRMATION_BUFFER";
 const BUILDER_REWARDS_ADDRESS: &str = "BUILDER_REWARDS_ADDRESS";
 const ROLLUP_BLOCK_GAS_LIMIT: &str = "ROLLUP_BLOCK_GAS_LIMIT";
+const TX_POOL_URL: &str = "TX_POOL_URL";
 
 /// Configuration for a builder running a specific rollup on a specific host
 /// chain.
@@ -54,6 +55,8 @@ pub struct BuilderConfig {
     /// Gas limit for RU block.
     /// NOTE: a "smart" builder would determine this programmatically by simulating the block.
     pub rollup_block_gas_limit: u64,
+    /// URL of the tx pool to poll for incoming transactions.
+    pub tx_pool_url: Cow<'static, str>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -114,6 +117,7 @@ impl BuilderConfig {
             block_confirmation_buffer: load_u64(BLOCK_CONFIRMATION_BUFFER)?,
             builder_rewards_address: load_address(BUILDER_REWARDS_ADDRESS)?,
             rollup_block_gas_limit: load_u64(ROLLUP_BLOCK_GAS_LIMIT)?,
+            tx_pool_url: load_url(TX_POOL_URL)?,
         })
     }
 
