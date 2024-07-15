@@ -1,12 +1,12 @@
-use alloy_consensus::{SidecarBuilder, SidecarCoder, Transaction, TxEip1559, TxEnvelope};
+use alloy_consensus::{SidecarBuilder, SidecarCoder, TxEnvelope};
 use alloy_primitives::{keccak256, Bytes, B256};
+use eyre::Error;
+use reqwest::Client;
 use serde_json::{from_str, Value};
 use std::{sync::OnceLock, time::Duration};
 use tokio::{select, sync::mpsc, task::JoinHandle};
-use reqwest::Client;
 use tracing::Instrument;
 use zenith_types::{encode_txns, Alloy2718Coder};
-use eyre::Error;
 
 use crate::config::BuilderConfig;
 
@@ -79,49 +79,60 @@ impl InProgressBlock {
     }
 }
 
+/// Implements a poller for the block builder to pull transactions from the transaction pool.
+pub struct TxPoller {
+    pub config: BuilderConfig,
+    pub client: Client,
+}
+
+impl TxPoller {
+    // returns a new TxPoller with the given config
+    pub fn new(config: &BuilderConfig) -> Self {
+        Self { config: config.clone(), client: Client::new() }
+    }
+
+    // polls the transaction pool for transactions.
+    pub async fn poll_transactions(&self) -> Result<Vec<TxEnvelope>, Error> {
+        let result = self.client.get(self.config.tx_pool_url.to_string() + "/get").send().await?;
+
+        let mut transactions: Vec<TxEnvelope> = Vec::new();
+
+        // OPTIMIZE - This could be made cleaner with a method chain approach that I don't have time to think up right now
+        //
+        // Parse the response as a JSON array of key value pairs
+        let parsed: Value = from_str(&result.text().await?)?;
+        if let Value::Array(items) = parsed.clone() {
+            for item in items {
+                if let Value::Object(map) = item {
+                    // Attempt to decode each value as a transaction envelope
+                    if let Some(Value::String(value)) = map.get("value") {
+                        if let Ok(parsed) = from_str::<TxEnvelope>(value) {
+                            transactions.push(parsed);
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(transactions)
+    }
+}
+
+/// BlockBuilder is a task that periodically builds a block then sends it for signing and submission.
 pub struct BlockBuilder {
     pub incoming_transactions_buffer: u64,
     pub config: BuilderConfig,
+    pub tx_poller: TxPoller,
 }
 
 impl BlockBuilder {
     // create a new block builder with the given config.
-    pub fn new(config: &BuilderConfig) -> Self {
-        Self { 
+    pub fn new(config: &BuilderConfig, poller: TxPoller) -> Self {
+        Self {
             config: config.clone(),
-            incoming_transactions_buffer: config.incoming_transactions_buffer, 
+            incoming_transactions_buffer: config.incoming_transactions_buffer,
+            tx_poller: poller,
         }
-    }
-
-    // polls the transaction pool for transactions.
-    pub async fn poll_transactions(&self) ->  Result<Vec<TxEnvelope>, Error> {
-        let client = Client::new();
-        let result = client.get(self.config.tx_pool_url.to_string() + "/get").send().await?;
-        let raw = result.text().await?;
-
-        let parsed: Value = from_str(&raw)?;
-        // dbg!(parsed.clone());
-
-        let mut _transactions: Vec<TxEnvelope> = Vec::new();
-
-        if let Value::Array(items) = parsed.clone() {   
-            // dbg!(items.clone());
-
-            for item in items { 
-                if let Value::Object(map) = item { 
-                    if let Some(Value::String(value)) = map.get("key") {
-                        if let Some(Value::String(value)) = map.get("value") {
-                            dbg!(value);
-                        }
-                        // TODO if value is parseable as a transaction envelope, add it to the list of transactions
-                    }
-                }
-            }
-        
-            todo!()
-        }
-
-        todo!();
     }
 
     /// Spawn the block builder task, returning the inbound channel to it, and
@@ -145,6 +156,13 @@ impl BlockBuilder {
                         _ = &mut sleep => {
                             if !in_progress.is_empty() {
                                 tracing::debug!(txns = in_progress.len(), "sending block to submit task");
+                                // inget from tx pool
+                                if let Ok(tx_list) = self.tx_poller.poll_transactions().await {
+                                    for tx in tx_list {
+                                        in_progress.ingest_tx(&tx);
+                                    }
+                                }
+                                // send the block off for signing and submission
                                 let in_progress_block = std::mem::take(&mut in_progress);
                                 if outbound.send(in_progress_block).is_err() {
                                     tracing::debug!("downstream task gone");
@@ -152,7 +170,6 @@ impl BlockBuilder {
                                 }
                             }
                         }
-                        // TODO - Option 1 - pump transactions from the tx pool into the inbound channel
                         item_res = inbound.recv() => {
                             match item_res {
                                 Some(item) => in_progress.ingest_tx(&item),
@@ -176,50 +193,72 @@ impl BlockBuilder {
 mod tests {
     use super::*;
     use crate::config::BuilderConfig;
-    use std::{str::FromStr, time::Duration};
+    use std::str::FromStr;
 
-    use alloy_consensus::TxEip1559;
-    use alloy_primitives::{bytes, Address, U256};
+    use alloy_consensus::{SignableTransaction, TxEip1559};
+    use alloy_primitives::{bytes, Address, TxKind, U256};
+    use alloy_signer::SignerSync;
+    use alloy_signer_local::PrivateKeySigner;
 
     #[tokio::test]
     async fn test_tx_roundtrip() {
+        let client = reqwest::Client::new();
+        let (builder, config) = setup_builder().await;
+
+        let wallet = PrivateKeySigner::random();
+        let tx_envelope = new_test_tx(&wallet);
+
+        // send a transaction to ensure there is at least one tx in pool to parse
+        let _ = client
+            .post(config.tx_pool_url.to_string() + "/add")
+            .json(&tx_envelope)
+            .send()
+            .await
+            .unwrap();
+
+        // assert that we parsed at least one transaction
+        let got = builder.tx_poller.poll_transactions().await.unwrap();
+        assert!(got.len() > 0);
+    }
+
+    // returns a new signed test transaction with blank values
+    fn new_test_tx(wallet: &PrivateKeySigner) -> TxEnvelope {
+        let tx = TxEip1559 {
+            chain_id: 17001,
+            nonce: 1,
+            gas_limit: 50000,
+            to: TxKind::Call(
+                Address::from_str("0x0000000000000000000000000000000000000000").unwrap(),
+            ),
+            value: U256::from(1_f64),
+            input: bytes!(""),
+            ..Default::default()
+        };
+        let tx_hash = wallet.sign_hash_sync(&tx.signature_hash()).unwrap();
+        TxEnvelope::Eip1559(tx.into_signed(tx_hash))
+    }
+
+    // sets up a block builder with test values
+    async fn setup_builder() -> (BlockBuilder, BuilderConfig) {
         let config = BuilderConfig {
             host_chain_id: 17001,
             ru_chain_id: 17002,
             host_rpc_url: "http://rpc.api.signet.sh".into(),
-            zenith_address: Address::from_str("0x0000000000000000000000000000000000000000").unwrap(),
+            zenith_address: Address::from_str("0x0000000000000000000000000000000000000000")
+                .unwrap(),
             quincey_url: "http://localhost:8080".into(),
             builder_port: 8080,
             sequencer_key: None,
             builder_key: "0000000000000000000000000000000000000000000000000000000000000000".into(),
             incoming_transactions_buffer: 1,
             block_confirmation_buffer: 1,
-            builder_rewards_address: Address::from_str("0x0000000000000000000000000000000000000000").unwrap(),
+            builder_rewards_address: Address::from_str(
+                "0x0000000000000000000000000000000000000000",
+            )
+            .unwrap(),
             rollup_block_gas_limit: 100_000,
-            tx_pool_url: "https://transactions.api.signet.sh".into(),
+            tx_pool_url: "http://localhost:9000".into(),
         };
-        let builder = BlockBuilder::new(&config);
-
-        let client = reqwest::Client::new();
-
-        let tx = TxEip1559 {
-            chain_id: 17001,
-            nonce: 1,
-            gas_limit: 50000,
-            value: U256::from(1_f64),
-            input: bytes!(""),
-            ..Default::default()
-        };
-
-        client.post(config.tx_pool_url.to_string() + "/put").json(&tx).send().await.unwrap();
-
-        println!("sending transaction {:?} to tx pool", tx);
-
-        // poll the transaction pool and check that we got that same transaction
-        let result = builder.poll_transactions().await.unwrap();
-        dbg!(result);
-        // TODO parse the result and compare it to the original transaction
-
-        let _interval = tokio::time::interval(Duration::from_millis(100));
+        (BlockBuilder::new(&config, TxPoller::new(&config)), config)
     }
 }

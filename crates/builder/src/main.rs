@@ -5,6 +5,7 @@ mod service;
 mod signer;
 mod tasks;
 
+use tasks::block::TxPoller;
 use tokio::select;
 
 use crate::config::BuilderConfig;
@@ -24,7 +25,9 @@ async fn main() -> eyre::Result<()> {
     let zenith = config.connect_zenith(provider.clone());
 
     let port = config.builder_port;
-    let build = tasks::block::BlockBuilder::new(&config);
+
+    let tx_poller = TxPoller::new(&config);
+    let build = tasks::block::BlockBuilder::new(&config, tx_poller);
 
     let submit = tasks::submit::SubmitTask {
         provider,
