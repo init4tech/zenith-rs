@@ -220,7 +220,7 @@ mod tests {
 
         // assert that we parsed at least one transaction
         let got = builder.tx_poller.poll_transactions().await.unwrap();
-        assert!(got.len() > 0);
+        assert!(!got.is_empty());
     }
 
     // returns a new signed test transaction with blank values
