@@ -5,7 +5,6 @@ mod service;
 mod signer;
 mod tasks;
 
-use tasks::block::TxPoller;
 use tokio::select;
 
 use crate::config::BuilderConfig;
@@ -26,7 +25,7 @@ async fn main() -> eyre::Result<()> {
 
     let port = config.builder_port;
 
-    let tx_poller = TxPoller::new(&config);
+    let tx_poller = tasks::block::TxPoller::new(&config);
     let build = tasks::block::BlockBuilder::new(&config, tx_poller);
 
     let submit = tasks::submit::SubmitTask {
