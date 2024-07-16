@@ -202,9 +202,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_tx_roundtrip() {
+        // create a new test environment
         let client = reqwest::Client::new();
-        let (builder, config) = setup_builder().await;
+        let (builder, config) = setup_test_builder().await;
 
+        // create a new signed test transaction
         let wallet = PrivateKeySigner::random();
         let tx_envelope = new_test_tx(&wallet);
 
@@ -239,10 +241,10 @@ mod tests {
     }
 
     // sets up a block builder with test values
-    async fn setup_builder() -> (BlockBuilder, BuilderConfig) {
+    async fn setup_test_builder() -> (BlockBuilder, BuilderConfig) {
         let config = BuilderConfig {
-            host_chain_id: 17001,
-            ru_chain_id: 17002,
+            host_chain_id: 17000,
+            ru_chain_id: 17001,
             host_rpc_url: "http://rpc.api.signet.sh".into(),
             zenith_address: Address::from_str("0x0000000000000000000000000000000000000000")
                 .unwrap(),
