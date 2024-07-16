@@ -1,744 +1,291 @@
-{
-    "abi": [
-        {
-            "type": "constructor",
-            "inputs": [
-                {
-                    "name": "_sequencerAdmin",
-                    "type": "address",
-                    "internalType": "address"
-                }
-            ],
-            "stateMutability": "nonpayable"
-        },
-        {
-            "type": "function",
-            "name": "addSequencer",
-            "inputs": [
-                {
-                    "name": "sequencer",
-                    "type": "address",
-                    "internalType": "address"
-                }
-            ],
-            "outputs": [],
-            "stateMutability": "nonpayable"
-        },
-        {
-            "type": "function",
-            "name": "blockCommitment",
-            "inputs": [
-                {
-                    "name": "header",
-                    "type": "tuple",
-                    "internalType": "struct Zenith.BlockHeader",
-                    "components": [
-                        {
-                            "name": "rollupChainId",
-                            "type": "uint256",
-                            "internalType": "uint256"
-                        },
-                        {
-                            "name": "hostBlockNumber",
-                            "type": "uint256",
-                            "internalType": "uint256"
-                        },
-                        {
-                            "name": "gasLimit",
-                            "type": "uint256",
-                            "internalType": "uint256"
-                        },
-                        {
-                            "name": "rewardAddress",
-                            "type": "address",
-                            "internalType": "address"
-                        },
-                        {
-                            "name": "blockDataHash",
-                            "type": "bytes32",
-                            "internalType": "bytes32"
-                        }
-                    ]
-                }
-            ],
-            "outputs": [
-                {
-                    "name": "commit",
-                    "type": "bytes32",
-                    "internalType": "bytes32"
-                }
-            ],
-            "stateMutability": "view"
-        },
-        {
-            "type": "function",
-            "name": "deployBlockNumber",
-            "inputs": [],
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256",
-                    "internalType": "uint256"
-                }
-            ],
-            "stateMutability": "view"
-        },
-        {
-            "type": "function",
-            "name": "isSequencer",
-            "inputs": [
-                {
-                    "name": "",
-                    "type": "address",
-                    "internalType": "address"
-                }
-            ],
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "bool",
-                    "internalType": "bool"
-                }
-            ],
-            "stateMutability": "view"
-        },
-        {
-            "type": "function",
-            "name": "lastSubmittedAtBlock",
-            "inputs": [
-                {
-                    "name": "",
-                    "type": "uint256",
-                    "internalType": "uint256"
-                }
-            ],
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "uint256",
-                    "internalType": "uint256"
-                }
-            ],
-            "stateMutability": "view"
-        },
-        {
-            "type": "function",
-            "name": "removeSequencer",
-            "inputs": [
-                {
-                    "name": "sequencer",
-                    "type": "address",
-                    "internalType": "address"
-                }
-            ],
-            "outputs": [],
-            "stateMutability": "nonpayable"
-        },
-        {
-            "type": "function",
-            "name": "sequencerAdmin",
-            "inputs": [],
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "address",
-                    "internalType": "address"
-                }
-            ],
-            "stateMutability": "view"
-        },
-        {
-            "type": "function",
-            "name": "submitBlock",
-            "inputs": [
-                {
-                    "name": "header",
-                    "type": "tuple",
-                    "internalType": "struct Zenith.BlockHeader",
-                    "components": [
-                        {
-                            "name": "rollupChainId",
-                            "type": "uint256",
-                            "internalType": "uint256"
-                        },
-                        {
-                            "name": "hostBlockNumber",
-                            "type": "uint256",
-                            "internalType": "uint256"
-                        },
-                        {
-                            "name": "gasLimit",
-                            "type": "uint256",
-                            "internalType": "uint256"
-                        },
-                        {
-                            "name": "rewardAddress",
-                            "type": "address",
-                            "internalType": "address"
-                        },
-                        {
-                            "name": "blockDataHash",
-                            "type": "bytes32",
-                            "internalType": "bytes32"
-                        }
-                    ]
-                },
-                {
-                    "name": "v",
-                    "type": "uint8",
-                    "internalType": "uint8"
-                },
-                {
-                    "name": "r",
-                    "type": "bytes32",
-                    "internalType": "bytes32"
-                },
-                {
-                    "name": "s",
-                    "type": "bytes32",
-                    "internalType": "bytes32"
-                },
-                {
-                    "name": "",
-                    "type": "bytes",
-                    "internalType": "bytes"
-                }
-            ],
-            "outputs": [],
-            "stateMutability": "nonpayable"
-        },
-        {
-            "type": "event",
-            "name": "BlockSubmitted",
-            "inputs": [
-                {
-                    "name": "sequencer",
-                    "type": "address",
-                    "indexed": true,
-                    "internalType": "address"
-                },
-                {
-                    "name": "rollupChainId",
-                    "type": "uint256",
-                    "indexed": true,
-                    "internalType": "uint256"
-                },
-                {
-                    "name": "gasLimit",
-                    "type": "uint256",
-                    "indexed": false,
-                    "internalType": "uint256"
-                },
-                {
-                    "name": "rewardAddress",
-                    "type": "address",
-                    "indexed": false,
-                    "internalType": "address"
-                },
-                {
-                    "name": "blockDataHash",
-                    "type": "bytes32",
-                    "indexed": false,
-                    "internalType": "bytes32"
-                }
-            ],
-            "anonymous": false
-        },
-        {
-            "type": "event",
-            "name": "SequencerSet",
-            "inputs": [
-                {
-                    "name": "sequencer",
-                    "type": "address",
-                    "indexed": true,
-                    "internalType": "address"
-                },
-                {
-                    "name": "permissioned",
-                    "type": "bool",
-                    "indexed": true,
-                    "internalType": "bool"
-                }
-            ],
-            "anonymous": false
-        },
-        {
-            "type": "error",
-            "name": "BadSignature",
-            "inputs": [
-                {
-                    "name": "derivedSequencer",
-                    "type": "address",
-                    "internalType": "address"
-                }
-            ]
-        },
-        {
-            "type": "error",
-            "name": "IncorrectHostBlock",
-            "inputs": []
-        },
-        {
-            "type": "error",
-            "name": "OneRollupBlockPerHostBlock",
-            "inputs": []
-        },
-        {
-            "type": "error",
-            "name": "OnlySequencerAdmin",
-            "inputs": []
-        }
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_sequencerAdmin",
+        "type": "address",
+        "internalType": "address"
+      }
     ],
-    "bytecode": {
-        "object": "0x60a0604052348015600e575f80fd5b5060405161079b38038061079b833981016040819052602b91603e565b6001600160a01b0316608052435f556069565b5f60208284031215604d575f80fd5b81516001600160a01b03811681146062575f80fd5b9392505050565b60805161070c61008f5f395f81816101480152818161018d015261048e015261070c5ff3fe608060405234801561000f575f80fd5b5060043610610085575f3560e01c80638635c102116100585780638635c1021461010a57806388b673d31461011d5780638a33623114610130578063f9060fee14610143575f80fd5b8063206288d3146100895780636989ca7c146100a45780636d46e987146100b95780637e82bb01146100eb575b5f80fd5b6100915f5481565b6040519081526020015b60405180910390f35b6100b76100b236600461055b565b610182565b005b6100db6100c736600461055b565b60026020525f908152604090205460ff1681565b604051901515815260200161009b565b6100916100f936600461057b565b60016020525f908152604090205481565b610091610118366004610611565b610239565b6100b761012b36600461062b565b6102da565b6100b761013e36600461055b565b610483565b61016a7f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161009b565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146101cb5760405163049a95bf60e41b815260040160405180910390fd5b6001600160a01b0381165f9081526002602052604090205460ff166101ed5750565b6001600160a01b0381165f81815260026020526040808220805460ff19169055519091907feb12a9a53eec138c91b27b4f912a257bd690c18fc8bde744be92a0365eb9b87e908390a350565b5f8046835f015184602001518560400151866060015187608001516040516020016102bb96959493929190710696e6974342e73657175656e6365722e76360741b8152601281019690965260328601949094526052850192909252607284015260601b6bffffffffffffffffffffffff1916609283015260a682015260c60190565b60408051601f1981840301815291905280516020909101209392505050565b856020015143146102fe5760405163b2d975db60e01b815260040160405180910390fd5b5f61030887610239565b604080515f8082526020820180845284905260ff8a169282019290925260608101889052608081018790529192509060019060a0016020604051602081039080840390855afa15801561035d573d5f803e3d5ffd5b5050604051601f1901519150506001600160a01b038116158061039857506001600160a01b0381165f9081526002602052604090205460ff16155b156103c557604051639a7d38d960e01b81526001600160a01b038216600482015260240160405180910390fd5b87515f908152600160205260409020544390036103f557604051632ce0494b60e01b815260040160405180910390fd5b87515f90815260016020526040908190204390558851818a015160608b015160808c0151935192936001600160a01b038616937ffe642e465ceaeb1c7f4cedaee76e84b12970fe1546683f8758525b3a0e2b44429361047193909290919283526001600160a01b03919091166020830152604082015260600190565b60405180910390a35050505050505050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146104cc5760405163049a95bf60e41b815260040160405180910390fd5b6001600160a01b0381165f9081526002602052604090205460ff16156104ef5750565b6001600160a01b0381165f81815260026020526040808220805460ff1916600190811790915590519092917feb12a9a53eec138c91b27b4f912a257bd690c18fc8bde744be92a0365eb9b87e91a350565b80356001600160a01b0381168114610556575f80fd5b919050565b5f6020828403121561056b575f80fd5b61057482610540565b9392505050565b5f6020828403121561058b575f80fd5b5035919050565b5f60a082840312156105a2575f80fd5b60405160a0810181811067ffffffffffffffff821117156105d157634e487b7160e01b5f52604160045260245ffd5b6040908152833582526020808501359083015283810135908201529050806105fb60608401610540565b6060820152608092830135920191909152919050565b5f60a08284031215610621575f80fd5b6105748383610592565b5f805f805f806101208789031215610641575f80fd5b61064b8888610592565b955060a087013560ff81168114610660575f80fd5b945060c0870135935060e0870135925061010087013567ffffffffffffffff81111561068a575f80fd5b8701601f8101891361069a575f80fd5b803567ffffffffffffffff8111156106b0575f80fd5b8960208284010111156106c1575f80fd5b6020820193508092505050929550929550929556fea2646970667358221220fbc9b830d3febdd07addb2891d12c48f72e385b7057967edb07bab98679d6b9364736f6c634300081a0033",
-        "sourceMap": "105:7350:29:-:0;;;3605:128;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;-1:-1:-1;;;;;3652:32:29;;;3714:12;3694:17;:32;105:7350;;14:290:34;84:6;137:2;125:9;116:7;112:23;108:32;105:52;;;153:1;150;143:12;105:52;179:16;;-1:-1:-1;;;;;224:31:34;;214:42;;204:70;;270:1;267;260:12;204:70;293:5;14:290;-1:-1:-1;;;14:290:34:o;:::-;105:7350:29;;;;;;;;;;;;;;;;;;;;;;",
-        "linkReferences": {}
-    },
-    "deployedBytecode": {
-        "object": "0x608060405234801561000f575f80fd5b5060043610610085575f3560e01c80638635c102116100585780638635c1021461010a57806388b673d31461011d5780638a33623114610130578063f9060fee14610143575f80fd5b8063206288d3146100895780636989ca7c146100a45780636d46e987146100b95780637e82bb01146100eb575b5f80fd5b6100915f5481565b6040519081526020015b60405180910390f35b6100b76100b236600461055b565b610182565b005b6100db6100c736600461055b565b60026020525f908152604090205460ff1681565b604051901515815260200161009b565b6100916100f936600461057b565b60016020525f908152604090205481565b610091610118366004610611565b610239565b6100b761012b36600461062b565b6102da565b6100b761013e36600461055b565b610483565b61016a7f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161009b565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146101cb5760405163049a95bf60e41b815260040160405180910390fd5b6001600160a01b0381165f9081526002602052604090205460ff166101ed5750565b6001600160a01b0381165f81815260026020526040808220805460ff19169055519091907feb12a9a53eec138c91b27b4f912a257bd690c18fc8bde744be92a0365eb9b87e908390a350565b5f8046835f015184602001518560400151866060015187608001516040516020016102bb96959493929190710696e6974342e73657175656e6365722e76360741b8152601281019690965260328601949094526052850192909252607284015260601b6bffffffffffffffffffffffff1916609283015260a682015260c60190565b60408051601f1981840301815291905280516020909101209392505050565b856020015143146102fe5760405163b2d975db60e01b815260040160405180910390fd5b5f61030887610239565b604080515f8082526020820180845284905260ff8a169282019290925260608101889052608081018790529192509060019060a0016020604051602081039080840390855afa15801561035d573d5f803e3d5ffd5b5050604051601f1901519150506001600160a01b038116158061039857506001600160a01b0381165f9081526002602052604090205460ff16155b156103c557604051639a7d38d960e01b81526001600160a01b038216600482015260240160405180910390fd5b87515f908152600160205260409020544390036103f557604051632ce0494b60e01b815260040160405180910390fd5b87515f90815260016020526040908190204390558851818a015160608b015160808c0151935192936001600160a01b038616937ffe642e465ceaeb1c7f4cedaee76e84b12970fe1546683f8758525b3a0e2b44429361047193909290919283526001600160a01b03919091166020830152604082015260600190565b60405180910390a35050505050505050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146104cc5760405163049a95bf60e41b815260040160405180910390fd5b6001600160a01b0381165f9081526002602052604090205460ff16156104ef5750565b6001600160a01b0381165f81815260026020526040808220805460ff1916600190811790915590519092917feb12a9a53eec138c91b27b4f912a257bd690c18fc8bde744be92a0365eb9b87e91a350565b80356001600160a01b0381168114610556575f80fd5b919050565b5f6020828403121561056b575f80fd5b61057482610540565b9392505050565b5f6020828403121561058b575f80fd5b5035919050565b5f60a082840312156105a2575f80fd5b60405160a0810181811067ffffffffffffffff821117156105d157634e487b7160e01b5f52604160045260245ffd5b6040908152833582526020808501359083015283810135908201529050806105fb60608401610540565b6060820152608092830135920191909152919050565b5f60a08284031215610621575f80fd5b6105748383610592565b5f805f805f806101208789031215610641575f80fd5b61064b8888610592565b955060a087013560ff81168114610660575f80fd5b945060c0870135935060e0870135925061010087013567ffffffffffffffff81111561068a575f80fd5b8701601f8101891361069a575f80fd5b803567ffffffffffffffff8111156106b0575f80fd5b8960208284010111156106c1575f80fd5b6020820193508092505050929550929550929556fea2646970667358221220fbc9b830d3febdd07addb2891d12c48f72e385b7057967edb07bab98679d6b9364736f6c634300081a0033",
-        "sourceMap": "105:7350:29:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;319:32;;;;;;;;;160:25:34;;;148:2;133:18;319:32:29;;;;;;;;4566:260;;;;;;:::i;:::-;;:::i;:::-;;1824:43;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;730:14:34;;723:22;705:41;;693:2;678:18;1824:43:29;565:187:34;1652:55:29;;;;;;:::i;:::-;;;;;;;;;;;;;;7033:420;;;;;;:::i;:::-;;:::i;5787:1033::-;;;;;;:::i;:::-;;:::i;4017:255::-;;;;;;:::i;:::-;;:::i;197:39::-;;;;;;;;-1:-1:-1;;;;;3689:32:34;;;3671:51;;3659:2;3644:18;197:39:29;3525:203:34;4566:260:29;4633:10;-1:-1:-1;;;;;4647:14:29;4633:28;;4629:61;;4670:20;;-1:-1:-1;;;4670:20:29;;;;;;;;;;;4629:61;-1:-1:-1;;;;;4705:22:29;;;;;;:11;:22;;;;;;;;4700:36;;4566:260;:::o;4700:36::-;-1:-1:-1;;;;;4752:22:29;;;;;;:11;:22;;;;;;4745:29;;-1:-1:-1;;4745:29:29;;;4789:30;4752:22;;;4789:30;;4752:22;;4789:30;4566:260;:::o;7033:420::-;7106:14;7132:20;7219:13;7246:6;:20;;;7280:6;:22;;;7316:6;:15;;;7345:6;:20;;;7379:6;:20;;;7155:254;;;;;;;;;;;;-1:-1:-1;;;4103:33:34;;4161:2;4152:12;;4145:28;;;;4198:2;4189:12;;4182:28;;;;4235:2;4226:12;;4219:28;;;;4272:3;4263:13;;4256:29;4324:2;4320:15;-1:-1:-1;;4316:53:34;4310:3;4301:13;;4294:76;4395:3;4386:13;;4379:29;4433:3;4424:13;;3733:710;7155:254:29;;;;-1:-1:-1;;7155:254:29;;;;;;;;;7428:18;;7155:254;7428:18;;;;;7033:420;-1:-1:-1;;;7033:420:29:o;5787:1033::-;5992:6;:22;;;5976:12;:38;5972:71;;6023:20;;-1:-1:-1;;;6023:20:29;;;;;;;;;;;5972:71;6115:19;6137:23;6153:6;6137:15;:23::i;:::-;6190:31;;;6170:17;6190:31;;;;;;;;;4675:25:34;;;4748:4;4736:17;;4716:18;;;4709:45;;;;4770:18;;;4763:34;;;4813:18;;;4806:34;;;6115:45:29;;-1:-1:-1;6170:17:29;6190:31;;4647:19:34;;6190:31:29;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;6190:31:29;;-1:-1:-1;;6190:31:29;;;-1:-1:-1;;;;;;;6307:23:29;;;;:50;;-1:-1:-1;;;;;;6335:22:29;;;;;;:11;:22;;;;;;;;6334:23;6307:50;6303:86;;;6366:23;;-1:-1:-1;;;6366:23:29;;-1:-1:-1;;;;;3689:32:34;;6366:23:29;;;3671:51:34;3644:18;;6366:23:29;;;;;;;6303:86;6504:20;;6483:42;;;;:20;:42;;;;;;6529:12;6483:58;;6479:99;;6550:28;;-1:-1:-1;;;6550:28:29;;;;;;;;;;;6479:99;6609:20;;6588:42;;;;:20;:42;;;;;;;6633:12;6588:57;;6722:20;;6744:15;;;;6761:20;;;;6783;;;;6683:130;;6722:20;;-1:-1:-1;;;;;6683:130:29;;;;;;;6744:15;;6761:20;;5053:25:34;;;-1:-1:-1;;;;;5114:32:34;;;;5109:2;5094:18;;5087:60;5178:2;5163:18;;5156:34;5041:2;5026:18;;4851:345;6683:130:29;;;;;;;;5891:929;;5787:1033;;;;;;:::o;4017:255::-;4081:10;-1:-1:-1;;;;;4095:14:29;4081:28;;4077:61;;4118:20;;-1:-1:-1;;;4118:20:29;;;;;;;;;;;4077:61;-1:-1:-1;;;;;4152:22:29;;;;;;:11;:22;;;;;;;;4148:35;;;4017:255;:::o;4148:35::-;-1:-1:-1;;;;;4192:22:29;;;;;;:11;:22;;;;;;:29;;-1:-1:-1;;4192:29:29;4217:4;4192:29;;;;;;4236;;4217:4;;4192:22;4236:29;;;4017:255;:::o;196:173:34:-;264:20;;-1:-1:-1;;;;;313:31:34;;303:42;;293:70;;359:1;356;349:12;293:70;196:173;;;:::o;374:186::-;433:6;486:2;474:9;465:7;461:23;457:32;454:52;;;502:1;499;492:12;454:52;525:29;544:9;525:29;:::i;:::-;515:39;374:186;-1:-1:-1;;;374:186:34:o;757:226::-;816:6;869:2;857:9;848:7;844:23;840:32;837:52;;;885:1;882;875:12;837:52;-1:-1:-1;930:23:34;;757:226;-1:-1:-1;757:226:34:o;988:987::-;1046:5;1094:4;1082:9;1077:3;1073:19;1069:30;1066:50;;;1112:1;1109;1102:12;1066:50;1145:2;1139:9;1187:4;1179:6;1175:17;1258:6;1246:10;1243:22;1222:18;1210:10;1207:34;1204:62;1201:185;;;1308:10;1303:3;1299:20;1296:1;1289:31;1343:4;1340:1;1333:15;1371:4;1368:1;1361:15;1201:185;1402:2;1395:22;;;1486:23;;1518;;1614:2;1599:18;;;1586:32;1634:15;;;1627:32;1717:18;;;1704:32;1752:15;;;1745:32;1435:6;-1:-1:-1;1435:6:34;1810:38;1844:2;1829:18;;1810:38;:::i;:::-;1805:2;1793:15;;1786:63;1922:3;1907:19;;;1894:33;1943:16;;1936:33;;;;988:987;;-1:-1:-1;988:987:34:o;1980:237::-;2069:6;2122:3;2110:9;2101:7;2097:23;2093:33;2090:53;;;2139:1;2136;2129:12;2090:53;2162:49;2203:7;2192:9;2162:49;:::i;2404:1116::-;2538:6;2546;2554;2562;2570;2578;2631:3;2619:9;2610:7;2606:23;2602:33;2599:53;;;2648:1;2645;2638:12;2599:53;2671:49;2712:7;2701:9;2671:49;:::i;:::-;2661:59;;2770:3;2759:9;2755:19;2742:33;2815:4;2808:5;2804:16;2797:5;2794:27;2784:55;;2835:1;2832;2825:12;2784:55;2858:5;-1:-1:-1;2936:3:34;2921:19;;2908:33;;-1:-1:-1;3040:3:34;3025:19;;3012:33;;-1:-1:-1;3122:3:34;3107:19;;3094:33;3150:18;3139:30;;3136:50;;;3182:1;3179;3172:12;3136:50;3205:22;;3258:4;3250:13;;3246:27;-1:-1:-1;3236:55:34;;3287:1;3284;3277:12;3236:55;3327:2;3314:16;3353:18;3345:6;3342:30;3339:50;;;3385:1;3382;3375:12;3339:50;3432:7;3425:4;3416:6;3412:2;3408:15;3404:26;3401:39;3398:59;;;3453:1;3450;3443:12;3398:59;3484:4;3480:2;3476:13;3466:23;;3508:6;3498:16;;;;2404:1116;;;;;;;;:::o",
-        "linkReferences": {},
-        "immutableReferences": {
-            "46617": [
-                {
-                    "start": 328,
-                    "length": 32
-                },
-                {
-                    "start": 397,
-                    "length": 32
-                },
-                {
-                    "start": 1166,
-                    "length": 32
-                }
-            ]
-        }
-    },
-    "methodIdentifiers": {
-        "addSequencer(address)": "8a336231",
-        "blockCommitment((uint256,uint256,uint256,address,bytes32))": "8635c102",
-        "deployBlockNumber()": "206288d3",
-        "isSequencer(address)": "6d46e987",
-        "lastSubmittedAtBlock(uint256)": "7e82bb01",
-        "removeSequencer(address)": "6989ca7c",
-        "sequencerAdmin()": "f9060fee",
-        "submitBlock((uint256,uint256,uint256,address,bytes32),uint8,bytes32,bytes32,bytes)": "88b673d3"
-    },
-    "rawMetadata": "{\"compiler\":{\"version\":\"0.8.26+commit.8a97fa7a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_sequencerAdmin\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"derivedSequencer\",\"type\":\"address\"}],\"name\":\"BadSignature\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"IncorrectHostBlock\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OneRollupBlockPerHostBlock\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlySequencerAdmin\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sequencer\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"rollupChainId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"gasLimit\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"rewardAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"blockDataHash\",\"type\":\"bytes32\"}],\"name\":\"BlockSubmitted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sequencer\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bool\",\"name\":\"permissioned\",\"type\":\"bool\"}],\"name\":\"SequencerSet\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"sequencer\",\"type\":\"address\"}],\"name\":\"addSequencer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"rollupChainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"hostBlockNumber\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gasLimit\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"rewardAddress\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"blockDataHash\",\"type\":\"bytes32\"}],\"internalType\":\"struct Zenith.BlockHeader\",\"name\":\"header\",\"type\":\"tuple\"}],\"name\":\"blockCommitment\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"commit\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deployBlockNumber\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isSequencer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"lastSubmittedAtBlock\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"sequencer\",\"type\":\"address\"}],\"name\":\"removeSequencer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"sequencerAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"rollupChainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"hostBlockNumber\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gasLimit\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"rewardAddress\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"blockDataHash\",\"type\":\"bytes32\"}],\"internalType\":\"struct Zenith.BlockHeader\",\"name\":\"header\",\"type\":\"tuple\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"submitBlock\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"BadSignature(address)\":[{\"params\":{\"derivedSequencer\":\"- the derived signer of the block header that is not a permissioned sequencer.\"}}]},\"events\":{\"BlockSubmitted(address,uint256,uint256,address,bytes32)\":{\"details\":\"including blockDataHash allows the sequencer to sign over finalized block data, without needing to calldatacopy the `blockData` param.\",\"params\":{\"blockDataHash\":\"- keccak256(rlp-encoded transactions). the Node will discard the block if the hash doens't match transactions provided.\",\"gasLimit\":\"- the gas limit for the rollup block.\",\"rewardAddress\":\"- the address to receive the rollup block reward.\",\"rollupChainId\":\"- the chainId of the rollup chain.\",\"sequencer\":\"- the address of the sequencer that signed the block.\"}}},\"kind\":\"dev\",\"methods\":{\"addSequencer(address)\":{\"custom:emits\":\"SequencerSet if the sequencer is added.\",\"custom:reverts\":\"OnlySequencerAdmin if the caller is not the sequencerAdmin.\",\"params\":{\"sequencer\":\"- the address of the sequencer to add.\"}},\"blockCommitment((uint256,uint256,uint256,address,bytes32))\":{\"params\":{\"header\":\"- the header information for the rollup block.\"},\"returns\":{\"commit\":\"- the hash of the encoded block details.\"}},\"removeSequencer(address)\":{\"custom:emits\":\"SequencerSet if the sequencer is removed.\",\"custom:reverts\":\"OnlySequencerAdmin if the caller is not the sequencerAdmin.\",\"params\":{\"sequencer\":\"- the address of the sequencer to remove.\"}},\"submitBlock((uint256,uint256,uint256,address,bytes32),uint8,bytes32,bytes32,bytes)\":{\"custom:emits\":\"BlockSubmitted if the block is successfully submitted.\",\"custom:reverts\":\"IncorrectHostBlock if the hostBlockNumber does not match the current block.BadSignature if the signer is not a permissioned sequencer,                 OR if the signature provided commits to a different header.OneRollupBlockPerHostBlock if attempting to submit a second rollup block within one host block.\",\"details\":\"Blocks are submitted by Builders, with an attestation to the block signed by a Sequencer.\",\"params\":{\"header\":\"- the header information for the rollup block.\",\"r\":\"- the r component of the Sequencer's ECSDA signature over the block header.\",\"s\":\"- the s component of the Sequencer's ECSDA signature over the block header.\",\"v\":\"- the v component of the Sequencer's ECSDA signature over the block header.\"}}},\"version\":1},\"userdoc\":{\"errors\":{\"BadSignature(address)\":[{\"notice\":\"Thrown when a block submission is attempted with a signature by a non-permissioned sequencer,         OR when signature is produced over different block header than is provided.\"}],\"IncorrectHostBlock()\":[{\"notice\":\"Thrown when a block submission is attempted in the incorrect host block.\"}],\"OneRollupBlockPerHostBlock()\":[{\"notice\":\"Thrown when attempting to submit more than one rollup block per host block\"}],\"OnlySequencerAdmin()\":[{\"notice\":\"Thrown when attempting to modify sequencer roles if not sequencerAdmin.\"}]},\"events\":{\"BlockSubmitted(address,uint256,uint256,address,bytes32)\":{\"notice\":\"Emitted when a new rollup block is successfully submitted.\"},\"SequencerSet(address,bool)\":{\"notice\":\"Emitted when a sequencer is added or removed.\"}},\"kind\":\"user\",\"methods\":{\"addSequencer(address)\":{\"notice\":\"Add a sequencer to the permissioned sequencer list.\"},\"blockCommitment((uint256,uint256,uint256,address,bytes32))\":{\"notice\":\"Construct hash of block details that the sequencer signs.\"},\"deployBlockNumber()\":{\"notice\":\"The block number at which the Zenith contract was deployed.\"},\"isSequencer(address)\":{\"notice\":\"Registry of permissioned sequencers. address => TRUE if it's a permissioned sequencer\"},\"lastSubmittedAtBlock(uint256)\":{\"notice\":\"The host block number that a block was last submitted at for a given rollup chainId. rollupChainId => host blockNumber that block was last submitted at\"},\"removeSequencer(address)\":{\"notice\":\"Remove a sequencer from the permissioned sequencer list.\"},\"sequencerAdmin()\":{\"notice\":\"The address that is allowed to set/remove sequencers.\"},\"submitBlock((uint256,uint256,uint256,address,bytes32),uint8,bytes32,bytes32,bytes)\":{\"notice\":\"Submit a rollup block.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/Zenith.sol\":\"Zenith\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xee2337af2dc162a973b4be6d3f7c16f06298259e0af48c5470d2839bfa8a22f4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://30c476b4b2f405c1bb3f0bae15b006d129c80f1bfd9d0f2038160a3bb9745009\",\"dweb:/ipfs/Qmb3VcuDufv6xbHeVgksC4tHpc5gKYVqBEwjEXW72XzSvN\"]},\"src/Passage.sol\":{\"keccak256\":\"0x0bef68e4cde132424a2fd4d9c5301315f90390842dad611a3bfd692f5d4fadbb\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://7dd7c3a84ee011bfd0475d3ca5980103d4d9a3c2ddd27ac138773c91295b9ac1\",\"dweb:/ipfs/Qmbj52SEptFFmWoAKBMTTBXMH4WyENiVKpuSkcMQLXr7qF\"]},\"src/Zenith.sol\":{\"keccak256\":\"0xbd426ccbe24962677f153752b8890a7638fed2d01924ee39c792d87b5fc63d84\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://45e317911a56c16c23230f4f3a2ef436277ddd33a193e12778e14f37ca4b4284\",\"dweb:/ipfs/QmNmUKdzxC9qzZfwfn5TynUYTRVv9f6EtDkEKPzwwnmiQ9\"]}},\"version\":1}",
-    "metadata": {
-        "compiler": {
-            "version": "0.8.26+commit.8a97fa7a"
-        },
-        "language": "Solidity",
-        "output": {
-            "abi": [
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "_sequencerAdmin",
-                            "type": "address"
-                        }
-                    ],
-                    "stateMutability": "nonpayable",
-                    "type": "constructor"
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "derivedSequencer",
-                            "type": "address"
-                        }
-                    ],
-                    "type": "error",
-                    "name": "BadSignature"
-                },
-                {
-                    "inputs": [],
-                    "type": "error",
-                    "name": "IncorrectHostBlock"
-                },
-                {
-                    "inputs": [],
-                    "type": "error",
-                    "name": "OneRollupBlockPerHostBlock"
-                },
-                {
-                    "inputs": [],
-                    "type": "error",
-                    "name": "OnlySequencerAdmin"
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "sequencer",
-                            "type": "address",
-                            "indexed": true
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "rollupChainId",
-                            "type": "uint256",
-                            "indexed": true
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "gasLimit",
-                            "type": "uint256",
-                            "indexed": false
-                        },
-                        {
-                            "internalType": "address",
-                            "name": "rewardAddress",
-                            "type": "address",
-                            "indexed": false
-                        },
-                        {
-                            "internalType": "bytes32",
-                            "name": "blockDataHash",
-                            "type": "bytes32",
-                            "indexed": false
-                        }
-                    ],
-                    "type": "event",
-                    "name": "BlockSubmitted",
-                    "anonymous": false
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "sequencer",
-                            "type": "address",
-                            "indexed": true
-                        },
-                        {
-                            "internalType": "bool",
-                            "name": "permissioned",
-                            "type": "bool",
-                            "indexed": true
-                        }
-                    ],
-                    "type": "event",
-                    "name": "SequencerSet",
-                    "anonymous": false
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "sequencer",
-                            "type": "address"
-                        }
-                    ],
-                    "stateMutability": "nonpayable",
-                    "type": "function",
-                    "name": "addSequencer"
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "struct Zenith.BlockHeader",
-                            "name": "header",
-                            "type": "tuple",
-                            "components": [
-                                {
-                                    "internalType": "uint256",
-                                    "name": "rollupChainId",
-                                    "type": "uint256"
-                                },
-                                {
-                                    "internalType": "uint256",
-                                    "name": "hostBlockNumber",
-                                    "type": "uint256"
-                                },
-                                {
-                                    "internalType": "uint256",
-                                    "name": "gasLimit",
-                                    "type": "uint256"
-                                },
-                                {
-                                    "internalType": "address",
-                                    "name": "rewardAddress",
-                                    "type": "address"
-                                },
-                                {
-                                    "internalType": "bytes32",
-                                    "name": "blockDataHash",
-                                    "type": "bytes32"
-                                }
-                            ]
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function",
-                    "name": "blockCommitment",
-                    "outputs": [
-                        {
-                            "internalType": "bytes32",
-                            "name": "commit",
-                            "type": "bytes32"
-                        }
-                    ]
-                },
-                {
-                    "inputs": [],
-                    "stateMutability": "view",
-                    "type": "function",
-                    "name": "deployBlockNumber",
-                    "outputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ]
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "",
-                            "type": "address"
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function",
-                    "name": "isSequencer",
-                    "outputs": [
-                        {
-                            "internalType": "bool",
-                            "name": "",
-                            "type": "bool"
-                        }
-                    ]
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function",
-                    "name": "lastSubmittedAtBlock",
-                    "outputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ]
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "sequencer",
-                            "type": "address"
-                        }
-                    ],
-                    "stateMutability": "nonpayable",
-                    "type": "function",
-                    "name": "removeSequencer"
-                },
-                {
-                    "inputs": [],
-                    "stateMutability": "view",
-                    "type": "function",
-                    "name": "sequencerAdmin",
-                    "outputs": [
-                        {
-                            "internalType": "address",
-                            "name": "",
-                            "type": "address"
-                        }
-                    ]
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "struct Zenith.BlockHeader",
-                            "name": "header",
-                            "type": "tuple",
-                            "components": [
-                                {
-                                    "internalType": "uint256",
-                                    "name": "rollupChainId",
-                                    "type": "uint256"
-                                },
-                                {
-                                    "internalType": "uint256",
-                                    "name": "hostBlockNumber",
-                                    "type": "uint256"
-                                },
-                                {
-                                    "internalType": "uint256",
-                                    "name": "gasLimit",
-                                    "type": "uint256"
-                                },
-                                {
-                                    "internalType": "address",
-                                    "name": "rewardAddress",
-                                    "type": "address"
-                                },
-                                {
-                                    "internalType": "bytes32",
-                                    "name": "blockDataHash",
-                                    "type": "bytes32"
-                                }
-                            ]
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "v",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "bytes32",
-                            "name": "r",
-                            "type": "bytes32"
-                        },
-                        {
-                            "internalType": "bytes32",
-                            "name": "s",
-                            "type": "bytes32"
-                        },
-                        {
-                            "internalType": "bytes",
-                            "name": "",
-                            "type": "bytes"
-                        }
-                    ],
-                    "stateMutability": "nonpayable",
-                    "type": "function",
-                    "name": "submitBlock"
-                }
-            ],
-            "devdoc": {
-                "kind": "dev",
-                "methods": {
-                    "addSequencer(address)": {
-                        "custom:emits": "SequencerSet if the sequencer is added.",
-                        "custom:reverts": "OnlySequencerAdmin if the caller is not the sequencerAdmin.",
-                        "params": {
-                            "sequencer": "- the address of the sequencer to add."
-                        }
-                    },
-                    "blockCommitment((uint256,uint256,uint256,address,bytes32))": {
-                        "params": {
-                            "header": "- the header information for the rollup block."
-                        },
-                        "returns": {
-                            "commit": "- the hash of the encoded block details."
-                        }
-                    },
-                    "removeSequencer(address)": {
-                        "custom:emits": "SequencerSet if the sequencer is removed.",
-                        "custom:reverts": "OnlySequencerAdmin if the caller is not the sequencerAdmin.",
-                        "params": {
-                            "sequencer": "- the address of the sequencer to remove."
-                        }
-                    },
-                    "submitBlock((uint256,uint256,uint256,address,bytes32),uint8,bytes32,bytes32,bytes)": {
-                        "custom:emits": "BlockSubmitted if the block is successfully submitted.",
-                        "custom:reverts": "IncorrectHostBlock if the hostBlockNumber does not match the current block.BadSignature if the signer is not a permissioned sequencer,                 OR if the signature provided commits to a different header.OneRollupBlockPerHostBlock if attempting to submit a second rollup block within one host block.",
-                        "details": "Blocks are submitted by Builders, with an attestation to the block signed by a Sequencer.",
-                        "params": {
-                            "header": "- the header information for the rollup block.",
-                            "r": "- the r component of the Sequencer's ECSDA signature over the block header.",
-                            "s": "- the s component of the Sequencer's ECSDA signature over the block header.",
-                            "v": "- the v component of the Sequencer's ECSDA signature over the block header."
-                        }
-                    }
-                },
-                "version": 1
-            },
-            "userdoc": {
-                "kind": "user",
-                "methods": {
-                    "addSequencer(address)": {
-                        "notice": "Add a sequencer to the permissioned sequencer list."
-                    },
-                    "blockCommitment((uint256,uint256,uint256,address,bytes32))": {
-                        "notice": "Construct hash of block details that the sequencer signs."
-                    },
-                    "deployBlockNumber()": {
-                        "notice": "The block number at which the Zenith contract was deployed."
-                    },
-                    "isSequencer(address)": {
-                        "notice": "Registry of permissioned sequencers. address => TRUE if it's a permissioned sequencer"
-                    },
-                    "lastSubmittedAtBlock(uint256)": {
-                        "notice": "The host block number that a block was last submitted at for a given rollup chainId. rollupChainId => host blockNumber that block was last submitted at"
-                    },
-                    "removeSequencer(address)": {
-                        "notice": "Remove a sequencer from the permissioned sequencer list."
-                    },
-                    "sequencerAdmin()": {
-                        "notice": "The address that is allowed to set/remove sequencers."
-                    },
-                    "submitBlock((uint256,uint256,uint256,address,bytes32),uint8,bytes32,bytes32,bytes)": {
-                        "notice": "Submit a rollup block."
-                    }
-                },
-                "version": 1
-            }
-        },
-        "settings": {
-            "remappings": [
-                "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
-                "ds-test/=lib/forge-std/lib/ds-test/src/",
-                "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
-                "forge-std/=lib/forge-std/src/",
-                "openzeppelin-contracts/=lib/openzeppelin-contracts/"
-            ],
-            "optimizer": {
-                "enabled": true,
-                "runs": 200
-            },
-            "metadata": {
-                "bytecodeHash": "ipfs"
-            },
-            "compilationTarget": {
-                "src/Zenith.sol": "Zenith"
-            },
-            "evmVersion": "cancun",
-            "libraries": {}
-        },
-        "sources": {
-            "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol": {
-                "keccak256": "0xee2337af2dc162a973b4be6d3f7c16f06298259e0af48c5470d2839bfa8a22f4",
-                "urls": [
-                    "bzz-raw://30c476b4b2f405c1bb3f0bae15b006d129c80f1bfd9d0f2038160a3bb9745009",
-                    "dweb:/ipfs/Qmb3VcuDufv6xbHeVgksC4tHpc5gKYVqBEwjEXW72XzSvN"
-                ],
-                "license": "MIT"
-            },
-            "src/Passage.sol": {
-                "keccak256": "0x0bef68e4cde132424a2fd4d9c5301315f90390842dad611a3bfd692f5d4fadbb",
-                "urls": [
-                    "bzz-raw://7dd7c3a84ee011bfd0475d3ca5980103d4d9a3c2ddd27ac138773c91295b9ac1",
-                    "dweb:/ipfs/Qmbj52SEptFFmWoAKBMTTBXMH4WyENiVKpuSkcMQLXr7qF"
-                ],
-                "license": "UNLICENSED"
-            },
-            "src/Zenith.sol": {
-                "keccak256": "0xbd426ccbe24962677f153752b8890a7638fed2d01924ee39c792d87b5fc63d84",
-                "urls": [
-                    "bzz-raw://45e317911a56c16c23230f4f3a2ef436277ddd33a193e12778e14f37ca4b4284",
-                    "dweb:/ipfs/QmNmUKdzxC9qzZfwfn5TynUYTRVv9f6EtDkEKPzwwnmiQ9"
-                ],
-                "license": "UNLICENSED"
-            }
-        },
-        "version": 1
-    },
-    "id": 29
-}
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addSequencer",
+    "inputs": [
+      {
+        "name": "sequencer",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "blockCommitment",
+    "inputs": [
+      {
+        "name": "header",
+        "type": "tuple",
+        "internalType": "struct Zenith.BlockHeader",
+        "components": [
+          {
+            "name": "rollupChainId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "hostBlockNumber",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "gasLimit",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "rewardAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "blockDataHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "commit",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "deployBlockNumber",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isSequencer",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "lastSubmittedAtBlock",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeSequencer",
+    "inputs": [
+      {
+        "name": "sequencer",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "sequencerAdmin",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "submitBlock",
+    "inputs": [
+      {
+        "name": "header",
+        "type": "tuple",
+        "internalType": "struct Zenith.BlockHeader",
+        "components": [
+          {
+            "name": "rollupChainId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "hostBlockNumber",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "gasLimit",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "rewardAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "blockDataHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      },
+      {
+        "name": "v",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "r",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "s",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "BlockSubmitted",
+    "inputs": [
+      {
+        "name": "sequencer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "rollupChainId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "gasLimit",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "rewardAddress",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "blockDataHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SequencerSet",
+    "inputs": [
+      {
+        "name": "sequencer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "permissioned",
+        "type": "bool",
+        "indexed": true,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "BadSignature",
+    "inputs": [
+      {
+        "name": "derivedSequencer",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "IncorrectHostBlock",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OneRollupBlockPerHostBlock",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OnlySequencerAdmin",
+    "inputs": []
+  }
+]
