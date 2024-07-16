@@ -200,6 +200,8 @@ mod tests {
     use alloy_signer::SignerSync;
     use alloy_signer_local::PrivateKeySigner;
 
+    #[ignore = "integration test"]
+    #[cfg(feature = "integration")]
     #[tokio::test]
     async fn test_tx_roundtrip() {
         // create a new test environment
@@ -210,7 +212,7 @@ mod tests {
         let wallet = PrivateKeySigner::random();
         let tx_envelope = new_test_tx(&wallet);
 
-        // send a transaction to ensure there is at least one tx in pool to parse
+        // send that transaction to ensure there is at least one tx in pool to parse
         let _ = client
             .post(config.tx_pool_url.to_string() + "/add")
             .json(&tx_envelope)
