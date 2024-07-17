@@ -107,5 +107,4 @@ impl TxPoller {
 
         handle
     }
-
 }
