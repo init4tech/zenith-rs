@@ -1,5 +1,5 @@
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use std::{collections::HashMap, time};
 
 use alloy_consensus::TxEnvelope;
