@@ -23,6 +23,8 @@ const BLOCK_CONFIRMATION_BUFFER: &str = "BLOCK_CONFIRMATION_BUFFER";
 const BUILDER_REWARDS_ADDRESS: &str = "BUILDER_REWARDS_ADDRESS";
 const ROLLUP_BLOCK_GAS_LIMIT: &str = "ROLLUP_BLOCK_GAS_LIMIT";
 const TX_POOL_URL: &str = "TX_POOL_URL";
+const TX_POOL_POLL_INTERVAL: &str = "TX_POOL_POLL_INTERVAL";
+const TX_POOL_CACHE_DURATION: &str = "TX_POOL_CACHE_DURATION";
 
 /// Configuration for a builder running a specific rollup on a specific host
 /// chain.
@@ -57,6 +59,10 @@ pub struct BuilderConfig {
     pub rollup_block_gas_limit: u64,
     /// URL of the tx pool to poll for incoming transactions.
     pub tx_pool_url: Cow<'static, str>,
+    //// Interval in seconds to poll the tx-pool for new transactions.
+    pub tx_pool_poll_interval: u64,
+    /// Duration in seconds transactions can live in the tx-pool cache.
+    pub tx_pool_cache_duration: u64,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -118,6 +124,8 @@ impl BuilderConfig {
             builder_rewards_address: load_address(BUILDER_REWARDS_ADDRESS)?,
             rollup_block_gas_limit: load_u64(ROLLUP_BLOCK_GAS_LIMIT)?,
             tx_pool_url: load_url(TX_POOL_URL)?,
+            tx_pool_poll_interval: load_u64(TX_POOL_POLL_INTERVAL)?,
+            tx_pool_cache_duration: load_u64(TX_POOL_CACHE_DURATION)?,
         })
     }
 
@@ -176,15 +184,4 @@ fn load_url(key: &str) -> Result<Cow<'static, str>, ConfigError> {
 fn load_address(key: &str) -> Result<Address, ConfigError> {
     let address = load_string(key)?;
     Address::from_str(&address).map_err(Into::into)
-}
-
-fn load_bool(key: &str) -> Result<bool, ConfigError> {
-    let val = load_string(key)?;
-    match val.as_str() {
-        "true" => Ok(true),
-        "false" => Ok(false),
-        "1" => Ok(true),
-        "0" => Ok(false),
-        _ => Err(ConfigError::ParseBool),
-    }
 }
