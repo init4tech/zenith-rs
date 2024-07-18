@@ -1,4 +1,3 @@
-use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{collections::HashMap, time};
 
@@ -19,7 +18,7 @@ pub struct TxPoller {
     // Reqwest client for fetching from the tx-pool
     pub client: Client,
     //  Maintain a set of txn hash to expiration time
-    pub seen_txns: Arc<Mutex<HashMap<String, time::Instant>>>,
+    pub seen_txns: HashMap<String, time::Instant>,
 }
 
 /// TxPoller implements a poller that fetches unique transactions from the transaction pool.
@@ -29,13 +28,13 @@ impl TxPoller {
         Self {
             config: config.clone(),
             client: Client::new(),
-            seen_txns: Arc::new(Mutex::new(HashMap::new())),
+            seen_txns: HashMap::new(),
         }
     }
 
     /// polls the tx-pool for unique transactions and evicts expired transactions.
     /// unique transactions that haven't been seen before are sent into the builder pipeline.
-    pub async fn check_tx_pool(&self) -> Result<Vec<TxEnvelope>, Error> {
+    pub async fn check_tx_pool(&mut self) -> Result<Vec<TxEnvelope>, Error> {
         let mut unique: Vec<TxEnvelope> = Vec::new();
         let result = self.client.get(self.config.tx_pool_url.to_string() + "/get").send().await?;
 
@@ -57,8 +56,8 @@ impl TxPoller {
     }
 
     /// checks if the transaction has been seen before and if not, adds it to the unique transactions list.
-    fn check_cache(&self, tx: TxEnvelope, unique: &mut Vec<TxEnvelope>) {
-        self.seen_txns.lock().unwrap().entry(tx.tx_hash().to_string()).or_insert_with(|| {
+    fn check_cache(&mut self, tx: TxEnvelope, unique: &mut Vec<TxEnvelope>) {
+        self.seen_txns.entry(tx.tx_hash().to_string()).or_insert_with(|| {
             // add to unique transactions
             unique.push(tx.clone());
             // expiry is now + cache_duration
@@ -67,16 +66,25 @@ impl TxPoller {
     }
 
     /// removes entries from seen_txns that have lived past expiry
-    fn evict(&self) {
-        for txn in self.seen_txns.lock().unwrap().iter() {
-            if txn.1.elapsed() > Duration::from_secs(0) {
-                self.seen_txns.lock().unwrap().remove(txn.0);
-            }
+    fn evict(&mut self) {
+        let expired_keys: Vec<String> = self.seen_txns
+            .iter()
+            .filter_map(|(key, &expiration)| {
+                if expiration.elapsed() > Duration::from_secs(0) {
+                    Some(key.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        for key in expired_keys {
+            self.seen_txns.remove(&key);
         }
     }
 
     /// spawns a task that polls the tx-pool for unique transactions and ingests them into the tx_channel.
-    pub fn spawn(self, tx_channel: mpsc::UnboundedSender<TxEnvelope>) -> JoinHandle<()> {
+    pub fn spawn(mut self, tx_channel: mpsc::UnboundedSender<TxEnvelope>) -> JoinHandle<()> {
         let handle: JoinHandle<()> = tokio::spawn(async move {
             loop {
                 let channel = tx_channel.clone();
