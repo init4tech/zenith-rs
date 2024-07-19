@@ -2,6 +2,7 @@ use std::time::Duration;
 use std::{collections::HashMap, time};
 
 use alloy_consensus::TxEnvelope;
+use alloy_primitives::TxHash;
 use eyre::Error;
 use reqwest::Client;
 use serde_json::from_str;
@@ -15,10 +16,10 @@ pub use crate::config::BuilderConfig;
 pub struct TxPoller {
     // config for the builder
     pub config: BuilderConfig,
-    // Reqwest client for fetching from the tx-pool
+    // Reqwest client for fetching transactions from the tx-pool
     pub client: Client,
-    //  Maintain a set of txn hash to expiration time
-    pub seen_txns: HashMap<String, time::Instant>,
+    //  Maintain a set of transaction hashes to their expiration times
+    pub seen_txns: HashMap<TxHash, time::Instant>,
 }
 
 /// TxPoller implements a poller that fetches unique transactions from the transaction pool.
@@ -57,7 +58,7 @@ impl TxPoller {
 
     /// checks if the transaction has been seen before and if not, adds it to the unique transactions list.
     fn check_cache(&mut self, tx: TxEnvelope, unique: &mut Vec<TxEnvelope>) {
-        self.seen_txns.entry(tx.tx_hash().to_string()).or_insert_with(|| {
+        self.seen_txns.entry(*tx.tx_hash()).or_insert_with(|| {
             // add to unique transactions
             unique.push(tx.clone());
             // expiry is now + cache_duration
@@ -67,7 +68,7 @@ impl TxPoller {
 
     /// removes entries from seen_txns that have lived past expiry
     fn evict(&mut self) {
-        let expired_keys: Vec<String> = self.seen_txns
+        let expired_keys: Vec<TxHash> = self.seen_txns
             .iter()
             .filter_map(|(key, &expiration)| {
                 if expiration.elapsed() > Duration::from_secs(0) {
