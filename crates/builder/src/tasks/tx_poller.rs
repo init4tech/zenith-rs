@@ -3,14 +3,23 @@ use std::{collections::HashMap, time};
 
 use alloy_consensus::TxEnvelope;
 use alloy_primitives::TxHash;
+
 use eyre::Error;
 use reqwest::Client;
-use serde_json::from_str;
-use serde_json::Value;
+use serde::{Deserialize, Serialize};
+use serde_json::from_slice;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
 
 pub use crate::config::BuilderConfig;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TxPoolResponse {
+    #[serde(rename = "key")]
+    key: TxHash,
+    #[serde(rename = "value")]
+    value: TxEnvelope,
+}
 
 /// Implements a poller for the block builder to pull transactions from the transaction pool.
 pub struct TxPoller {
@@ -26,11 +35,7 @@ pub struct TxPoller {
 impl TxPoller {
     /// returns a new TxPoller with the given config.
     pub fn new(config: &BuilderConfig) -> Self {
-        Self {
-            config: config.clone(),
-            client: Client::new(),
-            seen_txns: HashMap::new(),
-        }
+        Self { config: config.clone(), client: Client::new(), seen_txns: HashMap::new() }
     }
 
     /// polls the tx-pool for unique transactions and evicts expired transactions.
@@ -38,20 +43,11 @@ impl TxPoller {
     pub async fn check_tx_pool(&mut self) -> Result<Vec<TxEnvelope>, Error> {
         let mut unique: Vec<TxEnvelope> = Vec::new();
         let result = self.client.get(self.config.tx_pool_url.to_string() + "/get").send().await?;
+        let parsed: Vec<TxPoolResponse> = from_slice(&result.bytes().await?)?;
 
-        // parse the response as a JSON array of key/value pairs of transaction hashes to transaction envelopes
-        let parsed: Value = from_str(&result.text().await?)?;
-        if let Value::Array(items) = parsed.clone() {
-            for item in items {
-                if let Value::Object(map) = item {
-                    if let Some(Value::String(value)) = map.get("value") {
-                        if let Ok(parsed) = from_str::<TxEnvelope>(value) {
-                            self.check_cache(parsed, &mut unique);
-                        }
-                    }
-                }
-            }
-        }
+        parsed.iter().for_each(|entry| {
+            self.check_cache(entry.value.clone(), &mut unique);
+        });
 
         Ok(unique)
     }
@@ -68,15 +64,18 @@ impl TxPoller {
 
     /// removes entries from seen_txns that have lived past expiry
     fn evict(&mut self) {
-        let expired_keys: Vec<TxHash> = self.seen_txns
+        let expired_keys: Vec<TxHash> = self
+            .seen_txns
             .iter()
-            .filter_map(|(key, &expiration)| {
-                if expiration.elapsed() > Duration::from_secs(0) {
-                    Some(key.clone())
-                } else {
-                    None
-                }
-            })
+            .filter_map(
+                |(key, &expiration)| {
+                    if !expiration.elapsed().is_zero() {
+                        Some(*key)
+                    } else {
+                        None
+                    }
+                },
+            )
             .collect();
 
         for key in expired_keys {
@@ -94,8 +93,8 @@ impl TxPoller {
                 // send recently discovered transactions to the builder pipeline
                 match txns {
                     Ok(txns) => {
-                        for txn in txns.iter() {
-                            let result = channel.send(txn.clone());
+                        for txn in txns.into_iter() {
+                            let result = channel.send(txn);
                             if result.is_err() {
                                 tracing::debug!("tx_poller failed to send tx");
                                 break;
