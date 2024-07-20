@@ -16,7 +16,7 @@ name = "builder"
 
 [[bin]]
 name = "zenith-builder-example"
-path = "src/main.rs"
+path = "bin/builder.rs"
 
 [dependencies]
 zenith-types.workspace = true
