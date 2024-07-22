@@ -1,14 +1,10 @@
 #![allow(dead_code)]
 
-mod config;
-mod service;
-mod signer;
-mod tasks;
+use builder::config::BuilderConfig;
+use builder::service::serve_builder_with_span;
+use builder::tasks::tx_poller::TxPoller;
 
 use tokio::select;
-
-use crate::config::BuilderConfig;
-use crate::service::serve_builder_with_span;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -24,9 +20,11 @@ async fn main() -> eyre::Result<()> {
     let zenith = config.connect_zenith(provider.clone());
 
     let port = config.builder_port;
-    let build = tasks::block::BlockBuilder::new(&config);
 
-    let submit = tasks::submit::SubmitTask {
+    let tx_poller = TxPoller::new(&config);
+    let builder = builder::tasks::block::BlockBuilder::new(&config);
+
+    let submit = builder::tasks::submit::SubmitTask {
         provider,
         zenith,
         client: reqwest::Client::new(),
@@ -35,7 +33,8 @@ async fn main() -> eyre::Result<()> {
     };
 
     let (submit_channel, submit_jh) = submit.spawn();
-    let (build_channel, build_jh) = build.spawn(submit_channel);
+    let (build_channel, build_jh) = builder.spawn(submit_channel);
+    let tx_poller_jh = tx_poller.spawn(build_channel.clone());
 
     let server = serve_builder_with_span(build_channel, ([0, 0, 0, 0], port), span);
 
@@ -48,6 +47,9 @@ async fn main() -> eyre::Result<()> {
         }
         _ = server => {
             tracing::info!("server finished");
+        }
+        _ = tx_poller_jh => {
+            tracing::info!("tx_poller finished");
         }
     }
 

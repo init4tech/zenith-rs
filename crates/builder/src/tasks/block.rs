@@ -76,13 +76,19 @@ impl InProgressBlock {
     }
 }
 
+/// BlockBuilder is a task that periodically builds a block then sends it for signing and submission.
 pub struct BlockBuilder {
     pub incoming_transactions_buffer: u64,
+    pub config: BuilderConfig,
 }
 
 impl BlockBuilder {
+    // create a new block builder with the given config.
     pub fn new(config: &BuilderConfig) -> Self {
-        Self { incoming_transactions_buffer: config.incoming_transactions_buffer }
+        Self {
+            config: config.clone(),
+            incoming_transactions_buffer: config.incoming_transactions_buffer,
+        }
     }
 
     /// Spawn the block builder task, returning the inbound channel to it, and
@@ -94,10 +100,11 @@ impl BlockBuilder {
         let mut in_progress = InProgressBlock::default();
 
         let (sender, mut inbound) = mpsc::unbounded_channel();
+
         let handle = tokio::spawn(
             async move {
                 loop {
-                    let sleep = tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer));
+                    let sleep: tokio::time::Sleep = tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer));
                     tokio::pin!(sleep);
 
                     select! {
@@ -120,7 +127,6 @@ impl BlockBuilder {
                                     break
                                 }
                             }
-
                         }
                     }
                 }

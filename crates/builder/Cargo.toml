@@ -11,6 +11,13 @@ repository.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "builder"
+
+[[bin]]
+name = "zenith-builder-example"
+path = "bin/builder.rs"
+
 [dependencies]
 zenith-types.workspace = true
 
@@ -47,6 +54,6 @@ reqwest = { version = "0.11.24", features = ["blocking", "json"] }
 ruint = "1.12.1"
 serde_json = "1.0"
 thiserror = "1.0.58"
-tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.36.0", features = ["full", "macros", "rt-multi-thread"] }
 tracing-subscriber = "0.3.18"
 async-trait = "0.1.80"
