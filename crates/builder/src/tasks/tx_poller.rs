@@ -97,7 +97,7 @@ impl TxPoller {
                             let result = channel.send(txn);
                             if result.is_err() {
                                 tracing::debug!("tx_poller failed to send tx");
-                                break;
+                                continue;
                             }
                         }
                     }
