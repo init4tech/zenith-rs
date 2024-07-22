@@ -1,11 +1,58 @@
 [
   {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_permit2",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "fallback",
     "stateMutability": "payable"
   },
   {
     "type": "receive",
     "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "enterWitness",
+    "inputs": [
+      {
+        "name": "rollupChainId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "rollupRecipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "_witness",
+        "type": "tuple",
+        "internalType": "struct UsesPermit2.Witness",
+        "components": [
+          {
+            "name": "witnessHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "witnessTypeString",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "pure"
   },
   {
     "type": "function",
@@ -42,6 +89,101 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "exitTokenPermit2",
+    "inputs": [
+      {
+        "name": "hostRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "permit2",
+        "type": "tuple",
+        "internalType": "struct UsesPermit2.Permit2",
+        "components": [
+          {
+            "name": "permit",
+            "type": "tuple",
+            "internalType": "struct ISignatureTransfer.PermitTransferFrom",
+            "components": [
+              {
+                "name": "permitted",
+                "type": "tuple",
+                "internalType": "struct ISignatureTransfer.TokenPermissions",
+                "components": [
+                  {
+                    "name": "token",
+                    "type": "address",
+                    "internalType": "address"
+                  },
+                  {
+                    "name": "amount",
+                    "type": "uint256",
+                    "internalType": "uint256"
+                  }
+                ]
+              },
+              {
+                "name": "nonce",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "deadline",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "owner",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "signature",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "exitWitness",
+    "inputs": [
+      {
+        "name": "hostRecipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "_witness",
+        "type": "tuple",
+        "internalType": "struct UsesPermit2.Witness",
+        "components": [
+          {
+            "name": "witnessHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "witnessTypeString",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "pure"
   },
   {
     "type": "event",
