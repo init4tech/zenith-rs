@@ -17,6 +17,9 @@ pub use bindings::{Passage, RollupOrders, RollupPassage, Transactor, Zenith};
 mod block;
 pub use block::{decode_txns, encode_txns, Alloy2718Coder, Coder, ZenithBlock, ZenithTransaction};
 
+mod orders;
+pub use orders::AggregateOrders;
+
 mod req;
 pub use req::SignRequest;
 
