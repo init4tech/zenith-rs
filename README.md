@@ -41,3 +41,20 @@ TX_POOL_URL="http://pool.url.here/" # trailing slash is required
 TX_POOL_POLL_INTERVAL="5" # seconds
 TX_POOL_CACHE_DURATION="600" # seconds
 ```
+
+## API
+
+### SignRequest
+
+Sign request example payload:
+
+```json
+{
+  "hostBlockNumber": "0x0",
+  "hostChainId": "0x1",
+  "ruChainId": "0x2",
+  "gasLimit": "0x5",
+  "ruRewardAddress": "0x0606060606060606060606060606060606060606",
+  "contents": "0x0707070707070707070707070707070707070707070707070707070707070707"
+}
+```
