@@ -7,7 +7,7 @@ use std::collections::HashMap;
 pub struct AggregateOrders {
     /// Outputs to be transferred to the user. These may be on the rollup or
     /// the host or potentially elsewhere in the future.
-    pub outputs: HashMap<(u32, Address), HashMap<Address, U256>>,
+    pub outputs: HashMap<(u64, Address), HashMap<Address, U256>>,
     /// Inputs to be transferred to the filler. These are always on the
     /// rollup.
     pub inputs: HashMap<Address, U256>,
@@ -29,7 +29,7 @@ impl AggregateOrders {
     fn ingest_output(&mut self, output: &RollupOrders::Output) {
         let entry = self
             .outputs
-            .entry((output.chain_id(), output.token))
+            .entry((output.chain_id() as u64, output.token))
             .or_default()
             .entry(output.recipient)
             .or_default();

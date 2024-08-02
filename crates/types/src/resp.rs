@@ -3,6 +3,8 @@ use alloy_primitives::{Address, Signature, SignatureError};
 use serde::{Deserialize, Serialize};
 
 /// A signature response from a [`RequestSigner`].
+///
+/// [`RequestSigner`]: crate::RequestSigner
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct SignResponse {
