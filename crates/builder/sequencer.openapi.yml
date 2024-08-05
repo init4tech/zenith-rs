@@ -19,22 +19,22 @@ paths:
               properties:
                 host_block_number:
                   type: string
-                  description: The block number of the host.
+                  description: The block number of the host formatted as a 0x-prefixed minimal hex string.
                 host_chain_id:
                   type: string
-                  description: The chain ID of the host.
+                  description: The chain ID of the host formatted as a 0x-prefixed minimal hex string.
                 ru_chain_id:
                   type: string
-                  description: The chain ID of the rollup.
+                  description: The chain ID of the rollup formatted as a 0x-prefixed minimal hex string.
                 gas_limit:
                   type: string
-                  description: The gas limit of the rollup block.
+                  description: The gas limit of the rollup block formatted as a 0x-prefixed minimal hex string.
                 ru_reward_address:
                   type: string
-                  description: The reward address on the rollup for the builder.
+                  description: The reward address on the rollup for the builder formatted as a 0x-prefixed minimal hex string.
                 contents:
                   type: string
-                  description: keccak256 hash of rlp-encoded transactions in the block.
+                  description: keccak256 hash of rlp-encoded transactions in the block formatted as a 0x-prefixed minimal hex string.
               required:
               - host_block_number
               - host_chain_id
@@ -56,29 +56,29 @@ paths:
                     properties:
                       host_block_number:
                         type: string
-                        description: The block number of the host.
+                        description: The block number of the host formatted as a 0x-prefixed minimal hex string.
                       host_chain_id:
                         type: string
-                        description: The chain ID of the host.
+                        description: The chain ID of the host formatted as a 0x-prefixed minimal hex string.
                       ru_chain_id:
                         type: string
-                        description: The chain ID of the rollup.
+                        description: The chain ID of the rollup formatted as a 0x-prefixed minimal hex string.
                       gas_limit:
                         type: string
-                        description: The gas limit of the rollup block.
+                        description: The gas limit of the rollup block formatted as a 0x-prefixed minimal hex string.
                       ru_reward_address:
                         type: string
-                        description: The reward address on the rollup for the builder.
+                        description: The reward address on the rollup for the builder formatted as a 0x-prefixed minimal hex string.
                       contents:
                         type: string
-                        description: keccak256 hash of rlp-encoded transactions in the block.
+                        description: keccak256 hash of rlp-encoded transactions in the block formatted as a 0x-prefixed minimal hex string.
                   sig:
                     type: object
                     description: The signature over the SignRequest.
                     properties:
-                      v:
-                        type: string
-                        description: Signature V field.
+                      yParity:
+                        type: boolean
+                        description: The parity of the y value of the signature.
                       r:
                         type: string
                         description: Signature R field.
@@ -120,7 +120,7 @@ components:
       properties:
         yParity:
           type: boolean
-          description: The parity of the y value of the signature
+          description: The parity of the y value of the signature.
         r:
           type: string
           description: Signature R field.
@@ -128,7 +128,7 @@ components:
           type: string
           description: Signature S field.
       required:
-      - v
+      - yParity
       - r
       - s
     SignResponse:
