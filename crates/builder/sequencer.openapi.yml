@@ -118,9 +118,9 @@ components:
     Signature:
       type: object
       properties:
-        v:
-          type: string
-          description: Signature V field.
+        yParity:
+          type: boolean
+          description: The parity of the y value of the signature
         r:
           type: string
           description: Signature R field.
