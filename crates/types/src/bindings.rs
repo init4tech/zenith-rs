@@ -2,6 +2,7 @@
 #![allow(missing_docs)]
 use alloy_primitives::{Address, Bytes, FixedBytes, U256};
 use alloy_sol_types::sol;
+use HostOrders::TokenPermissions;
 
 sol!(
     #[sol(rpc)]
@@ -15,6 +16,13 @@ sol!(
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     Passage,
     "abi/Passage.json"
+);
+
+sol!(
+    #[sol(rpc)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    HostOrders,
+    "abi/HostOrders.json"
 );
 
 sol!(
@@ -192,6 +200,108 @@ impl Passage::Withdrawal {
     /// Get the amount of the request.
     pub const fn amount(&self) -> U256 {
         self.amount
+    }
+}
+
+// HostOrders types
+
+impl Copy for HostOrders::Output {}
+impl Copy for HostOrders::TokenPermissions {}
+
+impl HostOrders::Output {
+    /// Get the token address of the output.
+    pub const fn token(&self) -> Address {
+        self.token
+    }
+
+    /// Get the recipient of the output.
+    pub const fn recipient(&self) -> Address {
+        self.recipient
+    }
+
+    /// Get the amount of the output.
+    pub const fn amount(&self) -> U256 {
+        self.amount
+    }
+
+    /// Get the chain ID of the output.
+    pub const fn chain_id(&self) -> u32 {
+        self.chainId
+    }
+}
+
+impl HostOrders::TokenPermissions {
+    /// Get the token address of the output.
+    pub const fn token(&self) -> Address {
+        self.token
+    }
+
+    /// Get the amount of the output.
+    pub const fn amount(&self) -> U256 {
+        self.amount
+    }
+}
+
+impl HostOrders::Witness {
+    /// Get the witness hash of the witness.
+    pub const fn witness_hash(&self) -> FixedBytes<32> {
+        self.witnessHash
+    }
+
+    /// Get the witness type string.
+    pub fn witness_type(&self) -> String {
+        self.witnessTypeString.clone()
+    }
+}
+
+impl HostOrders::Filled {
+    /// Get the outputs of the filled order.
+    pub fn outputs(&self) -> &[HostOrders::Output] {
+        &self.outputs
+    }
+}
+
+impl HostOrders::PermitBatchTransferFrom {
+    /// Get the permitted tokens of the batch transfer permit.
+    pub fn permitted(&self) -> &[TokenPermissions] {
+        &self.permitted
+    }
+
+    /// Get the nonce of the batch transfer permit.
+    pub const fn nonce(&self) -> U256 {
+        self.nonce
+    }
+
+    /// Get the deadline of the batch transfer permit.
+    pub const fn deadline(&self) -> U256 {
+        self.deadline
+    }
+}
+
+impl HostOrders::Permit2Batch {
+    /// Get the permitted tokens of the batch transfer permit.
+    pub const fn permit(&self) -> &HostOrders::PermitBatchTransferFrom {
+        &self.permit
+    }
+
+    /// Get the owner of the permit.
+    pub const fn owner(&self) -> Address {
+        self.owner
+    }
+
+    /// Get the signature of the permit.
+    pub fn signature(&self) -> Bytes {
+        self.signature.clone()
+    }
+}
+
+impl Clone for HostOrders::HostOrdersEvents {
+    fn clone(&self) -> Self {
+        match self {
+            HostOrders::HostOrdersEvents::Filled(event) => {
+                HostOrders::HostOrdersEvents::Filled(event.clone())
+            }
+        }
     }
 }
 
