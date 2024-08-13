@@ -471,6 +471,9 @@ impl Transactor::Transact {
 // RollupPassage
 impl Copy for RollupPassage::Exit {}
 impl Copy for RollupPassage::ExitToken {}
+impl Copy for RollupPassage::AddressEmptyCode {}
+impl Copy for RollupPassage::InsufficientBalance {}
+impl Copy for RollupPassage::SafeERC20FailedOperation {}
 
 impl Copy for RollupPassage::RollupPassageEvents {}
 
