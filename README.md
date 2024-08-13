@@ -11,7 +11,7 @@ Rust utilites for working with [Zenith](https://github.com/init4tech/zenith).
 
 ## Development
 
-This crate contains an exmaple block builder in the Signet ecosystem.
+This crate contains an example block builder in the Signet ecosystem.
 
 ### Requirements
 
