@@ -1,0 +1,40 @@
+[
+  {
+    "type": "function",
+    "name": "outputWitness",
+    "inputs": [
+      {
+        "name": "outputs",
+        "type": "tuple[]",
+        "internalType": "struct IOrders.Output[]",
+        "components": [
+          { "name": "token", "type": "address", "internalType": "address" },
+          { "name": "amount", "type": "uint256", "internalType": "uint256" },
+          { "name": "recipient", "type": "address", "internalType": "address" },
+          { "name": "chainId", "type": "uint32", "internalType": "uint32" }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "_witness",
+        "type": "tuple",
+        "internalType": "struct UsesPermit2.Witness",
+        "components": [
+          {
+            "name": "witnessHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "witnessTypeString",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  { "type": "error", "name": "OutputMismatch", "inputs": [] }
+]

@@ -14,11 +14,7 @@
     "type": "function",
     "name": "addSequencer",
     "inputs": [
-      {
-        "name": "sequencer",
-        "type": "address",
-        "internalType": "address"
-      }
+      { "name": "sequencer", "type": "address", "internalType": "address" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -42,11 +38,7 @@
             "type": "uint256",
             "internalType": "uint256"
           },
-          {
-            "name": "gasLimit",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
+          { "name": "gasLimit", "type": "uint256", "internalType": "uint256" },
           {
             "name": "rewardAddress",
             "type": "address",
@@ -61,11 +53,7 @@
       }
     ],
     "outputs": [
-      {
-        "name": "commit",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
+      { "name": "commit", "type": "bytes32", "internalType": "bytes32" }
     ],
     "stateMutability": "view"
   },
@@ -73,62 +61,28 @@
     "type": "function",
     "name": "deployBlockNumber",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "isSequencer",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
+    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "lastSubmittedAtBlock",
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "removeSequencer",
     "inputs": [
-      {
-        "name": "sequencer",
-        "type": "address",
-        "internalType": "address"
-      }
+      { "name": "sequencer", "type": "address", "internalType": "address" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -137,13 +91,7 @@
     "type": "function",
     "name": "sequencerAdmin",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
     "stateMutability": "view"
   },
   {
@@ -165,11 +113,7 @@
             "type": "uint256",
             "internalType": "uint256"
           },
-          {
-            "name": "gasLimit",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
+          { "name": "gasLimit", "type": "uint256", "internalType": "uint256" },
           {
             "name": "rewardAddress",
             "type": "address",
@@ -182,26 +126,10 @@
           }
         ]
       },
-      {
-        "name": "v",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "r",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "s",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
+      { "name": "v", "type": "uint8", "internalType": "uint8" },
+      { "name": "r", "type": "bytes32", "internalType": "bytes32" },
+      { "name": "s", "type": "bytes32", "internalType": "bytes32" },
+      { "name": "", "type": "bytes", "internalType": "bytes" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -273,19 +201,7 @@
       }
     ]
   },
-  {
-    "type": "error",
-    "name": "IncorrectHostBlock",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "OneRollupBlockPerHostBlock",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "OnlySequencerAdmin",
-    "inputs": []
-  }
+  { "type": "error", "name": "IncorrectHostBlock", "inputs": [] },
+  { "type": "error", "name": "OneRollupBlockPerHostBlock", "inputs": [] },
+  { "type": "error", "name": "OnlySequencerAdmin", "inputs": [] }
 ]

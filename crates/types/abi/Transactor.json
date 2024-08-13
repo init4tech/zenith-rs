@@ -7,11 +7,7 @@
         "type": "uint256",
         "internalType": "uint256"
       },
-      {
-        "name": "_gasAdmin",
-        "type": "address",
-        "internalType": "address"
-      },
+      { "name": "_gasAdmin", "type": "address", "internalType": "address" },
       {
         "name": "_passage",
         "type": "address",
@@ -34,16 +30,8 @@
     "type": "function",
     "name": "configureGas",
     "inputs": [
-      {
-        "name": "perBlock",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "perTransact",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+      { "name": "perBlock", "type": "uint256", "internalType": "uint256" },
+      { "name": "perTransact", "type": "uint256", "internalType": "uint256" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -52,54 +40,24 @@
     "type": "function",
     "name": "defaultRollupChainId",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "enterTransact",
     "inputs": [
-      {
-        "name": "rollupChainId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
+      { "name": "rollupChainId", "type": "uint256", "internalType": "uint256" },
       {
         "name": "etherRecipient",
         "type": "address",
         "internalType": "address"
       },
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "data",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "value",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "gas",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "maxFeePerGas",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+      { "name": "to", "type": "address", "internalType": "address" },
+      { "name": "data", "type": "bytes", "internalType": "bytes" },
+      { "name": "value", "type": "uint256", "internalType": "uint256" },
+      { "name": "gas", "type": "uint256", "internalType": "uint256" },
+      { "name": "maxFeePerGas", "type": "uint256", "internalType": "uint256" }
     ],
     "outputs": [],
     "stateMutability": "payable"
@@ -108,13 +66,7 @@
     "type": "function",
     "name": "gasAdmin",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
     "stateMutability": "view"
   },
   {
@@ -122,11 +74,7 @@
     "name": "passage",
     "inputs": [],
     "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract Passage"
-      }
+      { "name": "", "type": "address", "internalType": "contract Passage" }
     ],
     "stateMutability": "view"
   },
@@ -134,57 +82,25 @@
     "type": "function",
     "name": "perBlockGasLimit",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "perTransactGasLimit",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "view"
   },
   {
     "type": "function",
     "name": "transact",
     "inputs": [
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "data",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "value",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "gas",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "maxFeePerGas",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+      { "name": "to", "type": "address", "internalType": "address" },
+      { "name": "data", "type": "bytes", "internalType": "bytes" },
+      { "name": "value", "type": "uint256", "internalType": "uint256" },
+      { "name": "gas", "type": "uint256", "internalType": "uint256" },
+      { "name": "maxFeePerGas", "type": "uint256", "internalType": "uint256" }
     ],
     "outputs": [],
     "stateMutability": "payable"
@@ -193,36 +109,12 @@
     "type": "function",
     "name": "transact",
     "inputs": [
-      {
-        "name": "rollupChainId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "data",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "value",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "gas",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "maxFeePerGas",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+      { "name": "rollupChainId", "type": "uint256", "internalType": "uint256" },
+      { "name": "to", "type": "address", "internalType": "address" },
+      { "name": "data", "type": "bytes", "internalType": "bytes" },
+      { "name": "value", "type": "uint256", "internalType": "uint256" },
+      { "name": "gas", "type": "uint256", "internalType": "uint256" },
+      { "name": "maxFeePerGas", "type": "uint256", "internalType": "uint256" }
     ],
     "outputs": [],
     "stateMutability": "payable"
@@ -231,24 +123,10 @@
     "type": "function",
     "name": "transactGasUsed",
     "inputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
+      { "name": "", "type": "uint256", "internalType": "uint256" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
     ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "view"
   },
   {
@@ -319,19 +197,7 @@
     ],
     "anonymous": false
   },
-  {
-    "type": "error",
-    "name": "OnlyGasAdmin",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "PerBlockTransactGasLimit",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "PerTransactGasLimit",
-    "inputs": []
-  }
+  { "type": "error", "name": "OnlyGasAdmin", "inputs": [] },
+  { "type": "error", "name": "PerBlockTransactGasLimit", "inputs": [] },
+  { "type": "error", "name": "PerTransactGasLimit", "inputs": [] }
 ]

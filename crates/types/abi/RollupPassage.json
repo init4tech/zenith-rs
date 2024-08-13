@@ -1,67 +1,15 @@
 [
   {
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "_permit2",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "fallback",
-    "stateMutability": "payable"
-  },
-  {
-    "type": "receive",
-    "stateMutability": "payable"
-  },
-  {
     "type": "function",
-    "name": "enterWitness",
+    "name": "submitEthExit",
     "inputs": [
+      { "name": "tokenOut_H", "type": "address", "internalType": "address" },
+      { "name": "recipient_H", "type": "address", "internalType": "address" },
+      { "name": "deadline", "type": "uint256", "internalType": "uint256" },
       {
-        "name": "rollupChainId",
+        "name": "amountOutMinimum_H",
         "type": "uint256",
         "internalType": "uint256"
-      },
-      {
-        "name": "rollupRecipient",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "_witness",
-        "type": "tuple",
-        "internalType": "struct UsesPermit2.Witness",
-        "components": [
-          {
-            "name": "witnessHash",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          },
-          {
-            "name": "witnessTypeString",
-            "type": "string",
-            "internalType": "string"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "pure"
-  },
-  {
-    "type": "function",
-    "name": "exit",
-    "inputs": [
-      {
-        "name": "hostRecipient",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -69,20 +17,15 @@
   },
   {
     "type": "function",
-    "name": "exitToken",
+    "name": "submitExit",
     "inputs": [
+      { "name": "tokenIn_RU", "type": "address", "internalType": "address" },
+      { "name": "tokenOut_H", "type": "address", "internalType": "address" },
+      { "name": "recipient_H", "type": "address", "internalType": "address" },
+      { "name": "deadline", "type": "uint256", "internalType": "uint256" },
+      { "name": "amountIn_RU", "type": "uint256", "internalType": "uint256" },
       {
-        "name": "hostRecipient",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "token",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
+        "name": "amountOutMinimum_H",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -92,111 +35,63 @@
   },
   {
     "type": "function",
-    "name": "exitTokenPermit2",
+    "name": "sweep",
     "inputs": [
-      {
-        "name": "hostRecipient",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "permit2",
-        "type": "tuple",
-        "internalType": "struct UsesPermit2.Permit2",
-        "components": [
-          {
-            "name": "permit",
-            "type": "tuple",
-            "internalType": "struct ISignatureTransfer.PermitTransferFrom",
-            "components": [
-              {
-                "name": "permitted",
-                "type": "tuple",
-                "internalType": "struct ISignatureTransfer.TokenPermissions",
-                "components": [
-                  {
-                    "name": "token",
-                    "type": "address",
-                    "internalType": "address"
-                  },
-                  {
-                    "name": "amount",
-                    "type": "uint256",
-                    "internalType": "uint256"
-                  }
-                ]
-              },
-              {
-                "name": "nonce",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "deadline",
-                "type": "uint256",
-                "internalType": "uint256"
-              }
-            ]
-          },
-          {
-            "name": "owner",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "signature",
-            "type": "bytes",
-            "internalType": "bytes"
-          }
-        ]
-      }
+      { "name": "recipient", "type": "address", "internalType": "address" },
+      { "name": "tokens", "type": "address[]", "internalType": "address[]" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "exitWitness",
+    "name": "sweepEth",
     "inputs": [
       {
-        "name": "hostRecipient",
+        "name": "recipient",
         "type": "address",
-        "internalType": "address"
+        "internalType": "address payable"
       }
     ],
-    "outputs": [
-      {
-        "name": "_witness",
-        "type": "tuple",
-        "internalType": "struct UsesPermit2.Witness",
-        "components": [
-          {
-            "name": "witnessHash",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          },
-          {
-            "name": "witnessTypeString",
-            "type": "string",
-            "internalType": "string"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "pure"
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "event",
     "name": "Exit",
     "inputs": [
       {
-        "name": "hostRecipient",
+        "name": "tokenIn_RU",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "amount",
+        "name": "tokenOut_H",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "recipient_H",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountIn_RU",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountOutMinimum_H",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -206,27 +101,16 @@
   },
   {
     "type": "event",
-    "name": "ExitToken",
+    "name": "Sweep",
     "inputs": [
       {
-        "name": "hostRecipient",
+        "name": "recipient",
         "type": "address",
         "indexed": true,
         "internalType": "address"
-      },
-      {
-        "name": "token",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
       }
     ],
     "anonymous": false
-  }
+  },
+  { "type": "error", "name": "OrderExpired", "inputs": [] }
 ]

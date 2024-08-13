@@ -1,0 +1,61 @@
+[
+  {
+    "type": "function",
+    "name": "enterWitness",
+    "inputs": [
+      { "name": "rollupChainId", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "rollupRecipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "_witness",
+        "type": "tuple",
+        "internalType": "struct UsesPermit2.Witness",
+        "components": [
+          {
+            "name": "witnessHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "witnessTypeString",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "exitWitness",
+    "inputs": [
+      { "name": "hostRecipient", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [
+      {
+        "name": "_witness",
+        "type": "tuple",
+        "internalType": "struct UsesPermit2.Witness",
+        "components": [
+          {
+            "name": "witnessHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "witnessTypeString",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "pure"
+  }
+]
