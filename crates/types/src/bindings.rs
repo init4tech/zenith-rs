@@ -334,6 +334,12 @@ impl HostOrders::Permit2Batch {
 impl Copy for RollupOrders::Input {}
 impl Copy for RollupOrders::Output {}
 impl Copy for RollupOrders::Sweep {}
+impl Copy for RollupOrders::InsufficientBalance {}
+impl Copy for RollupOrders::AddressEmptyCode {}
+impl Copy for RollupOrders::LengthMismatch {}
+impl Copy for RollupOrders::OrderExpired {}
+impl Copy for RollupOrders::OutputMismatch {}
+impl Copy for RollupOrders::SafeERC20FailedOperation {}
 
 impl Clone for RollupOrders::RollupOrdersEvents {
     fn clone(&self) -> Self {
