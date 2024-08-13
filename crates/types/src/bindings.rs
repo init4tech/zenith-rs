@@ -136,6 +136,9 @@ impl Copy for Passage::Withdrawal {}
 impl Copy for Passage::OnlyTokenAdmin {}
 impl Copy for Passage::Enter {}
 impl Copy for Passage::EnterToken {}
+impl Copy for Passage::DisallowedEnter {}
+impl Copy for Passage::FailedCall {}
+impl Copy for Passage::InsufficientBalance {}
 
 impl Copy for Passage::PassageEvents {}
 
@@ -203,10 +206,39 @@ impl Passage::Withdrawal {
     }
 }
 
+impl Passage::EnterConfigured {
+    /// Get the token address of the event.
+    pub const fn token(&self) -> Address {
+        self.token
+    }
+
+    /// Get if the token has been configured to allow or disallow enters.
+    pub const fn can_enter(&self) -> bool {
+        self.canEnter
+    }
+}
+
 // HostOrders types
 
 impl Copy for HostOrders::Output {}
 impl Copy for HostOrders::TokenPermissions {}
+impl Copy for HostOrders::AddressEmptyCode {}
+impl Copy for HostOrders::FailedCall {}
+impl Copy for HostOrders::InsufficientBalance {}
+impl Copy for HostOrders::ReentrancyGuardReentrantCall {}
+impl Copy for HostOrders::LengthMismatch {}
+impl Copy for HostOrders::OutputMismatch {}
+impl Copy for HostOrders::SafeERC20FailedOperation {}
+
+impl Clone for HostOrders::HostOrdersEvents {
+    fn clone(&self) -> Self {
+        match self {
+            HostOrders::HostOrdersEvents::Filled(event) => {
+                HostOrders::HostOrdersEvents::Filled(event.clone())
+            }
+        }
+    }
+}
 
 impl HostOrders::Output {
     /// Get the token address of the output.
@@ -292,16 +324,6 @@ impl HostOrders::Permit2Batch {
     /// Get the signature of the permit.
     pub fn signature(&self) -> Bytes {
         self.signature.clone()
-    }
-}
-
-impl Clone for HostOrders::HostOrdersEvents {
-    fn clone(&self) -> Self {
-        match self {
-            HostOrders::HostOrdersEvents::Filled(event) => {
-                HostOrders::HostOrdersEvents::Filled(event.clone())
-            }
-        }
     }
 }
 
