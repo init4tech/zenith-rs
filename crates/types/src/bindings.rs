@@ -139,6 +139,8 @@ impl Copy for Passage::EnterToken {}
 impl Copy for Passage::DisallowedEnter {}
 impl Copy for Passage::FailedCall {}
 impl Copy for Passage::InsufficientBalance {}
+impl Copy for Passage::SafeERC20FailedOperation {}
+impl Copy for Passage::AddressEmptyCode {}
 
 impl Copy for Passage::PassageEvents {}
 
