@@ -6,42 +6,42 @@ use HostOrders::TokenPermissions;
 
 sol!(
     #[sol(rpc)]
-    #[derive(Default, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     Zenith,
     "abi/Zenith.json"
 );
 
 sol!(
     #[sol(rpc)]
-    #[derive(Default, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     Passage,
     "abi/Passage.json"
 );
 
 sol!(
     #[sol(rpc)]
-    #[derive(Default, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     HostOrders,
     "abi/HostOrders.json"
 );
 
 sol!(
     #[sol(rpc)]
-    #[derive(Default, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     RollupOrders,
     "abi/RollupOrders.json"
 );
 
 sol!(
     #[sol(rpc)]
-    #[derive(Default, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     Transactor,
     "abi/Transactor.json"
 );
 
 sol!(
     #[sol(rpc)]
-    #[derive(Default, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
     RollupPassage,
     "abi/RollupPassage.json"
 );

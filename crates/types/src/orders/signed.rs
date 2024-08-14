@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// A signed order.
 /// TODO: Link to docs.
-#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub struct SignedOrder {
     /// The permit batch.
     #[serde(flatten)]
