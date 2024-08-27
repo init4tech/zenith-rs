@@ -46,6 +46,50 @@ sol!(
     "abi/RollupPassage.json"
 );
 
+impl From<HostOrders::Output> for RollupOrders::Output {
+    fn from(output: HostOrders::Output) -> Self {
+        Self {
+            token: output.token,
+            recipient: output.recipient,
+            amount: output.amount,
+            chainId: output.chainId,
+        }
+    }
+}
+
+impl From<&HostOrders::Output> for RollupOrders::Output {
+    fn from(output: &HostOrders::Output) -> Self {
+        Self {
+            token: output.token,
+            recipient: output.recipient,
+            amount: output.amount,
+            chainId: output.chainId,
+        }
+    }
+}
+
+impl From<RollupOrders::Output> for HostOrders::Output {
+    fn from(output: RollupOrders::Output) -> Self {
+        Self {
+            token: output.token,
+            recipient: output.recipient,
+            amount: output.amount,
+            chainId: output.chainId,
+        }
+    }
+}
+
+impl From<&RollupOrders::Output> for HostOrders::Output {
+    fn from(output: &RollupOrders::Output) -> Self {
+        Self {
+            token: output.token,
+            recipient: output.recipient,
+            amount: output.amount,
+            chainId: output.chainId,
+        }
+    }
+}
+
 // Zenith types
 impl Copy for Zenith::BlockHeader {}
 impl Copy for Zenith::BlockSubmitted {}
