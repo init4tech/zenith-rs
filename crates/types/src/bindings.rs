@@ -2,7 +2,6 @@
 #![allow(missing_docs)]
 use alloy_primitives::{Address, Bytes, FixedBytes, U256};
 use alloy_sol_types::sol;
-use HostOrders::TokenPermissions;
 
 sol!(
     #[sol(rpc)]
@@ -21,14 +20,7 @@ sol!(
 sol!(
     #[sol(rpc)]
     #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    HostOrders,
-    "abi/HostOrders.json"
-);
-
-sol!(
-    #[sol(rpc)]
-    #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-    RollupOrders,
+    Orders,
     "abi/RollupOrders.json"
 );
 
@@ -45,6 +37,26 @@ sol!(
     RollupPassage,
     "abi/RollupPassage.json"
 );
+
+/// Module alias for [`Orders`].
+#[allow(non_snake_case)]
+pub mod RollupOrders {
+    pub use super::Orders::OrdersCalls as RollupOrdersCalls;
+    pub use super::Orders::OrdersErrors as RollupOrdersErrors;
+    pub use super::Orders::OrdersEvents as RollupOrdersEvents;
+    pub use super::Orders::OrdersInstance as RollupOrdersInstance;
+    pub use super::Orders::*;
+}
+
+/// Module alias for [`Orders`].
+#[allow(non_snake_case)]
+pub mod HostOrders {
+    pub use super::Orders::OrdersCalls as HostOrdersCalls;
+    pub use super::Orders::OrdersErrors as HostOrdersErrors;
+    pub use super::Orders::OrdersEvents as HostOrdersEvents;
+    pub use super::Orders::OrdersInstance as HostOrdersInstance;
+    pub use super::Orders::*;
+}
 
 // Zenith types
 impl Copy for Zenith::BlockHeader {}
@@ -220,144 +232,29 @@ impl Passage::EnterConfigured {
     }
 }
 
-// HostOrders types
-
-impl Copy for HostOrders::Output {}
-impl Copy for HostOrders::TokenPermissions {}
-impl Copy for HostOrders::AddressEmptyCode {}
-impl Copy for HostOrders::FailedCall {}
-impl Copy for HostOrders::InsufficientBalance {}
-impl Copy for HostOrders::ReentrancyGuardReentrantCall {}
-impl Copy for HostOrders::LengthMismatch {}
-impl Copy for HostOrders::OutputMismatch {}
-impl Copy for HostOrders::SafeERC20FailedOperation {}
-
-impl Clone for HostOrders::HostOrdersEvents {
-    fn clone(&self) -> Self {
-        match self {
-            HostOrders::HostOrdersEvents::Filled(event) => {
-                HostOrders::HostOrdersEvents::Filled(event.clone())
-            }
-        }
-    }
-}
-
-impl HostOrders::Output {
-    /// Get the token address of the output.
-    pub const fn token(&self) -> Address {
-        self.token
-    }
-
-    /// Get the recipient of the output.
-    pub const fn recipient(&self) -> Address {
-        self.recipient
-    }
-
-    /// Get the amount of the output.
-    pub const fn amount(&self) -> U256 {
-        self.amount
-    }
-
-    /// Get the chain ID of the output.
-    pub const fn chain_id(&self) -> u32 {
-        self.chainId
-    }
-}
-
-impl HostOrders::TokenPermissions {
-    /// Get the token address of the output.
-    pub const fn token(&self) -> Address {
-        self.token
-    }
-
-    /// Get the amount of the output.
-    pub const fn amount(&self) -> U256 {
-        self.amount
-    }
-}
-
-impl HostOrders::Witness {
-    /// Get the witness hash of the witness.
-    pub const fn witness_hash(&self) -> FixedBytes<32> {
-        self.witnessHash
-    }
-
-    /// Get the witness type string.
-    pub fn witness_type(&self) -> String {
-        self.witnessTypeString.clone()
-    }
-}
-
-impl HostOrders::Filled {
-    /// Get the outputs of the filled order.
-    pub fn outputs(&self) -> &[HostOrders::Output] {
-        &self.outputs
-    }
-}
-
-impl HostOrders::PermitBatchTransferFrom {
-    /// Get the permitted tokens of the batch transfer permit.
-    pub fn permitted(&self) -> &[TokenPermissions] {
-        &self.permitted
-    }
-
-    /// Get the nonce of the batch transfer permit.
-    pub const fn nonce(&self) -> U256 {
-        self.nonce
-    }
-
-    /// Get the deadline of the batch transfer permit.
-    pub const fn deadline(&self) -> U256 {
-        self.deadline
-    }
-}
-
-impl HostOrders::Permit2Batch {
-    /// Get the permitted tokens of the batch transfer permit.
-    pub const fn permit(&self) -> &HostOrders::PermitBatchTransferFrom {
-        &self.permit
-    }
-
-    /// Get the owner of the permit.
-    pub const fn owner(&self) -> Address {
-        self.owner
-    }
-
-    /// Get the signature of the permit.
-    pub fn signature(&self) -> Bytes {
-        self.signature.clone()
-    }
-}
-
 // RollupOrders types
 
-impl Copy for RollupOrders::Input {}
-impl Copy for RollupOrders::Output {}
-impl Copy for RollupOrders::Sweep {}
-impl Copy for RollupOrders::InsufficientBalance {}
-impl Copy for RollupOrders::AddressEmptyCode {}
-impl Copy for RollupOrders::LengthMismatch {}
-impl Copy for RollupOrders::OrderExpired {}
-impl Copy for RollupOrders::OutputMismatch {}
-impl Copy for RollupOrders::SafeERC20FailedOperation {}
+impl Copy for Orders::Input {}
+impl Copy for Orders::Output {}
+impl Copy for Orders::Sweep {}
+impl Copy for Orders::InsufficientBalance {}
+impl Copy for Orders::AddressEmptyCode {}
+impl Copy for Orders::LengthMismatch {}
+impl Copy for Orders::OrderExpired {}
+impl Copy for Orders::OutputMismatch {}
+impl Copy for Orders::SafeERC20FailedOperation {}
 
-impl Clone for RollupOrders::RollupOrdersEvents {
+impl Clone for Orders::OrdersEvents {
     fn clone(&self) -> Self {
         match self {
-            RollupOrders::RollupOrdersEvents::Order(event) => {
-                RollupOrders::RollupOrdersEvents::Order(event.clone())
-            }
-            RollupOrders::RollupOrdersEvents::Sweep(event) => {
-                RollupOrders::RollupOrdersEvents::Sweep(*event)
-            }
-            RollupOrders::RollupOrdersEvents::Filled(event) => {
-                RollupOrders::RollupOrdersEvents::Filled(event.clone())
-            }
+            Self::Order(event) => Self::Order(event.clone()),
+            Self::Sweep(event) => Self::Sweep(*event),
+            Self::Filled(event) => Self::Filled(event.clone()),
         }
     }
 }
 
-impl RollupOrders::Input {
+impl Orders::Input {
     pub const fn token(&self) -> Address {
         self.token
     }
@@ -367,7 +264,7 @@ impl RollupOrders::Input {
     }
 }
 
-impl RollupOrders::Output {
+impl Orders::Output {
     pub const fn token(&self) -> Address {
         self.token
     }
@@ -385,14 +282,14 @@ impl RollupOrders::Output {
     }
 }
 
-impl RollupOrders::Order {
+impl Orders::Order {
     /// Get the inputs of the order.
-    pub fn inputs(&self) -> &[RollupOrders::Input] {
+    pub fn inputs(&self) -> &[Orders::Input] {
         &self.inputs
     }
 
     /// Get the outputs of the order.
-    pub fn outputs(&self) -> &[RollupOrders::Output] {
+    pub fn outputs(&self) -> &[Orders::Output] {
         &self.outputs
     }
 
@@ -402,7 +299,7 @@ impl RollupOrders::Order {
     }
 }
 
-impl RollupOrders::Sweep {
+impl Orders::Sweep {
     pub const fn recipient(&self) -> Address {
         self.recipient
     }
@@ -416,8 +313,8 @@ impl RollupOrders::Sweep {
     }
 }
 
-impl RollupOrders::Filled {
-    pub fn outputs(&self) -> &[RollupOrders::Output] {
+impl Orders::Filled {
+    pub fn outputs(&self) -> &[Orders::Output] {
         self.outputs.as_slice()
     }
 }
