@@ -1,0 +1,143 @@
+openapi: 3.0.3
+info:
+  title: Signet Sequencer API
+  version: 1.0.0
+  description: API to obtain a signature for a new Signet block.
+servers:
+- url: https://sequencer.api.init4.network
+paths:
+  /signBlock:
+    post:
+      summary: Obtain a signature for a new Signet block
+      description: Obtain a signature for a new Signet block.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                host_block_number:
+                  type: string
+                  description: The block number of the host formatted as a 0x-prefixed minimal hex string.
+                host_chain_id:
+                  type: string
+                  description: The chain ID of the host formatted as a 0x-prefixed minimal hex string.
+                ru_chain_id:
+                  type: string
+                  description: The chain ID of the rollup formatted as a 0x-prefixed minimal hex string.
+                gas_limit:
+                  type: string
+                  description: The gas limit of the rollup block formatted as a 0x-prefixed minimal hex string.
+                ru_reward_address:
+                  type: string
+                  description: The reward address on the rollup for the builder formatted as a 0x-prefixed minimal hex string.
+                contents:
+                  type: string
+                  description: keccak256 hash of rlp-encoded transactions in the block formatted as a 0x-prefixed minimal hex string.
+              required:
+              - host_block_number
+              - host_chain_id
+              - ru_chain_id
+              - gas_limit
+              - ru_reward_address
+              - contents
+      responses:
+        '200':
+          description: A JSON SignResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  req:
+                    type: object
+                    description: The inputted SignRequest.
+                    properties:
+                      host_block_number:
+                        type: string
+                        description: The block number of the host formatted as a 0x-prefixed minimal hex string.
+                      host_chain_id:
+                        type: string
+                        description: The chain ID of the host formatted as a 0x-prefixed minimal hex string.
+                      ru_chain_id:
+                        type: string
+                        description: The chain ID of the rollup formatted as a 0x-prefixed minimal hex string.
+                      gas_limit:
+                        type: string
+                        description: The gas limit of the rollup block formatted as a 0x-prefixed minimal hex string.
+                      ru_reward_address:
+                        type: string
+                        description: The reward address on the rollup for the builder formatted as a 0x-prefixed minimal hex string.
+                      contents:
+                        type: string
+                        description: keccak256 hash of rlp-encoded transactions in the block formatted as a 0x-prefixed minimal hex string.
+                  sig:
+                    type: object
+                    description: The signature over the SignRequest.
+                    properties:
+                      yParity:
+                        type: boolean
+                        description: The parity of the y value of the signature.
+                      r:
+                        type: string
+                        description: Signature R field.
+                      s:
+                        type: string
+                        description: Signature S field.
+components:
+  schemas:
+    SignRequest:
+      type: object
+      properties:
+        host_block_number:
+          type: string
+          description: The block number of the host.
+        host_chain_id:
+          type: string
+          description: The chain ID of the host.
+        ru_chain_id:
+          type: string
+          description: The chain ID of the rollup.
+        gas_limit:
+          type: string
+          description: The gas limit of the rollup block.
+        ru_reward_address:
+          type: string
+          description: The reward address on the rollup for the builder.
+        contents:
+          type: string
+          description: keccak256 hash of rlp-encoded transactions in the block.
+      required:
+      - host_block_number
+      - host_chain_id
+      - ru_chain_id
+      - gas_limit
+      - ru_reward_address
+      - contents
+    Signature:
+      type: object
+      properties:
+        yParity:
+          type: boolean
+          description: The parity of the y value of the signature.
+        r:
+          type: string
+          description: Signature R field.
+        s:
+          type: string
+          description: Signature S field.
+      required:
+      - yParity
+      - r
+      - s
+    SignResponse:
+      type: object
+      properties:
+        req:
+          $ref: '#/components/schemas/SignRequest'
+        sig:
+          $ref: '#/components/schemas/Signature'
+      required:
+      - req
+      - sig
