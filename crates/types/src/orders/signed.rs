@@ -14,7 +14,7 @@ pub struct SignedOrder {
 
 impl SignedOrder {
     /// Creates a new signed order.
-    pub fn new(permit: Permit2Batch, outputs: Vec<Output>) -> Self {
+    pub const fn new(permit: Permit2Batch, outputs: Vec<Output>) -> Self {
         Self { permit, outputs }
     }
 }
