@@ -2,6 +2,14 @@
 #![allow(missing_docs)]
 use alloy_primitives::{Address, Bytes, FixedBytes, U256};
 
+mod mint {
+    alloy_sol_types::sol!(
+        #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        function mint(address to, uint256 amount);
+    );
+}
+pub use mint::mintCall;
+
 mod zenith {
     use super::*;
 
