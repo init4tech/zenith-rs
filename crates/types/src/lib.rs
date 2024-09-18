@@ -26,6 +26,11 @@ pub use req::SignRequest;
 mod resp;
 pub use resp::SignResponse;
 
+use alloy_primitives::{address, Address};
+
+/// System address with permission to mint tokens on pre-deploys.
+pub const MINTER_ADDRESS: Address = address!("00000000000000000000746f6b656e61646d696e");
+
 /// A [`RequestSigner`] signs [`SignRequest`]s by delegating to an
 /// [`alloy_signer::Signer`].
 pub trait RequestSigner {
