@@ -1,8 +1,8 @@
 use std::{fmt::Debug, net::SocketAddr};
 
-use alloy_consensus::TxEnvelope;
-use alloy_json_rpc::{ErrorPayload, Id};
-use alloy_network::eip2718::Decodable2718;
+use alloy::consensus::TxEnvelope;
+use alloy::network::eip2718::Decodable2718;
+use alloy::rpc::json_rpc::{ErrorPayload, Id};
 use alloy_primitives::B256;
 use axum::{
     extract::State,
@@ -121,8 +121,8 @@ pub async fn ingest_rpc_handler(
 
     // MUST be eth_sendRawTransaction method
     if method != "eth_sendRawTransaction" {
-        return Ok(Json(alloy_json_rpc::Response {
-            payload: alloy_json_rpc::ResponsePayload::<(), ()>::Failure(ErrorPayload {
+        return Ok(Json(alloy::rpc::json_rpc::Response {
+            payload: alloy::rpc::json_rpc::ResponsePayload::<(), ()>::Failure(ErrorPayload {
                 code: -6969,
                 message: "Method not found".to_string(),
                 data: None,
@@ -140,8 +140,8 @@ pub async fn ingest_rpc_handler(
     let hash = include_tx(state, tx).await?;
 
     // return JSON-RPC response
-    let resp = alloy_json_rpc::Response {
-        payload: alloy_json_rpc::ResponsePayload::<_, ()>::Success(hash),
+    let resp = alloy::rpc::json_rpc::Response {
+        payload: alloy::rpc::json_rpc::ResponsePayload::<_, ()>::Success(hash),
         id,
     };
 

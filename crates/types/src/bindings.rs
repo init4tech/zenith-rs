@@ -3,7 +3,7 @@
 use alloy_primitives::{Address, Bytes, FixedBytes, U256};
 
 mod mint {
-    alloy_sol_types::sol!(
+    alloy::sol_types::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         function mint(address to, uint256 amount);
     );
@@ -13,7 +13,7 @@ pub use mint::mintCall;
 mod zenith {
     use super::*;
 
-    alloy_sol_types::sol!(
+    alloy::sol_types::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Zenith,
@@ -107,7 +107,7 @@ mod zenith {
 mod passage {
     use super::*;
 
-    alloy_sol_types::sol!(
+    alloy::sol_types::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Passage,
@@ -207,7 +207,7 @@ mod passage {
 mod orders {
     use super::*;
 
-    alloy_sol_types::sol!(
+    alloy::sol_types::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Orders,
@@ -303,7 +303,7 @@ mod orders {
 mod transactor {
     use super::*;
 
-    alloy_sol_types::sol!(
+    alloy::sol_types::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Transactor,

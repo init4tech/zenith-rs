@@ -1,10 +1,9 @@
 mod tests {
     use std::str::FromStr;
 
-    use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
+    use alloy::consensus::{SignableTransaction, TxEip1559, TxEnvelope};
+    use alloy::signers::{local::PrivateKeySigner, SignerSync};
     use alloy_primitives::{bytes, Address, TxKind, U256};
-    use alloy_signer::SignerSync;
-    use alloy_signer_local::PrivateKeySigner;
 
     use builder::config::BuilderConfig;
     use builder::tasks::{block::BlockBuilder, tx_poller};

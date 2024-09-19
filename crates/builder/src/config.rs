@@ -1,11 +1,12 @@
 use crate::signer::{LocalOrAws, SignerError};
-use alloy_network::{Ethereum, EthereumWallet};
-use alloy_primitives::Address;
-use alloy_provider::{
+use alloy::network::{Ethereum, EthereumWallet};
+use alloy::providers::fillers::BlobGasFiller;
+use alloy::providers::{
     fillers::{ChainIdFiller, FillProvider, GasFiller, JoinFill, NonceFiller, WalletFiller},
     Identity, ProviderBuilder, RootProvider,
 };
-use alloy_transport::BoxTransport;
+use alloy::transports::BoxTransport;
+use alloy_primitives::Address;
 use std::{borrow::Cow, env, num, str::FromStr};
 use zenith_types::Zenith;
 
@@ -81,7 +82,7 @@ pub enum ConfigError {
     Hex(#[from] hex::FromHexError),
     /// Error connecting to the provider
     #[error("failed to connect to provider: {0}")]
-    Provider(#[from] alloy_transport::TransportError),
+    Provider(#[from] alloy::transports::TransportError),
     /// Error connecting to the signer
     #[error("failed to connect to signer: {0}")]
     Signer(#[from] SignerError),
@@ -97,7 +98,10 @@ impl ConfigError {
 /// Provider type used by this transaction
 pub type Provider = FillProvider<
     JoinFill<
-        JoinFill<JoinFill<JoinFill<Identity, GasFiller>, NonceFiller>, ChainIdFiller>,
+        JoinFill<
+            Identity,
+            JoinFill<GasFiller, JoinFill<BlobGasFiller, JoinFill<NonceFiller, ChainIdFiller>>>,
+        >,
         WalletFiller<EthereumWallet>,
     >,
     RootProvider<BoxTransport>,
