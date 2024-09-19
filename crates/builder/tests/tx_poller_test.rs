@@ -71,6 +71,11 @@ mod tests {
             tx_pool_url: "http://localhost:9000".into(),
             tx_pool_cache_duration: 5,
             tx_pool_poll_interval: 5,
+            oauth_client_id: "some_client_id".into(),
+            oauth_client_secret: "some_client_secret".into(),
+            oauth_authenticate_url: "http://localhost:8080".into(),
+            oauth_token_url: "http://localhost:8080".into(),
+            oauth_audience: "some_audience".into(),
         };
         (BlockBuilder::new(&config), config)
     }

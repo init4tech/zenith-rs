@@ -1,3 +1,8 @@
+use crate::{
+    config::{Provider, ZenithInstance},
+    signer::LocalOrAws,
+    tasks::block::InProgressBlock,
+};
 use alloy::consensus::SimpleCoder;
 use alloy::network::{TransactionBuilder, TransactionBuilder4844};
 use alloy::providers::{Provider as _, WalletProvider};
@@ -7,15 +12,16 @@ use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
 use alloy_primitives::{FixedBytes, U256};
 use eyre::{bail, eyre};
+use oauth2::{
+    basic::BasicClient, basic::BasicTokenType, reqwest::http_client, AuthUrl, ClientId,
+    ClientSecret, EmptyExtraTokenFields, StandardTokenResponse, TokenResponse, TokenUrl,
+};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, instrument, trace};
 use zenith_types::{SignRequest, SignResponse, Zenith};
 
-use crate::{
-    config::{Provider, ZenithInstance},
-    signer::LocalOrAws,
-    tasks::block::InProgressBlock,
-};
+/// OAuth Audience Claim Name, required param by IdP for client credential grant
+const OAUTH_AUDIENCE_CLAIM: &str = "audience";
 
 /// Submits sidecars in ethereum txns to mainnet ethereum
 pub struct SubmitTask {
@@ -43,10 +49,13 @@ impl SubmitTask {
             "pinging quincey for signature"
         );
 
+        let token = self.fetch_oauth_token().await?;
+
         let resp: reqwest::Response = self
             .client
             .post(self.config.quincey_url.as_ref())
             .json(sig_request)
+            .bearer_auth(token.access_token().secret())
             .send()
             .await?
             .error_for_status()?;
@@ -57,6 +66,24 @@ impl SubmitTask {
         trace!(body = %String::from_utf8_lossy(&body), "response body");
 
         serde_json::from_slice(&body).map_err(Into::into)
+    }
+
+    async fn fetch_oauth_token(
+        &self,
+    ) -> eyre::Result<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>> {
+        let client = BasicClient::new(
+            ClientId::new(self.config.oauth_client_id.clone()),
+            Some(ClientSecret::new(self.config.oauth_client_secret.clone())),
+            AuthUrl::new(self.config.oauth_authenticate_url.clone())?,
+            Some(TokenUrl::new(self.config.oauth_token_url.clone())?),
+        );
+
+        let token_result = client
+            .exchange_client_credentials()
+            .add_extra_param(OAUTH_AUDIENCE_CLAIM, self.config.oauth_audience.clone())
+            .request(http_client)?;
+
+        Ok(token_result)
     }
 
     #[instrument(skip_all)]
