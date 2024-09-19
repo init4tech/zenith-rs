@@ -1,4 +1,4 @@
-use alloy_consensus::{SidecarBuilder, SidecarCoder, TxEnvelope};
+use alloy::consensus::{SidecarBuilder, SidecarCoder, TxEnvelope};
 use alloy_primitives::{keccak256, Bytes, B256};
 use std::{sync::OnceLock, time::Duration};
 use tokio::{select, sync::mpsc, task::JoinHandle};

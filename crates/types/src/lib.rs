@@ -34,23 +34,24 @@ use alloy_primitives::{address, Address};
 pub const MINTER_ADDRESS: Address = address!("00000000000000000000746f6b656e61646d696e");
 
 /// A [`RequestSigner`] signs [`SignRequest`]s by delegating to an
-/// [`alloy_signer::Signer`].
+/// [`alloy::signers::Signer`].
 pub trait RequestSigner {
     /// Signs a [`SignRequest`] and returns the [`alloy_primitives::Signature`].
     fn sign_request(
         &self,
         request: &SignRequest,
-    ) -> impl std::future::Future<Output = Result<alloy_primitives::Signature, alloy_signer::Error>> + Send;
+    ) -> impl std::future::Future<Output = Result<alloy_primitives::Signature, alloy::signers::Error>>
+           + Send;
 }
 
 impl<T> RequestSigner for T
 where
-    T: alloy_signer::Signer + Send + Sync,
+    T: alloy::signers::Signer + Send + Sync,
 {
     async fn sign_request(
         &self,
         request: &SignRequest,
-    ) -> Result<alloy_primitives::Signature, alloy_signer::Error> {
+    ) -> Result<alloy_primitives::Signature, alloy::signers::Error> {
         let hash = request.signing_hash();
         self.sign_hash(&hash).await
     }

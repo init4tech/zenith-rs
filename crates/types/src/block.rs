@@ -1,8 +1,8 @@
 use std::{marker::PhantomData, sync::OnceLock};
 
 use crate::Zenith::BlockHeader as ZenithHeader;
-use alloy_consensus::TxEnvelope;
-use alloy_eips::eip2718::{Decodable2718, Encodable2718};
+use alloy::consensus::TxEnvelope;
+use alloy::eips::eip2718::{Decodable2718, Encodable2718};
 use alloy_primitives::{keccak256, Address, B256};
 use alloy_rlp::Decodable;
 
@@ -222,9 +222,9 @@ where
 
 #[cfg(test)]
 mod test {
-    use alloy_consensus::{Signed, TxEip1559};
+    use alloy::consensus::{Signed, TxEip1559};
+    use alloy::signers::Signature;
     use alloy_primitives::{b256, bytes, Address, U256};
-    use alloy_signer::Signature;
 
     use super::*;
 

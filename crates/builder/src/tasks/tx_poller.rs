@@ -1,7 +1,7 @@
 use std::time::Duration;
 use std::{collections::HashMap, time};
 
-use alloy_consensus::TxEnvelope;
+use alloy::consensus::TxEnvelope;
 use alloy_primitives::TxHash;
 
 use eyre::Error;

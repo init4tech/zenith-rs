@@ -3,7 +3,7 @@ members = [ "crates/*" ]
 resolver = "2"
 
 [workspace.package]
-version = "0.7.3"
+version = "0.8.0"
 edition = "2021"
 rust-version = "1.76"
 authors = ["Zenith Contributors"]
@@ -16,21 +16,8 @@ alloy-primitives = { version = "0.8", features = ["serde", "tiny-keccak"] }
 alloy-sol-types = { version = "0.8", features = ["json"] }
 alloy-rlp = { version = "0.3.4" }
 
-alloy-contract = { version = "0.3", default-features = false }
-alloy-consensus = { version = "0.3", default-features = false, features = ["k256", "kzg"] }
-alloy-eips = { version = "0.3", default-features = false}
-alloy-json-rpc = { version = "0.3", default-features = false }
-alloy-network = { version = "0.3", default-features = false }
-alloy-node-bindings = { version = "0.3", default-features = false }
-alloy-provider = { version = "0.3", default-features = false, features = ["ws"] }
-alloy-rpc-types = { version = "0.3", default-features = false }
-alloy-rpc-types-eth = { version = "0.3", default-features = false }
-alloy-rpc-client = { version = "0.3", default-features = false }
-alloy-signer = { version = "0.3", default-features = false }
-alloy-signer-local = { version = "0.3", default-features = false }
-alloy-signer-aws = { version = "0.3", default-features = false }
-alloy-transport = { version = "0.3", default-features = false }
-alloy-transport-http = { version = "0.3", default-features = false }
+alloy = { version = "=0.3.6", features = ["full", "json-rpc", "signer-aws"] }
+alloy-contract = { version = "=0.3.6", features = ["pubsub"] }
 
 aws-config = "1.1.7"
 aws-sdk-kms = "1.15.0"

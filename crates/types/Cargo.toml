@@ -13,16 +13,14 @@ repository.workspace = true
 [dependencies]
 alloy-primitives.workspace = true
 alloy-sol-types.workspace = true
+alloy-rlp.workspace = true
 
-alloy-consensus.workspace = true
+alloy.workspace = true
 alloy-contract.workspace = true
-alloy-eips.workspace = true
-alloy-signer.workspace = true
 
 serde.workspace = true
-alloy-rlp.workspace = true
 
 [dev-dependencies]
 serde_json = "1.0.116"
-alloy-signer-local.workspace = true
+alloy.workspace = true
 tokio = { version = "1.37.0", features = ["macros"] }
