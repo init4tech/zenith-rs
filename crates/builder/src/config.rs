@@ -26,6 +26,11 @@ const ROLLUP_BLOCK_GAS_LIMIT: &str = "ROLLUP_BLOCK_GAS_LIMIT";
 const TX_POOL_URL: &str = "TX_POOL_URL";
 const TX_POOL_POLL_INTERVAL: &str = "TX_POOL_POLL_INTERVAL";
 const TX_POOL_CACHE_DURATION: &str = "TX_POOL_CACHE_DURATION";
+const OAUTH_CLIENT_ID: &str = "OAUTH_CLIENT_ID";
+const OAUTH_CLIENT_SECRET: &str = "OAUTH_CLIENT_SECRET";
+const OAUTH_AUTHENTICATE_URL: &str = "OAUTH_AUTHENTICATE_URL";
+const OAUTH_TOKEN_URL: &str = "OAUTH_TOKEN_URL";
+const OAUTH_AUDIENCE: &str = "OAUTH_AUDIENCE";
 
 /// Configuration for a builder running a specific rollup on a specific host
 /// chain.
@@ -64,6 +69,16 @@ pub struct BuilderConfig {
     pub tx_pool_poll_interval: u64,
     /// Duration in seconds transactions can live in the tx-pool cache.
     pub tx_pool_cache_duration: u64,
+    /// OAuth client ID for the builder.
+    pub oauth_client_id: String,
+    /// OAuth client secret for the builder.
+    pub oauth_client_secret: String,
+    /// OAuth authenticate URL for the builder for performing OAuth logins.
+    pub oauth_authenticate_url: String,
+    /// OAuth token URL for the builder to get an OAuth2 access token
+    pub oauth_token_url: String,
+    /// OAuth audience for the builder.
+    pub oauth_audience: String,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -130,6 +145,11 @@ impl BuilderConfig {
             tx_pool_url: load_url(TX_POOL_URL)?,
             tx_pool_poll_interval: load_u64(TX_POOL_POLL_INTERVAL)?,
             tx_pool_cache_duration: load_u64(TX_POOL_CACHE_DURATION)?,
+            oauth_client_id: load_string(OAUTH_CLIENT_ID)?,
+            oauth_client_secret: load_string(OAUTH_CLIENT_SECRET)?,
+            oauth_authenticate_url: load_string(OAUTH_AUTHENTICATE_URL)?,
+            oauth_token_url: load_string(OAUTH_TOKEN_URL)?,
+            oauth_audience: load_string(OAUTH_AUDIENCE)?,
         })
     }
 
