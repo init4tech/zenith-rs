@@ -7,29 +7,34 @@ mod tests {
 
     use builder::config::BuilderConfig;
     use builder::tasks::{block::BlockBuilder, tx_poller};
+    use reqwest::Url;
 
     #[ignore = "integration test"]
     #[tokio::test]
     async fn test_tx_roundtrip() {
         // create a new test environment
-        let client = reqwest::Client::new();
         let (_, config) = setup_test_builder().await;
+
+        // post a tx to the cache
+        post_tx(config.clone()).await;
+
+        // assert that we parsed at least one transaction
+        let got = tx_poller::TxPoller::new(&config).check_tx_pool().await.unwrap();
+        assert!(!got.is_empty());
+    }
+
+    async fn post_tx(config: BuilderConfig) {
+        // create a new test environment
+        let client = reqwest::Client::new();
 
         // create a new signed test transaction
         let wallet = PrivateKeySigner::random();
         let tx_envelope = new_test_tx(&wallet);
 
-        // send that transaction to ensure there is at least one tx in pool to parse
-        let _ = client
-            .post(config.tx_pool_url.to_string() + "/add")
-            .json(&tx_envelope)
-            .send()
-            .await
-            .unwrap();
+        let url: Url = Url::parse(&config.tx_pool_url).unwrap().join("add").unwrap();
 
-        // assert that we parsed at least one transaction
-        let got = tx_poller::TxPoller::new(&config).check_tx_pool().await.unwrap();
-        assert!(!got.is_empty());
+        // send that transaction to ensure there is at least one tx in pool to parse
+        let _ = client.post(url).json(&tx_envelope).send().await.unwrap();
     }
 
     // returns a new signed test transaction with blank values
