@@ -5,7 +5,7 @@ use alloy::consensus::TxEnvelope;
 use alloy_primitives::TxHash;
 
 use eyre::Error;
-use reqwest::Client;
+use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
 use serde_json::from_slice;
 use tokio::sync::mpsc;
@@ -42,7 +42,8 @@ impl TxPoller {
     /// unique transactions that haven't been seen before are sent into the builder pipeline.
     pub async fn check_tx_pool(&mut self) -> Result<Vec<TxEnvelope>, Error> {
         let mut unique: Vec<TxEnvelope> = Vec::new();
-        let result = self.client.get(self.config.tx_pool_url.to_string() + "/get").send().await?;
+        let url: Url = Url::parse(&self.config.tx_pool_url)?.join("get")?;
+        let result = self.client.get(url).send().await?;
         let parsed: Vec<TxPoolResponse> = from_slice(&result.bytes().await?)?;
 
         parsed.iter().for_each(|entry| {
