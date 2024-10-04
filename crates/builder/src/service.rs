@@ -124,7 +124,7 @@ pub async fn ingest_rpc_handler(
         return Ok(Json(alloy::rpc::json_rpc::Response {
             payload: alloy::rpc::json_rpc::ResponsePayload::<(), ()>::Failure(ErrorPayload {
                 code: -6969,
-                message: "Method not found".to_string(),
+                message: "Method not found".into(),
                 data: None,
             }),
             id,
