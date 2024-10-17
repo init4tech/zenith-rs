@@ -3,13 +3,13 @@ use crate::{
     signer::LocalOrAws,
     tasks::block::InProgressBlock,
 };
-use alloy::consensus::SimpleCoder;
 use alloy::network::{TransactionBuilder, TransactionBuilder4844};
 use alloy::providers::{Provider as _, WalletProvider};
 use alloy::rpc::types::eth::TransactionRequest;
 use alloy::signers::Signer;
 use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
+use alloy::{consensus::SimpleCoder, eips::eip1559::ETHEREUM_BLOCK_GAS_LIMIT};
 use alloy_primitives::{FixedBytes, U256};
 use eyre::{bail, eyre};
 use oauth2::{
@@ -48,6 +48,10 @@ impl SubmitTask {
             ru_chain_id = %sig_request.ru_chain_id,
             "pinging quincey for signature"
         );
+
+        if sig_request.gas_limit > U256::from(ETHEREUM_BLOCK_GAS_LIMIT) {
+            eyre::bail!("gas limit too high");
+        }
 
         let token = self.fetch_oauth_token().await?;
 
