@@ -14,7 +14,7 @@ use alloy_primitives::{FixedBytes, U256};
 use eyre::{bail, eyre};
 use oauth2::{
     basic::BasicClient, basic::BasicTokenType, reqwest::http_client, AuthUrl, ClientId,
-    ClientSecret, EmptyExtraTokenFields, StandardTokenResponse, TokenResponse, TokenUrl,
+    ClientSecret, EmptyExtraTokenFields, Scope, StandardTokenResponse, TokenResponse, TokenUrl,
 };
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, instrument, trace};
@@ -49,7 +49,13 @@ impl SubmitTask {
             "pinging quincey for signature"
         );
 
+        tracing::info!("fetching oauth token");
+
         let token = self.fetch_oauth_token().await?;
+
+        tracing::info!("fetched oauth token");
+        tracing::info!("quincey url: {}", self.config.quincey_url);
+        tracing::info!("signing request: {:?}", sig_request);
 
         let resp: reqwest::Response = self
             .client
@@ -62,8 +68,8 @@ impl SubmitTask {
 
         let body = resp.bytes().await?;
 
-        debug!(bytes = body.len(), "retrieved response body");
-        trace!(body = %String::from_utf8_lossy(&body), "response body");
+        tracing::info!(bytes = body.len(), "retrieved response body");
+        tracing::info!(body = %String::from_utf8_lossy(&body), "response body");
 
         serde_json::from_slice(&body).map_err(Into::into)
     }
@@ -78,10 +84,14 @@ impl SubmitTask {
             Some(TokenUrl::new(self.config.oauth_token_url.clone())?),
         );
 
+        tracing::info!("performing client credential grant");
+
         let token_result = client
             .exchange_client_credentials()
             .add_extra_param(OAUTH_AUDIENCE_CLAIM, self.config.oauth_audience.clone())
             .request(http_client)?;
+
+        tracing::info!("token fetched successfully");
 
         Ok(token_result)
     }
