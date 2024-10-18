@@ -89,7 +89,6 @@ impl SubmitTask {
         let token_result = client
             .exchange_client_credentials()
             .add_extra_param(OAUTH_AUDIENCE_CLAIM, self.config.oauth_audience.clone())
-            .add_scope(Scope::new("openid".to_string()))
             .request(http_client)?;
 
         tracing::info!("token fetched successfully");
