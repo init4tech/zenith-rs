@@ -49,13 +49,13 @@ impl SubmitTask {
             "pinging quincey for signature"
         );
 
-        tracing::debug!("fetching oauth token");
+        tracing::info!("fetching oauth token");
 
         let token = self.fetch_oauth_token().await?;
 
         tracing::info!("fetched oauth token");
-        tracing::debug!("quincey url: {}", self.config.quincey_url);
-        tracing::debug!("signing request: {:?}", sig_request);
+        tracing::info!("quincey url: {}", self.config.quincey_url);
+        tracing::info!("signing request: {:?}", sig_request);
 
         let resp: reqwest::Response = self
             .client
@@ -68,8 +68,8 @@ impl SubmitTask {
 
         let body = resp.bytes().await?;
 
-        debug!(bytes = body.len(), "retrieved response body");
-        trace!(body = %String::from_utf8_lossy(&body), "response body");
+        tracing::info!(bytes = body.len(), "retrieved response body");
+        tracing::info!(body = %String::from_utf8_lossy(&body), "response body");
 
         serde_json::from_slice(&body).map_err(Into::into)
     }
