@@ -14,7 +14,7 @@ use alloy_primitives::{FixedBytes, U256};
 use eyre::{bail, eyre};
 use oauth2::{
     basic::BasicClient, basic::BasicTokenType, reqwest::http_client, AuthUrl, ClientId,
-    ClientSecret, EmptyExtraTokenFields, StandardTokenResponse, TokenResponse, TokenUrl,
+    ClientSecret, EmptyExtraTokenFields, Scope, StandardTokenResponse, TokenResponse, TokenUrl,
 };
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, instrument, trace};
@@ -89,6 +89,7 @@ impl SubmitTask {
         let token_result = client
             .exchange_client_credentials()
             .add_extra_param(OAUTH_AUDIENCE_CLAIM, self.config.oauth_audience.clone())
+            .add_scope(Scope::new("openid".to_string()))
             .request(http_client)?;
 
         tracing::info!("token fetched successfully");
