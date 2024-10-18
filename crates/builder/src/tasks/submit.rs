@@ -49,6 +49,8 @@ impl SubmitTask {
             "pinging quincey for signature"
         );
 
+        tracing::debug!("fetching oauth token");
+
         let token = self.fetch_oauth_token().await?;
 
         tracing::info!("fetched oauth token");
