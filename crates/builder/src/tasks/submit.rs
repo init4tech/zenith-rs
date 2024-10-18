@@ -51,6 +51,10 @@ impl SubmitTask {
 
         let token = self.fetch_oauth_token().await?;
 
+        tracing::info!("fetched oauth token");
+        tracing::debug!("quincey url: {}", self.config.quincey_url);
+        tracing::debug!("signing request: {:?}", sig_request);
+
         let resp: reqwest::Response = self
             .client
             .post(self.config.quincey_url.as_ref())
