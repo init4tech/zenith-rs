@@ -3,6 +3,7 @@ name: Docker ECR Push
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 
 permissions:
