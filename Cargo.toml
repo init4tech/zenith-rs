@@ -5,7 +5,7 @@ resolver = "2"
 [workspace.package]
 version = "0.10.0"
 edition = "2021"
-rust-version = "1.76"
+rust-version = "1.81"
 authors = ["Zenith Contributors"]
 homepage = "https://github.com/init4tt/zenith"
 repository = "https://github.com/init4tt/zenith"
