@@ -84,10 +84,14 @@ impl SubmitTask {
             Some(TokenUrl::new(self.config.oauth_token_url.clone())?),
         );
 
+        tracing::info!("performing client credential grant");
+
         let token_result = client
             .exchange_client_credentials()
             .add_extra_param(OAUTH_AUDIENCE_CLAIM, self.config.oauth_audience.clone())
             .request(http_client)?;
+
+        tracing::info!("token fetched successfully");
 
         Ok(token_result)
     }
