@@ -42,7 +42,7 @@ impl TxPoller {
     /// unique transactions that haven't been seen before are sent into the builder pipeline.
     pub async fn check_tx_pool(&mut self) -> Result<Vec<TxEnvelope>, Error> {
         let mut unique: Vec<TxEnvelope> = Vec::new();
-        let url: Url = Url::parse(&self.config.tx_pool_url)?.join("get")?;
+        let url: Url = Url::parse(&self.config.tx_pool_url)?.join("transactions")?;
         let result = self.client.get(url).send().await?;
         let parsed: Vec<TxPoolResponse> = from_slice(&result.bytes().await?)?;
 

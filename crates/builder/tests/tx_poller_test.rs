@@ -31,7 +31,7 @@ mod tests {
         let wallet = PrivateKeySigner::random();
         let tx_envelope = new_test_tx(&wallet);
 
-        let url: Url = Url::parse(&config.tx_pool_url).unwrap().join("add").unwrap();
+        let url: Url = Url::parse(&config.tx_pool_url).unwrap().join("transactions").unwrap();
 
         // send that transaction to ensure there is at least one tx in pool to parse
         let _ = client.post(url).json(&tx_envelope).send().await.unwrap();
