@@ -11,7 +11,7 @@ use alloy::signers::Signer;
 use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
 use alloy_primitives::{FixedBytes, U256};
-use eyre::{bail, eyre};
+use eyre::bail;
 use oauth2::{
     basic::BasicClient, basic::BasicTokenType, reqwest::http_client, AuthUrl, ClientId,
     ClientSecret, EmptyExtraTokenFields, StandardTokenResponse, TokenResponse, TokenUrl,
@@ -89,10 +89,10 @@ impl SubmitTask {
     #[instrument(skip_all)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
         let ru_chain_id = U256::from(self.config.ru_chain_id);
-        let next_block_height = self.next_host_block_height().await?;
+        let block_height = self.host_block_height().await?;
 
         Ok(SignRequest {
-            host_block_number: U256::from(next_block_height),
+            host_block_number: U256::from(block_height),
             host_chain_id: U256::from(self.config.host_chain_id),
             ru_chain_id,
             gas_limit: U256::from(self.config.rollup_block_gas_limit),
@@ -114,10 +114,9 @@ impl SubmitTask {
         Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
     }
 
-    async fn next_host_block_height(&self) -> eyre::Result<u64> {
+    async fn host_block_height(&self) -> eyre::Result<u64> {
         let result = self.provider.get_block_number().await?;
-        let next = result.checked_add(1).ok_or_else(|| eyre!("next host block height overflow"))?;
-        Ok(next)
+        Ok(result)
     }
 
     async fn submit_transaction(
