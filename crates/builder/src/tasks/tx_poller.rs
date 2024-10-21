@@ -41,8 +41,10 @@ impl TxPoller {
         let mut unique: Vec<TxEnvelope> = Vec::new();
 
         let url: Url = Url::parse(&self.config.tx_pool_url)?.join("transactions")?;
-        let result = self.client.get(url).send().await?;
-        let response: TxPoolResponse = from_slice(result.text().await?.as_bytes())?;
+        let response = self.client.get(url).send().await?;
+        let result = response.text().await?;
+        dbg!(&result);
+        let response: TxPoolResponse = from_slice(result.as_bytes())?;
 
         response.transactions.iter().for_each(|entry| {
             self.check_cache(entry.clone(), &mut unique);
