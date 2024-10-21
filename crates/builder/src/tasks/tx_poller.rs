@@ -15,10 +15,7 @@ pub use crate::config::BuilderConfig;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TxPoolResponse {
-    #[serde(rename = "key")]
-    key: TxHash,
-    #[serde(rename = "value")]
-    value: TxEnvelope,
+    transactions: Vec<TxEnvelope>,
 }
 
 /// Implements a poller for the block builder to pull transactions from the transaction pool.
@@ -42,12 +39,13 @@ impl TxPoller {
     /// unique transactions that haven't been seen before are sent into the builder pipeline.
     pub async fn check_tx_pool(&mut self) -> Result<Vec<TxEnvelope>, Error> {
         let mut unique: Vec<TxEnvelope> = Vec::new();
-        let url: Url = Url::parse(&self.config.tx_pool_url)?.join("get")?;
-        let result = self.client.get(url).send().await?;
-        let parsed: Vec<TxPoolResponse> = from_slice(&result.bytes().await?)?;
 
-        parsed.iter().for_each(|entry| {
-            self.check_cache(entry.value.clone(), &mut unique);
+        let url: Url = Url::parse(&self.config.tx_pool_url)?.join("transactions")?;
+        let result = self.client.get(url).send().await?;
+        let response: TxPoolResponse = from_slice(result.text().await?.as_bytes())?;
+
+        response.transactions.iter().for_each(|entry| {
+            self.check_cache(entry.clone(), &mut unique);
         });
 
         Ok(unique)
