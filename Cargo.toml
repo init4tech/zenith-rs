@@ -3,7 +3,7 @@ members = ["crates/*"]
 resolver = "2"
 
 [workspace.package]
-version = "0.9.1"
+version = "0.10.0"
 edition = "2021"
 rust-version = "1.76"
 authors = ["Zenith Contributors"]
@@ -17,8 +17,8 @@ alloy-sol-types = { version = "=0.8.8", features = ["json"] }
 
 alloy-rlp = { version = "0.3.4" }
 
-alloy = { version = "=0.4.2", features = ["full", "json-rpc", "signer-aws"] }
-alloy-contract = { version = "=0.4.2", features = ["pubsub"] }
+alloy = { version = "=0.5.2", features = ["full", "json-rpc", "signer-aws"] }
+alloy-contract = { version = "=0.5.2", features = ["pubsub"] }
 
 aws-config = "1.1.7"
 aws-sdk-kms = "1.15.0"
