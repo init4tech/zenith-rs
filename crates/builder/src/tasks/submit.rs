@@ -3,7 +3,7 @@ use crate::{
     signer::LocalOrAws,
     tasks::block::InProgressBlock,
 };
-use alloy::consensus::SimpleCoder;
+use alloy::consensus::{constants::GWEI_TO_WEI, SimpleCoder};
 use alloy::network::{TransactionBuilder, TransactionBuilder4844};
 use alloy::providers::{Provider as _, WalletProvider};
 use alloy::rpc::types::eth::TransactionRequest;
@@ -111,7 +111,7 @@ impl SubmitTask {
     ) -> eyre::Result<TransactionRequest> {
         let data = Zenith::submitBlockCall { header, v, r, s, _4: Default::default() }.abi_encode();
         let sidecar = in_progress.encode_blob::<SimpleCoder>().build()?;
-        Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data))
+        Ok(TransactionRequest::default().with_blob_sidecar(sidecar).with_input(data).with_max_priority_fee_per_gas(GWEI_TO_WEI * 16))
     }
 
     async fn host_block_height(&self) -> eyre::Result<u64> {
