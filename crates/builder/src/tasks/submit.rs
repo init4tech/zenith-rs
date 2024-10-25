@@ -4,7 +4,6 @@ use crate::{
     tasks::block::InProgressBlock,
 };
 use alloy::consensus::{constants::GWEI_TO_WEI, SimpleCoder};
-use alloy::eips::BlockId;
 use alloy::eips::BlockNumberOrTag;
 use alloy::network::{TransactionBuilder, TransactionBuilder4844};
 use alloy::providers::{Provider as _, WalletProvider};
@@ -147,8 +146,9 @@ impl SubmitTask {
             .with_from(self.provider.default_signer_address())
             .with_to(self.config.zenith_address);
 
-        let sim_block = BlockId::Number(BlockNumberOrTag::Number(resp.req.host_block_number.to()));
-        if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).block(sim_block).await {
+        if let Err(TransportError::ErrorResp(e)) =
+            self.provider.call(&tx).block(BlockNumberOrTag::Pending.into()).await
+        {
             error!(
                 code = e.code,
                 message = %e.message,
