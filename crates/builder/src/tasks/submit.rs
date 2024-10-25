@@ -3,13 +3,16 @@ use crate::{
     signer::LocalOrAws,
     tasks::block::InProgressBlock,
 };
-use alloy::consensus::SimpleCoder;
-use alloy::network::{TransactionBuilder, TransactionBuilder4844};
 use alloy::providers::{Provider as _, WalletProvider};
 use alloy::rpc::types::eth::TransactionRequest;
 use alloy::signers::Signer;
 use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
+use alloy::{consensus::SimpleCoder, eips::BlockNumberOrTag};
+use alloy::{
+    eips::BlockId,
+    network::{TransactionBuilder, TransactionBuilder4844},
+};
 use alloy_primitives::{FixedBytes, U256};
 use eyre::bail;
 use oauth2::{
@@ -141,7 +144,8 @@ impl SubmitTask {
             .with_from(self.provider.default_signer_address())
             .with_to(self.config.zenith_address);
 
-        if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).await {
+        let sim_block = BlockId::Number(BlockNumberOrTag::Number(resp.req.host_block_number.to()));
+        if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).block(sim_block).await {
             error!(
                 code = e.code,
                 message = %e.message,
@@ -149,7 +153,7 @@ impl SubmitTask {
                 "error in transaction submission"
             );
 
-            bail!("bailing transaction submission")
+            bail!("simulation failed, bailing transaction submission")
         }
 
         tracing::debug!(
