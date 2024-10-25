@@ -12,6 +12,7 @@ use alloy::signers::Signer;
 use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
 use alloy_primitives::{FixedBytes, U256};
+use alloy_sol_types::SolError;
 use eyre::{bail, eyre};
 use oauth2::{
     basic::BasicClient, basic::BasicTokenType, reqwest::http_client, AuthUrl, ClientId,
@@ -19,10 +20,19 @@ use oauth2::{
 };
 use tokio::{sync::mpsc, task::JoinHandle};
 use tracing::{debug, error, instrument, trace};
-use zenith_types::{SignRequest, SignResponse, Zenith};
+use zenith_types::{
+    SignRequest, SignResponse,
+    Zenith::{self, IncorrectHostBlock},
+};
 
 /// OAuth Audience Claim Name, required param by IdP for client credential grant
 const OAUTH_AUDIENCE_CLAIM: &str = "audience";
+
+pub enum ControlFlow {
+    Retry,
+    Skip,
+    Done,
+}
 
 /// Submits sidecars in ethereum txns to mainnet ethereum
 pub struct SubmitTask {
@@ -128,7 +138,7 @@ impl SubmitTask {
         &self,
         resp: &SignResponse,
         in_progress: &InProgressBlock,
-    ) -> eyre::Result<()> {
+    ) -> eyre::Result<ControlFlow> {
         let v: u8 = resp.sig.v().y_parity_byte() + 27;
         let r: FixedBytes<32> = resp.sig.r().into();
         let s: FixedBytes<32> = resp.sig.s().into();
@@ -156,6 +166,10 @@ impl SubmitTask {
                 "error in transaction submission"
             );
 
+            if e.message.contains(&hex::encode(IncorrectHostBlock::SELECTOR)) {
+                return Ok(ControlFlow::Retry);
+            }
+
             bail!("simulation failed, bailing transaction submission")
         }
 
@@ -176,11 +190,11 @@ impl SubmitTask {
             "dispatched to network"
         );
 
-        Ok(())
+        Ok(ControlFlow::Done)
     }
 
     #[instrument(skip_all, err)]
-    async fn handle_inbound(&self, in_progress: &InProgressBlock) -> eyre::Result<()> {
+    async fn handle_inbound(&self, in_progress: &InProgressBlock) -> eyre::Result<ControlFlow> {
         tracing::info!(txns = in_progress.len(), "handling inbound block");
         let sig_request = self.construct_sig_request(in_progress).await?;
 
@@ -217,8 +231,33 @@ impl SubmitTask {
         let handle = tokio::spawn(async move {
             loop {
                 if let Some(in_progress) = inbound.recv().await {
-                    if let Err(e) = self.handle_inbound(&in_progress).await {
-                        error!(%e, "error in block submission. Dropping block.");
+                    let mut retries = 0;
+                    loop {
+                        match self.handle_inbound(&in_progress).await {
+                            Ok(ControlFlow::Retry) => {
+                                retries += 1;
+                                if retries > 3 {
+                                    tracing::error!(
+                                        "error handling inbound block: too many retries"
+                                    );
+                                    break;
+                                }
+                                tracing::error!("error handling inbound block: retrying");
+                                tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+                            }
+                            Ok(ControlFlow::Skip) => {
+                                tracing::info!("skipping block");
+                                break;
+                            }
+                            Ok(ControlFlow::Done) => {
+                                tracing::info!("block landed successfully");
+                                break;
+                            }
+                            Err(e) => {
+                                tracing::error!(error = %e, "error handling inbound block");
+                                break;
+                            }
+                        }
                     }
                 } else {
                     tracing::debug!("upstream task gone");
