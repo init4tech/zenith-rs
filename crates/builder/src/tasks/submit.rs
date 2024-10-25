@@ -13,7 +13,7 @@ use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
 use alloy_primitives::{FixedBytes, U256};
 use alloy_sol_types::SolError;
-use eyre::{bail, eyre};
+use eyre::eyre;
 use oauth2::{
     basic::BasicClient, basic::BasicTokenType, reqwest::http_client, AuthUrl, ClientId,
     ClientSecret, EmptyExtraTokenFields, StandardTokenResponse, TokenResponse, TokenUrl,
@@ -166,11 +166,11 @@ impl SubmitTask {
                 "error in transaction submission"
             );
 
-            if e.message.contains(&hex::encode(IncorrectHostBlock::SELECTOR)) {
+            if e.as_revert_data() == Some(IncorrectHostBlock::SELECTOR.into()) {
                 return Ok(ControlFlow::Retry);
             }
 
-            bail!("simulation failed, bailing transaction submission")
+            return Ok(ControlFlow::Skip);
         }
 
         tracing::debug!(
@@ -179,7 +179,13 @@ impl SubmitTask {
             "sending transaction to network"
         );
 
-        let result = self.provider.send_transaction(tx).await?;
+        let result = match self.provider.send_transaction(tx).await {
+            Ok(result) => result,
+            Err(e) => {
+                error!(error = %e, "error sending transaction");
+                return Ok(ControlFlow::Skip);
+            }
+        };
 
         let tx_hash = result.tx_hash();
 
@@ -196,7 +202,13 @@ impl SubmitTask {
     #[instrument(skip_all, err)]
     async fn handle_inbound(&self, in_progress: &InProgressBlock) -> eyre::Result<ControlFlow> {
         tracing::info!(txns = in_progress.len(), "handling inbound block");
-        let sig_request = self.construct_sig_request(in_progress).await?;
+        let sig_request = match self.construct_sig_request(in_progress).await {
+            Ok(sig_request) => sig_request,
+            Err(e) => {
+                tracing::error!(error = %e, "error constructing signature request");
+                return Ok(ControlFlow::Skip);
+            }
+        };
 
         tracing::debug!(
             host_block_number = %sig_request.host_block_number,
@@ -214,7 +226,13 @@ impl SubmitTask {
             );
             SignResponse { req: sig_request, sig }
         } else {
-            let resp: SignResponse = self.sup_quincey(&sig_request).await?;
+            let resp: SignResponse = match self.sup_quincey(&sig_request).await {
+                Ok(resp) => resp,
+                Err(e) => {
+                    tracing::error!(error = %e, "error acquiring signature from quincey");
+                    return Ok(ControlFlow::Retry);
+                }
+            };
             tracing::debug!(
                 sig = hex::encode(resp.sig.as_bytes()),
                 "acquired signature from quincey"
