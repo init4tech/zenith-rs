@@ -265,10 +265,12 @@ impl SubmitTask {
                                 tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
                             }
                             Ok(ControlFlow::Skip) => {
+                                retries = 0;
                                 tracing::info!("skipping block");
                                 break;
                             }
                             Ok(ControlFlow::Done) => {
+                                retries = 0;
                                 tracing::info!("block landed successfully");
                                 break;
                             }
