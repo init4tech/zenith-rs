@@ -144,7 +144,8 @@ impl SubmitTask {
         let tx = self
             .build_blob_tx(header, v, r, s, in_progress)?
             .with_from(self.provider.default_signer_address())
-            .with_to(self.config.zenith_address);
+            .with_to(self.config.zenith_address)
+            .with_gas_limit(1_000_000);
 
         if let Err(TransportError::ErrorResp(e)) =
             self.provider.call(&tx).block(BlockNumberOrTag::Pending.into()).await
