@@ -119,7 +119,7 @@ impl SubmitTask {
         Ok(TransactionRequest::default()
             .with_blob_sidecar(sidecar)
             .with_input(data)
-            .with_max_priority_fee_per_gas(GWEI_TO_WEI * 16))
+            .with_max_priority_fee_per_gas((GWEI_TO_WEI * 16) as u128))
     }
 
     async fn next_host_block_height(&self) -> eyre::Result<u64> {
