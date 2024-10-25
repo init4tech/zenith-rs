@@ -10,8 +10,13 @@ use alloy::rpc::types::eth::TransactionRequest;
 use alloy::signers::Signer;
 use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
+use alloy::{consensus::SimpleCoder, eips::BlockNumberOrTag};
+use alloy::{
+    eips::BlockId,
+    network::{TransactionBuilder, TransactionBuilder4844},
+};
 use alloy_primitives::{FixedBytes, U256};
-use eyre::bail;
+use eyre::{bail, eyre};
 use oauth2::{
     basic::BasicClient, basic::BasicTokenType, reqwest::http_client, AuthUrl, ClientId,
     ClientSecret, EmptyExtraTokenFields, StandardTokenResponse, TokenResponse, TokenUrl,
@@ -89,10 +94,10 @@ impl SubmitTask {
     #[instrument(skip_all)]
     async fn construct_sig_request(&self, contents: &InProgressBlock) -> eyre::Result<SignRequest> {
         let ru_chain_id = U256::from(self.config.ru_chain_id);
-        let block_height = self.host_block_height().await?;
+        let next_block_height = self.next_host_block_height().await?;
 
         Ok(SignRequest {
-            host_block_number: U256::from(block_height),
+            host_block_number: U256::from(next_block_height),
             host_chain_id: U256::from(self.config.host_chain_id),
             ru_chain_id,
             gas_limit: U256::from(self.config.rollup_block_gas_limit),
@@ -117,9 +122,10 @@ impl SubmitTask {
             .with_max_priority_fee_per_gas(GWEI_TO_WEI * 16))
     }
 
-    async fn host_block_height(&self) -> eyre::Result<u64> {
+    async fn next_host_block_height(&self) -> eyre::Result<u64> {
         let result = self.provider.get_block_number().await?;
-        Ok(result)
+        let next = result.checked_add(1).ok_or_else(|| eyre!("next host block height overflow"))?;
+        Ok(next)
     }
 
     async fn submit_transaction(
@@ -144,7 +150,8 @@ impl SubmitTask {
             .with_from(self.provider.default_signer_address())
             .with_to(self.config.zenith_address);
 
-        if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).await {
+        let sim_block = BlockId::Number(BlockNumberOrTag::Number(resp.req.host_block_number.to()));
+        if let Err(TransportError::ErrorResp(e)) = self.provider.call(&tx).block(sim_block).await {
             error!(
                 code = e.code,
                 message = %e.message,
@@ -152,7 +159,7 @@ impl SubmitTask {
                 "error in transaction submission"
             );
 
-            bail!("bailing transaction submission")
+            bail!("simulation failed, bailing transaction submission")
         }
 
         tracing::debug!(
