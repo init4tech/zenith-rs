@@ -4,17 +4,14 @@ use crate::{
     tasks::block::InProgressBlock,
 };
 use alloy::consensus::{constants::GWEI_TO_WEI, SimpleCoder};
+use alloy::eips::BlockId;
+use alloy::eips::BlockNumberOrTag;
 use alloy::network::{TransactionBuilder, TransactionBuilder4844};
 use alloy::providers::{Provider as _, WalletProvider};
 use alloy::rpc::types::eth::TransactionRequest;
 use alloy::signers::Signer;
 use alloy::sol_types::SolCall;
 use alloy::transports::TransportError;
-use alloy::{consensus::SimpleCoder, eips::BlockNumberOrTag};
-use alloy::{
-    eips::BlockId,
-    network::{TransactionBuilder, TransactionBuilder4844},
-};
 use alloy_primitives::{FixedBytes, U256};
 use eyre::{bail, eyre};
 use oauth2::{
