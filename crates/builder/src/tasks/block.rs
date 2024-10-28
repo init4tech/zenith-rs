@@ -101,7 +101,8 @@ impl BlockBuilder {
 
         let (sender, mut inbound) = mpsc::unbounded_channel();
 
-        let mut sleep = Box::pin(tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer)));
+        let mut sleep =
+            Box::pin(tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer)));
 
         let handle = tokio::spawn(
             async move {
@@ -119,6 +120,8 @@ impl BlockBuilder {
                                 }
                             }
 
+                            // Reset the sleep timer, as we want to do so when (and only when) our sleep future has elapsed,
+                            // irrespective of whether we have any blocks to build.
                             sleep.as_mut().reset(tokio::time::Instant::now() + Duration::from_secs(self.incoming_transactions_buffer));
                         }
                         item_res = inbound.recv() => {
