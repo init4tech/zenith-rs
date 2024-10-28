@@ -101,10 +101,11 @@ impl BlockBuilder {
 
         let (sender, mut inbound) = mpsc::unbounded_channel();
 
+        let sleep = tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer));
+
         let handle = tokio::spawn(
             async move {
                 loop {
-                    let sleep: tokio::time::Sleep = tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer));
                     tokio::pin!(sleep);
 
                     select! {
@@ -118,6 +119,8 @@ impl BlockBuilder {
                                     break
                                 }
                             }
+
+                            sleep = tokio::time::sleep(Duration::from_secs(self.incoming_transactions_buffer));
                         }
                         item_res = inbound.recv() => {
                             match item_res {
