@@ -1,8 +1,7 @@
-[workspace]
-members = ["crates/*"]
-resolver = "2"
+[package]
+name = "zenith-types"
+description = "Types for the zenith smart contracts"
 
-[workspace.package]
 version = "0.10.1"
 edition = "2021"
 rust-version = "1.81"
@@ -11,7 +10,7 @@ homepage = "https://github.com/init4tt/zenith"
 repository = "https://github.com/init4tt/zenith"
 license = "AGPL-3.0"
 
-[workspace.dependencies]
+[dependencies]
 alloy-primitives = { version = "0.8", features = ["serde", "tiny-keccak"] }
 alloy-sol-types = { version = "0.8", features = ["json"] }
 
@@ -20,13 +19,9 @@ alloy-rlp = { version = "0.3.4" }
 alloy = { version = "=0.5.4", features = ["full", "json-rpc", "signer-aws"] }
 alloy-contract = { version = "=0.5.4", features = ["pubsub"] }
 
-aws-config = "1.1.7"
-aws-sdk-kms = "1.15.0"
-
-hex = { package = "const-hex", version = "1", default-features = false, features = [
-    "alloc",
-] }
 serde = { version = "1.0.197", features = ["derive"] }
-tracing = "0.1.40"
 
-zenith-types = { path = "crates/types" }
+[dev-dependencies]
+serde_json = "1.0.116"
+tokio = { version = "1.37.0", features = ["macros"] }
+
