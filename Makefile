@@ -23,4 +23,4 @@ clippy:
 	@cargo clippy --all-targets --all-features -D warnings
 
 tidy:
-	@cargo clippy --all-targets --all-features -D warnings && @crago +nightly fmt --all
+	@cargo clippy --all-targets --all-features -D warnings && cargo +nightly fmt --all
