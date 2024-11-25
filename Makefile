@@ -16,8 +16,11 @@ test:
 
 .PHONY: fmt
 fmt:
-	@cargo fmt --all
+	@cargo +nightly fmt --all
 
 .PHONY: clippy
 clippy:
-	@cargo clippy --all-targets --all-features --workspace -- -D warnings
+	@cargo clippy --all-targets --all-features -D warnings
+
+tidy:
+	@cargo clippy --all-targets --all-features -D warnings && cargo +nightly fmt --all
