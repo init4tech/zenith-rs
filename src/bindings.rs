@@ -412,8 +412,6 @@ pub mod HostOrders {
     pub use super::orders::Orders::OrdersInstance as HostOrdersInstance;
 }
 
-// contra
-
 /// Contract Bindings for the Passage contract.
 #[allow(non_snake_case)]
 pub mod Passage {
@@ -425,11 +423,24 @@ pub mod Passage {
 
 pub use transactor::Transactor;
 
-/// Contrract Bindings for the RollupPassage contract.
+/// Contract Bindings for the RollupPassage contract.
 #[allow(non_snake_case)]
 pub mod RollupPassage {
     pub use super::rollup_passage::RollupPassage::*;
 
     pub use super::rollup_passage::ISignatureTransfer::*;
     pub use super::rollup_passage::UsesPermit2::*;
+}
+
+pub mod bundle_helper {
+    //! Bundle Helper contract bindings
+    alloy_sol_types::sol!(
+        #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        #[sol(rpc)]
+        BundleHelper,
+        "abi/BundleHelper.json"
+    );
+
+    pub use super::bundle_helper::Zenith::BlockHeader;
+    pub use super::bundle_helper::BundleHelper::{FillPermit2, new, submitCall};
 }
