@@ -441,6 +441,6 @@ pub mod bundle_helper {
         "abi/BundleHelper.json"
     );
 
+    pub use super::bundle_helper::BundleHelper::{new, submitCall, FillPermit2};
     pub use super::bundle_helper::Zenith::BlockHeader;
-    pub use super::bundle_helper::BundleHelper::{FillPermit2, new, submitCall};
 }
