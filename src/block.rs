@@ -223,19 +223,18 @@ where
 #[cfg(test)]
 mod test {
     use alloy::consensus::{Signed, TxEip1559};
-    use alloy::signers::Signature;
+    use alloy_primitives::PrimitiveSignature;
     use alloy_primitives::{b256, bytes, Address, U256};
 
     use super::*;
 
     #[test]
     fn encode_decode() {
-        let sig = Signature::from_scalars_and_parity(
+        let sig = PrimitiveSignature::from_scalars_and_parity(
             b256!("840cfc572845f5786e702984c2a582528cad4b49b2a10b9db1be7fca90058565"),
             b256!("25e7109ceb98168d95b09b18bbf6b685130e0562f233877d492b94eee0c5b6d1"),
             false,
-        )
-        .unwrap();
+        );
 
         let tx = ZenithTransaction::Eip1559(Signed::new_unchecked(
             TxEip1559 {
