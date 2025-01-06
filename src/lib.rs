@@ -13,7 +13,7 @@
 
 mod bindings;
 pub use bindings::{
-    bundle_helper, mintCall, HostOrders, Passage, RollupOrders, RollupPassage, Transactor, Zenith,
+    mintCall, BundleHelper, HostOrders, Passage, RollupOrders, RollupPassage, Transactor, Zenith,
 };
 
 mod block;
