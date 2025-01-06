@@ -380,6 +380,15 @@ mod rollup_passage {
     }
 }
 
+mod bundle_helper {
+    alloy_sol_types::sol!(
+        #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        #[sol(rpc)]
+        BundleHelper,
+        "abi/BundleHelper.json"
+    );
+}
+
 pub use zenith::Zenith;
 
 /// Contract Bindings for the RollupOrders contract.
@@ -432,15 +441,9 @@ pub mod RollupPassage {
     pub use super::rollup_passage::UsesPermit2::*;
 }
 
-pub mod bundle_helper {
-    //! Bundle Helper contract bindings
-    alloy_sol_types::sol!(
-        #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-        #[sol(rpc)]
-        BundleHelper,
-        "abi/BundleHelper.json"
-    );
-
-    pub use super::bundle_helper::BundleHelper::{new, submitCall, FillPermit2};
+/// Contract Bindings for the BundleHelper contract.
+#[allow(non_snake_case)]
+pub mod BundleHelper {
+    pub use super::bundle_helper::BundleHelper::*;
     pub use super::bundle_helper::Zenith::BlockHeader;
 }
