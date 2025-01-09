@@ -11,10 +11,7 @@ repository = "https://github.com/init4tech/zenith"
 license = "AGPL-3.0"
 
 [dependencies]
-alloy = { version = "=0.7.3", features = ["full", "json-rpc", "signer-aws", "rpc-types-mev"] }
-alloy-sol-types = { version = "0.8.11", features = ["json"] }
-alloy-rlp = { version = "0.3.4" }
-alloy-contract = { version = "=0.7.3", features = ["pubsub"] }
+alloy = { version = "=0.7.3", features = ["full", "json-rpc", "signer-aws", "rpc-types-mev", "rlp"] }
 
 serde = { version = "1.0.197", features = ["derive"] }
 

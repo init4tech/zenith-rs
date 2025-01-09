@@ -4,7 +4,7 @@ use crate::Zenith::BlockHeader as ZenithHeader;
 use alloy::consensus::TxEnvelope;
 use alloy::eips::eip2718::{Decodable2718, Encodable2718};
 use alloy::primitives::{keccak256, Address, B256};
-use alloy_rlp::Decodable;
+use alloy::rlp::Decodable;
 
 /// Zenith processes normal Ethereum txns.
 pub type ZenithTransaction = TxEnvelope;
@@ -216,7 +216,7 @@ where
     let encoded_txns = transactions.into_iter().map(|tx| C::encode(tx)).collect::<Vec<Vec<u8>>>();
 
     let mut buf = Vec::new();
-    alloy_rlp::Encodable::encode(&encoded_txns, &mut buf);
+    alloy::rlp::Encodable::encode(&encoded_txns, &mut buf);
     buf
 }
 
