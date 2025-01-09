@@ -1,9 +1,8 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(missing_docs)]
-use alloy_primitives::{Address, Bytes, FixedBytes, U256};
-
+use alloy::primitives::{Address, Bytes, FixedBytes, U256};
 mod mint {
-    alloy::sol_types::sol!(
+    alloy::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         function mint(address to, uint256 amount);
     );
@@ -13,7 +12,7 @@ pub use mint::mintCall;
 mod zenith {
     use super::*;
 
-    alloy::sol_types::sol!(
+    alloy::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Zenith,
@@ -107,7 +106,7 @@ mod zenith {
 mod passage {
     use super::*;
 
-    alloy::sol_types::sol!(
+    alloy::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Passage,
@@ -207,7 +206,7 @@ mod passage {
 mod orders {
     use super::*;
 
-    alloy::sol_types::sol!(
+    alloy::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Orders,
@@ -303,7 +302,7 @@ mod orders {
 mod transactor {
     use super::*;
 
-    alloy::sol_types::sol!(
+    alloy::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         Transactor,
@@ -358,7 +357,7 @@ mod transactor {
 
 mod rollup_passage {
 
-    alloy_sol_types::sol!(
+    alloy::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         RollupPassage,
@@ -381,7 +380,7 @@ mod rollup_passage {
 }
 
 mod bundle_helper {
-    alloy_sol_types::sol!(
+    alloy::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
         #[sol(rpc)]
         BundleHelper,

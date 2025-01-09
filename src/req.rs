@@ -1,4 +1,4 @@
-use alloy_primitives::{Address, Keccak256, B256, U256};
+use alloy::primitives::{Address, Keccak256, B256, U256};
 use serde::{Deserialize, Serialize};
 
 /// The domain binding for the signing service.
@@ -55,7 +55,7 @@ impl core::fmt::Display for SignRequest {
 #[cfg(test)]
 mod test {
     use super::*;
-    use alloy_primitives::b256;
+    use alloy::primitives::b256;
 
     #[test]
     fn roundtrip() {

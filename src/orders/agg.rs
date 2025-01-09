@@ -1,5 +1,5 @@
 use crate::RollupOrders;
-use alloy_primitives::{Address, U256};
+use alloy::primitives::{Address, U256};
 use std::collections::HashMap;
 
 /// Aggregated orders for a transaction or set of transactions.
@@ -67,7 +67,7 @@ impl<'a> FromIterator<&'a RollupOrders::Order> for AggregateOrders {
 #[cfg(test)]
 mod test {
     use super::*;
-    use alloy_primitives::{Address, U256};
+    use alloy::primitives::{Address, U256};
 
     const ASSET_A: Address = Address::repeat_byte(1);
     const ASSET_B: Address = Address::repeat_byte(2);
