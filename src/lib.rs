@@ -33,7 +33,7 @@ pub use req::SignRequest;
 mod resp;
 pub use resp::SignResponse;
 
-use alloy_primitives::{address, Address};
+use alloy::primitives::{address, Address};
 
 /// System address with permission to mint tokens on pre-deploys.
 pub const MINTER_ADDRESS: Address = address!("00000000000000000000746f6b656e61646d696e");
@@ -41,12 +41,12 @@ pub const MINTER_ADDRESS: Address = address!("00000000000000000000746f6b656e6164
 /// A [`RequestSigner`] signs [`SignRequest`]s by delegating to an
 /// [`alloy::signers::Signer`].
 pub trait RequestSigner {
-    /// Signs a [`SignRequest`] and returns the [`alloy_primitives::Signature`].
+    /// Signs a [`SignRequest`] and returns the [`alloy::primitives::Signature`].
     fn sign_request(
         &self,
         request: &SignRequest,
     ) -> impl std::future::Future<
-        Output = Result<alloy_primitives::PrimitiveSignature, alloy::signers::Error>,
+        Output = Result<alloy::primitives::PrimitiveSignature, alloy::signers::Error>,
     > + Send;
 }
 
@@ -57,7 +57,7 @@ where
     async fn sign_request(
         &self,
         request: &SignRequest,
-    ) -> Result<alloy_primitives::PrimitiveSignature, alloy::signers::Error> {
+    ) -> Result<alloy::primitives::PrimitiveSignature, alloy::signers::Error> {
         let hash = request.signing_hash();
         self.sign_hash(&hash).await
     }

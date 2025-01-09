@@ -1,8 +1,8 @@
+use alloy::primitives::{keccak256, Address, Bytes, B256, U256};
 use alloy::{
     eips::{eip2718::Encodable2718, BlockNumberOrTag},
     rpc::types::mev::{EthCallBundle, EthCallBundleResponse, EthSendBundle},
 };
-use alloy_primitives::{keccak256, Address, Bytes, B256, U256};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -222,7 +222,7 @@ impl ZenithCallBundle {
     /// `keccak(NUM_OF_ASSETS_LE + asset1 + NUM_OF_FILLS_LE + asset1_user1 + user1_amount2 + ... + asset1_usern + asset1_amountn + ...)`.
     /// For the number of users/fills and amounts in the host_preimage, the amounts are serialized as little-endian U256 slice.
     pub fn bundle_hash(&self) -> B256 {
-        let mut hasher = alloy_primitives::Keccak256::new();
+        let mut hasher = alloy::primitives::Keccak256::new();
 
         // Concatenate the transaction hashes, to then hash them. This is the tx_preimage.
         for tx in self.bundle.txs.iter() {
@@ -237,7 +237,7 @@ impl ZenithCallBundle {
         // 3. Concatenate the asset address.
         // 4. Prefix the number of fills.
         // 5. For each fill, concatenate the user and amount, the latter encoded as a little-endian U256 slice.
-        let mut hasher = alloy_primitives::Keccak256::new();
+        let mut hasher = alloy::primitives::Keccak256::new();
 
         // Prefix the list of users with the number of assets.
         hasher.update(U256::from(self.host_fills.len()).as_le_slice());
@@ -259,7 +259,7 @@ impl ZenithCallBundle {
         // Hash the host pre-image.
         let host_preimage = hasher.finalize();
 
-        let mut pre_image = alloy_primitives::Keccak256::new();
+        let mut pre_image = alloy::primitives::Keccak256::new();
         pre_image.update(tx_preimage.as_slice());
         pre_image.update(host_preimage.as_slice());
 

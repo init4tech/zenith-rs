@@ -3,7 +3,7 @@ use std::{marker::PhantomData, sync::OnceLock};
 use crate::Zenith::BlockHeader as ZenithHeader;
 use alloy::consensus::TxEnvelope;
 use alloy::eips::eip2718::{Decodable2718, Encodable2718};
-use alloy_primitives::{keccak256, Address, B256};
+use alloy::primitives::{keccak256, Address, B256};
 use alloy_rlp::Decodable;
 
 /// Zenith processes normal Ethereum txns.
@@ -223,8 +223,7 @@ where
 #[cfg(test)]
 mod test {
     use alloy::consensus::{Signed, TxEip1559};
-    use alloy_primitives::PrimitiveSignature;
-    use alloy_primitives::{b256, bytes, Address, U256};
+    use alloy::primitives::{b256, bytes, Address, PrimitiveSignature, U256};
 
     use super::*;
 

@@ -1,7 +1,6 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(missing_docs)]
-use alloy_primitives::{Address, Bytes, FixedBytes, U256};
-
+use alloy::primitives::{Address, Bytes, FixedBytes, U256};
 mod mint {
     alloy::sol_types::sol!(
         #[derive(Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

@@ -1,5 +1,5 @@
 use crate::SignRequest;
-use alloy_primitives::{Address, PrimitiveSignature, SignatureError};
+use alloy::primitives::{Address, PrimitiveSignature, SignatureError};
 use serde::{Deserialize, Serialize};
 
 /// A signature response from a [`RequestSigner`].
@@ -29,7 +29,7 @@ impl SignResponse {
 mod test {
     use super::*;
     use crate::{RequestSigner, SignRequest};
-    use alloy_primitives::U256;
+    use alloy::primitives::U256;
 
     #[tokio::test]
     async fn test_sign_response() {
