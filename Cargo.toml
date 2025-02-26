@@ -2,7 +2,7 @@
 name = "zenith-types"
 description = "Types for the zenith smart contracts"
 
-version = "0.14.0"
+version = "0.15.0"
 edition = "2021"
 rust-version = "1.82"
 authors = ["Zenith Contributors"]
@@ -11,7 +11,7 @@ repository = "https://github.com/init4tech/zenith"
 license = "AGPL-3.0"
 
 [dependencies]
-alloy = { version = "=0.9.2", features = ["full", "json-rpc", "signer-aws", "rpc-types-mev", "rlp"] }
+alloy = { version = "=0.11.1", features = ["full", "json-rpc", "signer-aws", "rpc-types-mev", "rlp"] }
 
 serde = { version = "1.0.197", features = ["derive"] }
 
