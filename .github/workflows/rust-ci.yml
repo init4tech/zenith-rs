@@ -1,6 +1,7 @@
 name: Rust CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -8,4 +9,4 @@ on:
 # simplest example of using the rust-base action
 jobs:
   rust-base:
-    uses: init4tech/actions/.github/workflows/rust-base.yml@main
+    uses: init4tech/actions/.github/workflows/rust-library-base.yml@main
