@@ -1,3 +1,7 @@
+# THIS REPO HAS BEEN MERGED WITH [SIGNET-SDK]
+
+[SIGNET-SDK]: https://github.com/init4tech/signet-sdk
+
 # zenith-rs
 
 Rust types & utilities for working with [Zenith](https://github.com/init4tech/zenith).
